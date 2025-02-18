@@ -8,7 +8,7 @@ export const LoginInput = ({ inputType, iconLeft }) => {
     const inputTypeFinal = inputType === "password" && isPasswordVisible ? "text" : inputType;
 
     return (
-        <div className="bg-white drop-shadow-md text-[#50534C] rounded-[16px] flex items-center w-[450px] h-[52px] px-4">
+        <div className="bg-white drop-shadow-md text-[#50534C] rounded-[16px] flex items-center w-full h-[48px] px-4">
            
             {iconLeft && (
                 <img

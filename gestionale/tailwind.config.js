@@ -19,6 +19,7 @@ export default {
             colors: {
                 background: "#ECEFF2",
                 bluPrimary: "#3DA4DD",
+                pinkPrimary: "#BB4E97"
                 
             }
         },
