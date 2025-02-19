@@ -13,8 +13,10 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                //TODO aggiungere font Marcellus e Marcellus SC
+               
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                marcellus:['Marcellus','serif'],
+                marcellusSC:['Marcellus SC','serif'],
             },
             colors: {
                 background: "#ECEFF2",

@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { TogglePasswordIcon } from "./TogglePasswordIcon";
 
+/** input component for login page inside login-form
+ * params require: inputType and iconLeft (icon on the left of the input)
+
+ */
+
 export const LoginInput = ({ inputType, iconLeft }) => {
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     
