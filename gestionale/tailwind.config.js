@@ -13,8 +13,18 @@ export default {
     theme: {
         extend: {
             fontFamily: {
+               
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                marcellus:['Marcellus','serif'],
+                marcellusSC:['Marcellus SC','serif'],
             },
+            colors: {
+                background: "#ECEFF2",
+                bluPrimary: "#3DA4DD",
+                pinkPrimary: "#BB4E97",
+                navbar: "#C8C8C80",
+                
+            }
         },
     },
     plugins: [],
