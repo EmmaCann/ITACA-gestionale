@@ -1,13 +1,13 @@
-// import { Link } from '@inertiajs/react';
 import React from 'react';
+import { Navbar } from '../components/molecules/navbar';
+
 const Home = () => {
     return (
-        <div>
-            <h1>Benvenuto in Laravel + Inertia.js + React!</h1>
+        <div className="bg-[#ECEFF2] flex w-screen h-screen ">
+            <Navbar/>
+          
         </div>
     );
 };
 
 export default Home;
-
-
