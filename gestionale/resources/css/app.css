@@ -1,3 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+/* Rimuove l'icona predefinita del calendario nei browser principali */
+.date-input::-webkit-calendar-picker-indicator {
+    display: none !important;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  
+  .date-input {
+    position: relative;
+    background: transparent;
+    border: none;
+    outline: none;
+  }
+  

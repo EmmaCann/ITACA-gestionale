@@ -1,9 +1,9 @@
 import React from "react";
-import { LogoItaca } from "../molecules/atoms/logo-itaca.jsx";
+import { LogoItaca } from "./molecules/atoms/logo-itaca.jsx";
 
 //icone navbar
 import { IoMdHome } from "react-icons/io";
-import { IconTextNavbar } from "../molecules/atoms/iconTextNavbar.jsx";
+import { IconTextNavbar } from "./molecules/atoms/iconTextNavbar.jsx";
 import { FaRegCreditCard } from "react-icons/fa";
 import { FaUserDoctor } from "react-icons/fa6";
 import { FaPencilAlt } from "react-icons/fa";
@@ -15,7 +15,7 @@ import { MdOutlineLogout } from "react-icons/md";
 export const Navbar = () => {
     const commonClass = "w-full h-auto flex justify-center items-center ";
     return (
-        <div className="bg-[#C8C8C8] w-[200px] h-[98%] relative flex flex-col m-2 rounded-[20px] opacity-[60%]">
+        <div className="bg-navbar w-[200px] h-[98%] relative flex flex-col m-2 rounded-[20px] opacity-[60%] drop-shadow">
             <div className={`${commonClass} pr-2 pt-1 `}>
                 <LogoItaca width="w-[180px]" height="h-[95px]" />
             </div>

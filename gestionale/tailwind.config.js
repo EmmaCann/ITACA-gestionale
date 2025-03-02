@@ -20,9 +20,11 @@ export default {
             },
             colors: {
                 background: "#ECEFF2",
-                bluPrimary: "#3DA4DD",
+                bluPrimary: "#3DA4DD", 
+                bluSecondary :"#6BB2DF",
                 pinkPrimary: "#BB4E97",
-                navbar: "#C8C8C80",
+                pinkSecondary:"#D084B7",
+                navbar: "#C8C8C8",
                 
             }
         },
