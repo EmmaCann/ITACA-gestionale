@@ -40,9 +40,9 @@ const Home = () => {
             <div className="flex-1 flex flex-col relative">
                 <TopBar />
 
-                <div className="flex-1 overflow-y-auto">
+                <div className="flex-1 overflow-y-auto ">
+                    <FAB />
 
-                    
                 </div>
             </div>
         </div>
