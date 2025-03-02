@@ -17,6 +17,7 @@ export default {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
                 marcellus:['Marcellus','serif'],
                 marcellusSC:['Marcellus SC','serif'],
+                inter:['Inter','serif'],
             },
             colors: {
                 background: "#ECEFF2",
