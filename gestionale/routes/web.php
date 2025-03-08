@@ -17,5 +17,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware([AuthSession::class])->group(function () {
 
-    Route::get('/home', [HomeController::class, 'index'])->name('home');
+    Route::get('/home/admin', [HomeController::class, 'admin'])->name('home_admin');
+    // Route::get('/home/staff', [HomeController::class, 'staff'])->name('home_staff');
+    // Route::get('/home/paziente', [HomeController::class, 'paziente'])->name('home_paziente');
+    
 });

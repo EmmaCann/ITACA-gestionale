@@ -8,23 +8,24 @@ use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
-    public function index(Request $request)
+    public function admin()
     {
-     
-        if (!Session::has('logged_user')) {
-            return redirect()->route('login_form')->withErrors(['errore' => 'Devi effettuare l’accesso per accedere alla Home']);
-        }
-
-        // redirect per home con react
-        // return Inertia::render('Home', [
-        //     'user' => Session::get('logged_user')
-        // ]);
-        
-        //redirect per test backend 
-        $user = Session::get('logged_user'); // Recupera l'utente dalla sessione
-         return Inertia::render('Home', [
+        return Inertia::render('Home', [
             'user' => Session::get('logged_user')
         ]);
     }
-}
 
+    // public function staff()
+    // {
+    //     return Inertia::render('HomeStaff', [
+    //         'user' => Session::get('logged_user')
+    //     ]);
+    // }
+
+    // public function paziente()
+    // {
+    //     return Inertia::render('HomePaziente', [
+    //         'user' => Session::get('logged_user')
+    //     ]);
+    // }
+}
