@@ -20,7 +20,7 @@ export const Navbar = () => {
                 <LogoItaca width="w-[180px]" height="h-[95px]" />
             </div>
             <div
-                className={`${commonClass} gap-8 mt-6   flex-col justify-between`}
+                className={`${commonClass} gap-2 mt-2   flex-col justify-between`}
             >
                  <div className={`${commonClass} absolute top-[130px]`}>
                  <IconTextNavbar icon={IoMdHome} text="HOME" iconSize={22} />
@@ -28,7 +28,7 @@ export const Navbar = () => {
                 
             
                 <div
-                    className={`  middle-container  ${commonClass} gap-8 mb-2 flex-col  absolute top-[220px] `}
+                    className={`  middle-container  ${commonClass} gap-4 mb-2 flex-col  absolute top-[210px] `}
                 >
                     <IconTextNavbar
                         icon={FaRegCreditCard}
@@ -52,7 +52,7 @@ export const Navbar = () => {
                         iconSize={16}
                     />
                 </div>
-                <div className={`${commonClass} absolute bottom-[140px]`}>
+                <div className={`${commonClass} absolute bottom-[130px]`}>
                     <IconTextNavbar
                         icon={FaEuroSign}
                         text="TARIFFARIO"
@@ -60,7 +60,7 @@ export const Navbar = () => {
                     />
                 </div>
             </div>
-            <div className={`${commonClass} gap-4  flex-col absolute bottom-4`}>
+            <div className={`${commonClass}   flex-col absolute bottom-4`}>
                 <IconTextNavbar
                     icon={IoMdInformationCircleOutline}
                     text="CHI SIAMO?"
