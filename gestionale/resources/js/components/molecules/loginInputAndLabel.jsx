@@ -10,8 +10,8 @@ export const LoginInputAndLabel = ({ label, type, iconLeft, placeholder, value, 
                 placeholder={placeholder}
                 iconLeft={iconLeft}
                 value={value}
-                name={name} // ✅ Passa il nome al componente input
-                onTextChanged={onChange} // ✅ Passa l'intero evento `e`
+                name={name} 
+                onTextChanged={onChange} 
             />
         </div>
     );

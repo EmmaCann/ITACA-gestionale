@@ -8,7 +8,7 @@ export const LoginInput = ({ inputType, placeholder, iconLeft, onTextChanged, na
 
     const handleChange = (event) => {
         if (onTextChanged) {
-            onTextChanged(event); // ✅ Passiamo l'evento intero
+            onTextChanged(event); 
         }
     };
 
@@ -21,7 +21,7 @@ export const LoginInput = ({ inputType, placeholder, iconLeft, onTextChanged, na
                 type={inputTypeFinal}
                 placeholder={placeholder}
                 value={value}
-                name={name} // ✅ Assicura che il nome sia passato
+                name={name}
                 onChange={handleChange}
                 className="w-full text-[#50534C] text-[14px] text-start focus:outline-none px-4"
             />

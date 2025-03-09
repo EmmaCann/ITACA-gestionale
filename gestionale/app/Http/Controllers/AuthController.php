@@ -17,52 +17,47 @@ class AuthController extends Controller
      */
     public function showLoginForm()
     {
-        return Inertia::render('Login'); 
+        return Inertia::render('Login');
     }
 
     public function login(Request $request)
-{
-    // Log per vedere cosa arriva nel backend
-    Log::info("🔍 Richiesta ricevuta nel login", ['input' => $request->all()]);
-
-    // Validazione dei dati
-    $request->validate([
-        'username' => 'required|string',
-        'password' => 'required|string',
-    ]);
-
-    $user = Utente::where('username', $request->username)->first();
-
-    if ($user && Hash::check($request->password, $user->password)) {
-        Session::put('logged_user', [
-            'id_utente' => $user->id,
-            'username' => $user->username,
-            'nome' => $user->nome,
-            'cognome' => $user->cognome,
-            'ruolo' => $user->ruolo,
+    {
+        // Validazione dei dati
+        $request->validate([
+            'username' => 'required|string',
+            'password' => 'required|string',
         ]);
-        Session::regenerate();
 
-        // Determina la URL di reindirizzamento in base al ruolo
-        $redirectUrl = match ($user->ruolo) {
-            'admin' => route('home_admin'),
-            'staff' => route('home_staff'),
-            'paziente' => route('home_paziente'),
-            default => route('login_form'),
-        };
+        $user = Utente::where('username', $request->username)->first();
 
-        // Log della risposta inviata
-        Log::info("✅ Login riuscito, redirect a:", ['redirect_url' => $redirectUrl]);
+        if ($user && Hash::check($request->password, $user->password)) {
+            Session::put('logged_user', [
+                'id_utente' => $user->id,
+                'username' => $user->username,
+                'nome' => $user->nome,
+                'cognome' => $user->cognome,
+                'ruolo' => $user->ruolo,
+            ]);
+            Session::regenerate();
 
-        return response()->json(['success' => true, 'redirect_url' => $redirectUrl]);
+            // Determina la URL di reindirizzamento in base al ruolo
+            $redirectUrl = match ($user->ruolo) {
+                'admin' => route('home_admin'),
+                'staff' => route('home_staff'),
+                'paziente' => route('home_paziente'),
+                default => route('login_form'),
+            };
+
+
+            return response()->json(['success' => true, 'redirect_url' => $redirectUrl]);
+        }
+
+
+
+        return response()->json(['errore' => "Ops! C'è qualcosa che non va"], 401);
     }
 
-    Log::error("❌ Errore di login: credenziali non valide", ['username' => $request->username]);
 
-    return response()->json(['errore' => "Ops! C'è qualcosa che non va"], 401);
-}
-
-    
 
     public function logout()
     {

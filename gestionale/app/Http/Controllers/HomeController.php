@@ -15,17 +15,17 @@ class HomeController extends Controller
         ]);
     }
 
-    // public function staff()
-    // {
-    //     return Inertia::render('HomeStaff', [
-    //         'user' => Session::get('logged_user')
-    //     ]);
-    // }
+    public function staff()
+    {
+        return Inertia::render('HomeStaff', [
+            'user' => Session::get('logged_user')
+        ]);
+    }
 
-    // public function paziente()
-    // {
-    //     return Inertia::render('HomePaziente', [
-    //         'user' => Session::get('logged_user')
-    //     ]);
-    // }
+    public function paziente()
+    {
+        return Inertia::render('HomePaziente', [
+            'user' => Session::get('logged_user')
+        ]);
+    }
 }
