@@ -1,7 +1,7 @@
 import React from "react";
 import { IoIosSearch } from "react-icons/io";
 
-export const SearchBar = () => {
+export const SearchBar = ({isTopBar}) => {
   
         return (
           <div className=" flex justify-center rounded-[20px] bg-white h-[28px] w-[270px] items-center mr-2">
