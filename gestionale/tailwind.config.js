@@ -26,6 +26,8 @@ export default {
                 pinkSecondary: "#D084B7",
                 navbar: "#C8C8C8",
                 navbarActive: "#ECEFF2",
+                bgContainer:"#DFE0E0",
+                
             }
         },
     },

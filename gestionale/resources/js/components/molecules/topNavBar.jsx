@@ -1,4 +1,5 @@
 import React from "react";
+import {usePage} from "@inertiajs/react"
 import { SearchBar } from "../molecules/atoms/searchBar.jsx";
 import { DatePicker } from "./datePicker.jsx";
 import { IoMdNotificationsOutline } from "react-icons/io";
@@ -6,6 +7,8 @@ import { FiMessageSquare } from "react-icons/fi";
 import { WelcomeMessage } from "../molecules/atoms/welcomeMessage.jsx";
 
 export const TopNavBar = () => {
+const {url}=usePage();  //otteniamo l'url della pagina in cui ci troviamo al momento
+
 const iconsClass= " w-[20px] h-[20px] cursor-pointer" 
     return (
         <div className="bg-navbar opacity-[60%] w-full h-[55px] rounded-[20px] flex flex-row shadow-xs ">
@@ -14,7 +17,8 @@ const iconsClass= " w-[20px] h-[20px] cursor-pointer"
                 <DatePicker/>
             </div>
             <div className="flex flex-row justify-end items-center w-full gap-4 mr-4">
-                <SearchBar/>
+                {/* Nascondiamo la SearchBar se siamo nella pagina Pazienti */}
+                { !url.startsWith("/pazienti") && <SearchBar isTopBar={true} /> }
                 <IoMdNotificationsOutline className={iconsClass} />
                 <FiMessageSquare className={iconsClass} />
             </div>
