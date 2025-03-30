@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
-import { FaUser } from "react-icons/fa";
-import { FaCalendarAlt } from "react-icons/fa";
-import { FaPhoneAlt } from "react-icons/fa";
+import {
+    FaUser,
+    FaCalendarAlt,
+    FaPhoneAlt,
+    FaRegThumbsUp,
+} from "react-icons/fa";
 import { MdOutlineEmail } from "react-icons/md";
-import { FaRegThumbsUp } from "react-icons/fa6";
+import { toast } from "react-toastify";
+import { creaUtente } from "@/data/api/utenti";
+import { baseCall } from "../../../data/api/baseCall";
+
 const ModalContentAggiungiUtente = ({
     tipoIniziale = "paziente",
     onSubmit,
@@ -12,6 +18,8 @@ const ModalContentAggiungiUtente = ({
 }) => {
     const [tipoUtente, setTipoUtente] = useState(tipoIniziale);
     const [formData, setFormData] = useState({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [terapistiOptions, setTerapistiOptions] = useState([]);
     const [terapistaSelezionato, setTerapistaSelezionato] = useState(null);
 
     useEffect(() => {
@@ -30,11 +38,26 @@ const ModalContentAggiungiUtente = ({
         { value: "staff", label: "Staff" },
     ];
 
-    const terapistiOptions = [
-        { value: "rossi", label: "Dr. Mario Rossi" },
-        { value: "bianchi", label: "Dr.ssa Lucia Bianchi" },
-        { value: "verdi", label: "Dr. Giovanni Verdi" },
-    ];
+   
+    useEffect(() => {
+        if (tipoUtente === "paziente") {
+            fetchTerapisti();
+        }
+    }, [tipoUtente]);
+
+    const fetchTerapisti = async () => {
+        try {
+            const response = await baseCall({
+                endpoint: "/terapisti",
+                method: "GET",
+            });
+            console.log(response.data);
+            setTerapistiOptions(Object.values(response.data));
+        } catch (error) {
+            toast.error("Errore nel recupero dei terapisti");
+            console.error("Errore terapisti:", error);
+        }
+    };
 
     const handleTipoChange = (option) => {
         setTipoUtente(option.value);
@@ -42,7 +65,7 @@ const ModalContentAggiungiUtente = ({
         setTerapistaSelezionato(null);
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         const data = {
             tipoUtente,
             ...formData,
@@ -50,14 +73,37 @@ const ModalContentAggiungiUtente = ({
                 terapista: terapistaSelezionato,
             }),
         };
-        onSubmit(data);
-        onClose();
+
+        setIsSubmitting(true);
+
+        try {
+            const response = await creaUtente(data);
+            toast.success("Utente creato con successo!");
+            onSubmit?.(response);
+            onClose();
+        } catch (error) {
+            console.error("Errore completo:", error);
+
+            if (error.response?.data?.errors) {
+                const validationErrors = error.response.data.errors;
+                Object.values(validationErrors).forEach((errorMessages) => {
+                    errorMessages.forEach((msg) => toast.error(msg));
+                });
+            } else {
+                toast.error(
+                    "Errore nella creazione: " +
+                        (error.message || "Errore sconosciuto")
+                );
+            }
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const inputWrapper =
         "flex items-center gap-3 border border-gray-300 rounded-[12px] px-4 py-2 bg-white";
     const inputStyle =
-        "flex-1 border-none outline-none  text-[14px] placeholder-gray-400 font-marcellus";
+        "flex-1 border-none outline-none text-[14px] placeholder-gray-400 font-marcellus";
 
     return (
         <div className="flex flex-col h-full overflow-hidden">
@@ -108,7 +154,7 @@ const ModalContentAggiungiUtente = ({
                         </label>
                         <div className={inputWrapper}>
                             <FaCalendarAlt
-                                className="text-gray-500 "
+                                className="text-gray-500"
                                 size={14}
                             />
                             <input
@@ -155,11 +201,13 @@ const ModalContentAggiungiUtente = ({
                             Terapista
                         </label>
                         <Select
-                            options={terapistiOptions}
+                           options={Array.isArray(terapistiOptions) ? terapistiOptions : []}
                             value={terapistaSelezionato}
                             onChange={setTerapistaSelezionato}
                             placeholder="Seleziona un terapista"
                             className="text-[14px]"
+                            menuPlacement="auto"
+                            maxMenuHeight={100}
                         />
                     </div>
                 ) : (
@@ -193,17 +241,26 @@ const ModalContentAggiungiUtente = ({
                 <button
                     onClick={onClose}
                     className="bg-gray-200 hover:bg-gray-300 px-8 py-2 rounded-[12px] font-marcellus text-gray-700 transition-colors duration-200"
+                    disabled={isSubmitting}
                 >
                     Chiudi
                 </button>
 
                 <button
                     onClick={handleSubmit}
-                    className="flex items-center gap-3 border border-gray-300 rounded-[12px] px-4 py-2 bg-white hover:bg-gray-100 font-marcellus text-gray-700 transition-colors duration-200"
+                    className={`flex items-center gap-3 border border-gray-300 rounded-[12px] px-4 py-2 font-marcellus transition duration-200 ${
+                        isSubmitting
+                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                            : "bg-white hover:bg-gray-100 text-gray-700"
+                    }`}
+                    disabled={isSubmitting}
                 >
-                    
-                    Aggiungi utente!
-                    <FaRegThumbsUp  className="text-gray-700 text-sm" size={16} color="green" />
+                    {isSubmitting ? "Aggiungendo..." : "Aggiungi utente!"}
+                    <FaRegThumbsUp
+                        className="text-gray-700 text-sm"
+                        size={16}
+                        color="green"
+                    />
                 </button>
             </div>
         </div>

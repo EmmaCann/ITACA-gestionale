@@ -9,6 +9,8 @@ use App\Http\Controllers\UtenteController;
 // });
 
 Route::post('/utenti', [UtenteController::class, 'store'])->name('utenti.store');
+Route::get('/terapisti', [UtenteController::class, 'terapisti'])->name('utenti.terapisti');
+
 
 Route::get('/', fn () => Inertia::render('Home'))->name('home');
 Route::get('/home', fn () => Inertia::render('Home'))->name('home');

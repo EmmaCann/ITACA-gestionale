@@ -29,6 +29,7 @@ import React from "react";
 import { Navbar } from "../components/navbar";
 import { TopBar } from "../components/topBar";
 import { FAB } from "../components/molecules/FAB.jsx";
+import { ToastContainer } from "react-toastify";
 
 const Home = ({ children }) => {
     return (
@@ -51,7 +52,9 @@ const Home = ({ children }) => {
                     <FAB />
                 </div>
             </div>
+            <ToastContainer position="top-right" autoClose={2000} />
         </div>
+     
     );
 };
 

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Http\Controllers;
 
@@ -26,7 +26,8 @@ class UtenteController extends Controller
         ]);
 
         // Genera username univoco
-        $baseUsername = Str::slug($validated['nome'] . '.' . $validated['cognome'], '.');
+        $cognomeCompatto = str_replace(' ', '', $validated['cognome']);
+        $baseUsername = Str::slug($validated['nome'], '') . '.' . Str::slug($cognomeCompatto, '');
         $username = $baseUsername;
         $counter = 1;
 
@@ -67,5 +68,22 @@ class UtenteController extends Controller
             'message' => 'Utente creato con successo',
             'utente' => $utente->load(['staffDati', 'cartellaClinica']),
         ], 201);
+    }
+
+
+    public function terapisti()
+    {
+        $terapisti = Utente::where('ruolo', 'staff')
+            ->select('id', 'nome', 'cognome')
+            ->get()
+            ->map(function ($utente) {
+                return [
+                    'value' => $utente->id,
+                    'label' => 'Dr. ' . $utente->nome . ' ' . $utente->cognome,
+                ];
+            })
+            ->values(); 
+
+        return response()->json($terapisti);
     }
 }
