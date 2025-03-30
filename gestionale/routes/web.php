@@ -2,11 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\UtenteController;
 
 // Route::get('/', function () {
 //     return Inertia::render('Home');
 // });
 
+Route::post('/utenti', [UtenteController::class, 'store'])->name('utenti.store');
 
 Route::get('/', fn () => Inertia::render('Home'))->name('home');
 Route::get('/home', fn () => Inertia::render('Home'))->name('home');
