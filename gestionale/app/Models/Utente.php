@@ -1,16 +1,16 @@
-
 <?php
+
 namespace App\Models;
-use Illuminate\Database\Eloquent\Model;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-// use App\Models\StaffDati;
-// use App\Models\CartellaClinica;
-// use App\Models\Appuntamento;
-// use App\Models\Pagamento;
-// use App\Models\ListaAttesa;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
 
 class Utente extends Authenticatable
 {
+    use HasFactory, Notifiable;
+
     protected $table = 'utente';
 
     protected $fillable = [
@@ -24,11 +24,21 @@ class Utente extends Authenticatable
         'ruolo',
     ];
 
+    protected $hidden = [
+        'password',
+    ];
+
     protected $casts = [
         'nascita' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    // Cripta la password automaticamente
+    public function setPasswordAttribute($value)
+    {
+        $this->attributes['password'] = Hash::make($value);
+    }
 
     // Relazioni
     public function staffDati()
