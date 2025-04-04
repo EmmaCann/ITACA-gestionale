@@ -11,6 +11,12 @@ use Illuminate\Validation\Rule;
 
 class UtenteController extends Controller
 {
+
+    public function indexPazienti()
+    {
+        return Utente::where('ruolo', 'paziente')->get();
+    }
+
     public function store(Request $request)
     {
         // Validazione base
@@ -82,7 +88,7 @@ class UtenteController extends Controller
                     'label' => 'Dr. ' . $utente->nome . ' ' . $utente->cognome,
                 ];
             })
-            ->values(); 
+            ->values();
 
         return response()->json($terapisti);
     }

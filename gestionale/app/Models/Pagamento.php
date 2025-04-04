@@ -12,7 +12,10 @@ class Pagamento extends Model
         'terapista_id',
         'data',
         'importo',
+        'nome',
+        'cognome',
     ];
+    
 
     protected $casts = [
         'data' => 'date',
