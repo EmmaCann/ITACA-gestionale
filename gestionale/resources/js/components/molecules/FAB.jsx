@@ -4,8 +4,8 @@ import { ItemFab } from "../molecules/atoms/itemFab.jsx";
 import { MdEditCalendar, MdOutlineBadge } from "react-icons/md";
 import { FaPersonWalking } from "react-icons/fa6";
 
-import CustomModal from "../molecules/atoms/customModal.jsx";
-import ModalContentAggiungiUtente from "../molecules/atoms/ModalContentAggiungiUtente.jsx"; 
+import CustomModal from "../customModal.jsx";
+import ModalContentAggiungiUtente from "./ModalContentAggiungiUtente.jsx"; 
 
 export const FAB = () => {
     const [isOpen, setIsOpen] = useState(false);

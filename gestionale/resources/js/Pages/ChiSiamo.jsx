@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Home from "./Home";
-import CustomModal from "../components/molecules/atoms/customModal.jsx"; 
+import CustomModal from "../components/customModal.jsx"; 
 
 const ChiSiamo = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
