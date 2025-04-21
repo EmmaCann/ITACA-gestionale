@@ -3,7 +3,7 @@ import { MdEuro } from "react-icons/md";
 import CustomModal from "../../customModal";
 import ModalContentAggiungiPagamento from "../modalContentAggiungiPagamento";
 
-export const AggiungiPagamentoButton = () => {
+export const AggiungiPagamentoButton = ({ onPagamentoAggiunto }) => {
     const [open, setOpen] = useState(false);
 
     return (
@@ -25,7 +25,7 @@ export const AggiungiPagamentoButton = () => {
                 <ModalContentAggiungiPagamento
                     onClose={() => setOpen(false)}
                     onSubmit={(data) => {
-                        console.log("Pagamento aggiunto:", data);
+                        onPagamentoAggiunto(data); 
                     }}
                 />
             </CustomModal>

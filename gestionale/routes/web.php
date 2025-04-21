@@ -13,6 +13,7 @@ Route::get('/get-pazienti', [UtenteController::class, 'indexPazienti']);
 Route::get('/terapisti', [UtenteController::class, 'terapisti'])->name('utenti.terapisti');
 Route::post('/pagamenti', [PagamentoController::class, 'store'])->name('pagamento.store');
 Route::get('/pagamenti/stats', [PagamentoController::class, 'stats']);
+Route::get('/pagamenti/dettagli-stats', [PagamentoController::class, 'dettagliStats']);
 
 
 

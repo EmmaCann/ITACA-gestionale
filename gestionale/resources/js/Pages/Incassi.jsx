@@ -1,9 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import Home from "./Home";
 import { BoxIncassiContainer } from "../components/molecules/boxIncassiContainer";
 import { AggiungiPagamentoButton } from "../components/molecules/atoms/aggiungiPagementoButton";
 
 const Incassi = () => {
+    const [reloadTrigger, setReloadTrigger] = useState(false);
+
+    const handleNuovoPagamento = () => {
+       
+        setReloadTrigger((prev) => !prev);
+    };
+    
+    
     return (
         <Home>
             {/* Contenitore principale diviso in due colonne */}
@@ -11,7 +19,8 @@ const Incassi = () => {
                 
                 {/* Colonna Sinistra: Box Incassi */}
                 <div className="w-fit h-full  p-4">
-                    <BoxIncassiContainer />
+                <BoxIncassiContainer reloadTrigger={reloadTrigger} />
+                
                 </div>
 
                 {/* Colonna Destra: Contenuto Variabile */}
@@ -19,7 +28,7 @@ const Incassi = () => {
                     
                     {/* Riga superiore con il bottone "Aggiungi Pagamento" */}
                     <div className="flex flex-row justify-end w-full mb-4">
-                        <AggiungiPagamentoButton />
+                    <AggiungiPagamentoButton onPagamentoAggiunto={handleNuovoPagamento} />
                     </div>
 
                     {/* Div Bianco - 400px di altezza, tutto lo spazio disponibile in larghezza */}

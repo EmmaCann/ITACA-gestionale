@@ -78,11 +78,7 @@ const ModalContentAggiungiPagamento = ({ onClose, onSubmit }) => {
                       paziente_id: pazienteSelezionato.id,
                   }),
         };
-        console.log("DEBUG 🔍");
-console.log("utenteNonRegistrato:", utenteNonRegistrato);
-console.log("formData:", formData);
-console.log("pazienteSelezionato:", pazienteSelezionato);
-console.log("terapistaSelezionato:", terapistaSelezionato);
+
 
         setIsSubmitting(true);
         try {

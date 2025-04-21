@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { BoxIncassi } from "../molecules/atoms/boxIncassi.jsx";
-import { getStatsIncassi } from "../../data/api/pagamenti.js";
+import { BoxIncassi } from "./atoms/boxIncassi.jsx";
+import { getStatsIncassi } from "../../data/api/pagamenti";
 
-export const BoxIncassiContainer = () => {
+export const BoxIncassiContainer = ({ reloadTrigger }) => {
     const [incassi, setIncassi] = useState({
         giorno: 0,
         settimana: 0,
@@ -10,18 +10,18 @@ export const BoxIncassiContainer = () => {
         anno: 0,
     });
 
-    useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const dati = await getStatsIncassi();
-                setIncassi(dati);
-            } catch (err) {
-                console.error("Errore nel caricamento delle statistiche", err);
-            }
-        };
+    const fetchStats = async () => {
+        try {
+            const dati = await getStatsIncassi();
+            setIncassi(dati);
+        } catch (err) {
+            console.error("Errore nel caricamento delle statistiche", err);
+        }
+    };
 
+    useEffect(() => {
         fetchStats();
-    }, []);
+    }, [reloadTrigger]); 
 
     return (
         <div className="h-full flex flex-col w-fit gap-4 justify-center drop-shadow">

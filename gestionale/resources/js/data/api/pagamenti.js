@@ -34,3 +34,18 @@ export const getStatsIncassi = async () => {
         throw error;
     }
 };
+
+export const getDettagliStats = async (tipo) => {
+    try {
+        const response = await baseCall({
+            endpoint: "/pagamenti/dettagli-stats",
+            method: "GET",
+            params: { tipo },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Errore nel recupero dettagli stats:", error.message);
+        throw error;
+    }
+};
+

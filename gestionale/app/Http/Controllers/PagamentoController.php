@@ -6,6 +6,7 @@ use App\Models\Pagamento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class PagamentoController extends Controller
 {
@@ -60,6 +61,90 @@ public function stats()
         'anno' => Pagamento::where('data', '>=', $anno)->sum('importo'),
     ]);
 }
+
+
+
+public function dettagliStats(Request $request)
+{
+    $tipo = $request->input('tipo'); // 'giorno', 'settimana', 'mese', 'anno'
+    $oggi = Carbon::today();
+
+    $query = Pagamento::query();
+
+    switch ($tipo) {
+        case 'giorno':
+            $oggi = Carbon::today();
+            $incassi = $query->whereDate('data', $oggi)
+                ->select(DB::raw("HOUR(data) as ora"), DB::raw("SUM(importo) as totale"))
+                ->groupBy(DB::raw("HOUR(data)"))
+                ->pluck('totale', 'ora');
+        
+            $dati = collect(range(8, 20))->map(function ($ora) use ($incassi) {
+                return [
+                    'label' => sprintf('%02d:00', $ora),
+                    'valore' => number_format($incassi[$ora] ?? 0, 2) . '€'
+                ];
+            });
+            break;
+        
+
+            case 'settimana':
+                $inizioSettimana = Carbon::now()->startOfWeek();
+                $incassi = $query->where('data', '>=', $inizioSettimana)
+                    ->select(DB::raw("DATE(data) as giorno"), DB::raw("SUM(importo) as totale"))
+                    ->groupBy('giorno')
+                    ->pluck('totale', 'giorno');
+            
+                $dati = collect(range(0, 6))->map(function ($i) use ($inizioSettimana, $incassi) {
+                    $giorno = $inizioSettimana->copy()->addDays($i);
+                    $dataKey = $giorno->toDateString();
+                    return [
+                        'label' => $giorno->translatedFormat('D d/m'),
+                        'valore' => number_format($incassi[$dataKey] ?? 0, 2) . '€'
+                    ];
+                });
+                break;
+            
+
+                case 'mese':
+                    $inizioMese = Carbon::now()->startOfMonth();
+                    $incassi = $query->where('data', '>=', $inizioMese)
+                        ->select(DB::raw("WEEK(data, 1) as settimana"), DB::raw("SUM(importo) as totale"))
+                        ->groupBy(DB::raw("WEEK(data, 1)"))
+                        ->pluck('totale', 'settimana');
+                
+                    $dati = collect(range(1, 4))->map(function ($settimana) use ($incassi) {
+                        return [
+                            'label' => 'Settimana ' . $settimana,
+                            'valore' => number_format($incassi[$settimana] ?? 0, 2) . '€'
+                        ];
+                    });
+                    break;
+                
+                    case 'anno':
+                        $inizioAnno = Carbon::now()->startOfYear();
+                        $incassi = $query->where('data', '>=', $inizioAnno)
+                            ->select(DB::raw("MONTH(data) as mese"), DB::raw("SUM(importo) as totale"))
+                            ->groupBy(DB::raw("MONTH(data)"))
+                            ->pluck('totale', 'mese');
+                    
+                        $dati = collect(range(1, 12))->map(function ($mese) use ($incassi) {
+                            return [
+                                'label' => Carbon::createFromDate(null, $mese)->translatedFormat('M'),
+                                'valore' => number_format($incassi[$mese] ?? 0, 2) . '€'
+                            ];
+                        });
+                        break;
+                    
+
+        default:
+            return response()->json(['error' => 'Tipo non valido'], 422);
+    }
+
+    return response()->json($dati->values());
+
+}
+
 
 
 }
