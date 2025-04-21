@@ -13,7 +13,10 @@ class Appuntamento extends Model
         'data',
         'ora',
         'note',
+        'nome',
+        'cognome',
     ];
+    
 
     protected $casts = [
         'data' => 'date',

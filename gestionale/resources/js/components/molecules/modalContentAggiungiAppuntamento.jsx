@@ -3,6 +3,8 @@ import Select from "react-select";
 import { FaUser, FaCalendarAlt, FaRegClock, FaStickyNote, FaRegThumbsUp } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { baseCall } from "@/data/api/baseCall"; 
+import { creaAppuntamento } from "@/data/api/appuntamenti";
+
 import { IconInputWrapperModal } from "../molecules/atoms/iconInputWrapperModal.jsx";
 
 const ModalContentAggiungiAppuntamento = ({ onClose, onSubmit }) => {
@@ -13,6 +15,8 @@ const ModalContentAggiungiAppuntamento = ({ onClose, onSubmit }) => {
     const [pazientiOptions, setPazientiOptions] = useState([]);
     const [terapistiOptions, setTerapistiOptions] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    
 
     useEffect(() => {
         fetchPazienti();
@@ -47,39 +51,41 @@ const ModalContentAggiungiAppuntamento = ({ onClose, onSubmit }) => {
             toast.error("Seleziona un terapista");
             return;
         }
-
+    
         if (!utenteNonRegistrato && !pazienteSelezionato) {
             toast.error("Seleziona un paziente o spunta 'utente non registrato'");
             return;
         }
-
+    
         const data = {
-            terapista: terapistaSelezionato,
             data: formData.data,
             ora: formData.ora,
             note: formData.note,
+            terapista_id: terapistaSelezionato?.value || terapistaSelezionato?.id,
             ...(utenteNonRegistrato
                 ? {
                       nome: formData.nome,
                       cognome: formData.cognome,
                   }
                 : {
-                      paziente: pazienteSelezionato,
+                      paziente_id: pazienteSelezionato.id,
                   }),
         };
-
+    
         setIsSubmitting(true);
         try {
-            toast.success("Appuntamento aggiunto!");
-            console.log("🧾 Appuntamento inviato:", data);
+            await creaAppuntamento(data);
+            toast.success("Appuntamento creato con successo!");
             onSubmit?.(data);
             onClose();
         } catch (error) {
-            toast.error("Errore nella creazione dell'appuntamento");
+            toast.error("Errore durante la creazione dell'appuntamento");
+            console.error(error);
         } finally {
             setIsSubmitting(false);
         }
     };
+    
 
     const inputStyle =
         "flex-1 border-none outline-none text-[14px] placeholder-gray-400 font-marcellus";
