@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Pagamento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class PagamentoController extends Controller
 {
@@ -42,5 +43,23 @@ class PagamentoController extends Controller
         'pagamento' => $pagamento,
     ], 201);
 }
+
+
+
+public function stats()
+{
+    $oggi = Carbon::today();
+    $settimana = Carbon::now()->subDays(7);
+    $mese = Carbon::now()->startOfMonth();
+    $anno = Carbon::now()->startOfYear();
+
+    return response()->json([
+        'giorno' => Pagamento::whereDate('data', $oggi)->sum('importo'),
+        'settimana' => Pagamento::where('data', '>=', $settimana)->sum('importo'),
+        'mese' => Pagamento::where('data', '>=', $mese)->sum('importo'),
+        'anno' => Pagamento::where('data', '>=', $anno)->sum('importo'),
+    ]);
+}
+
 
 }

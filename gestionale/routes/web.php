@@ -12,6 +12,10 @@ Route::post('/utenti', [UtenteController::class, 'store'])->name('utenti.store')
 Route::get('/get-pazienti', [UtenteController::class, 'indexPazienti']);
 Route::get('/terapisti', [UtenteController::class, 'terapisti'])->name('utenti.terapisti');
 Route::post('/pagamenti', [PagamentoController::class, 'store'])->name('pagamento.store');
+Route::get('/pagamenti/stats', [PagamentoController::class, 'stats']);
+
+
+
 
 Route::get('/', fn () => Inertia::render('Home'))->name('home');
 Route::get('/home', fn () => Inertia::render('Home'))->name('home');

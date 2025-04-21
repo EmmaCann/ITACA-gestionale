@@ -1,13 +1,34 @@
-import React from "react";
-import { BoxIncassi } from "./atoms/boxIncassi.jsx";
-export const BoxIncassiContainer =()=>{
+import React, { useEffect, useState } from "react";
+import { BoxIncassi } from "../molecules/atoms/boxIncassi.jsx";
+import { getStatsIncassi } from "../../data/api/pagamenti.js";
 
-    return(
-            <div className="h-full flex flex-col w-fit gap-4  justify-center drop-shadow ">
-                <BoxIncassi text="INCASSI DEL GIORNO" money="200€" bgColor={"#D8A4C9"}/>
-                <BoxIncassi text="INCASSI DELLA SETTIMANA" money="1000€" bgColor={"#9BCEEB"}/>
-                <BoxIncassi text="INCASSI DEL MESE" money="4000€" bgColor={"#474849"}/>
-                <BoxIncassi text="INCASSI DELL'ANNO" money="20.000€" bgColor={"#A0A1A1"}/>
-            </div>
+export const BoxIncassiContainer = () => {
+    const [incassi, setIncassi] = useState({
+        giorno: 0,
+        settimana: 0,
+        mese: 0,
+        anno: 0,
+    });
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const dati = await getStatsIncassi();
+                setIncassi(dati);
+            } catch (err) {
+                console.error("Errore nel caricamento delle statistiche", err);
+            }
+        };
+
+        fetchStats();
+    }, []);
+
+    return (
+        <div className="h-full flex flex-col w-fit gap-4 justify-center drop-shadow">
+            <BoxIncassi text="INCASSI DEL GIORNO" money={`${incassi.giorno}€`} bgColor="#D8A4C9" />
+            <BoxIncassi text="INCASSI DELLA SETTIMANA" money={`${incassi.settimana}€`} bgColor="#9BCEEB" />
+            <BoxIncassi text="INCASSI DEL MESE" money={`${incassi.mese}€`} bgColor="#474849" />
+            <BoxIncassi text="INCASSI DELL'ANNO" money={`${incassi.anno}€`} bgColor="#A0A1A1" />
+        </div>
     );
-}
+};
