@@ -68,7 +68,7 @@ export const Navbar = () => {
             </div>
 
             {/* Footer della Navbar */}
-            <div className="flex flex-col mt-8">
+            <div className="flex flex-col mt-8 mb-2">
                 <Link href="/chi-siamo" className={`${commonClass} ${isActive("/chi-siamo")}`}>
                     <IconTextNavbar icon={IoMdInformationCircleOutline} text="CHI SIAMO?" iconSize={19} />
                 </Link>
