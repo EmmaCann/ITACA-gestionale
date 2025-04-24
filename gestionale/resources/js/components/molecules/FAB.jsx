@@ -66,7 +66,7 @@ export const FAB = () => {
                 </div>
 
                 <div onClick={toggleFAB}>
-                    <FABicon isOpen={isOpen} />
+                    <FABicon isOpen={isOpen}  />
                 </div>
             </div>
 

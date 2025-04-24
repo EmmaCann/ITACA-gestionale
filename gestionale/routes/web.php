@@ -12,6 +12,7 @@ use App\Http\Controllers\AppuntamentiController;
 Route::post('/utenti', [UtenteController::class, 'store'])->name('utenti.store');
 Route::get('/get-pazienti', [UtenteController::class, 'indexPazienti']);
 Route::get('/terapisti', [UtenteController::class, 'terapisti'])->name('utenti.terapisti');
+Route::get('/professioni/terapisti', [UtenteController::class, 'professioniTerapisti'])->name('utenti.professioniTerapisti');
 Route::post('/pagamenti', [PagamentoController::class, 'store'])->name('pagamento.store');
 Route::get('/pagamenti/stats', [PagamentoController::class, 'stats']);
 Route::get('/pagamenti/dettagli-stats', [PagamentoController::class, 'dettagliStats']);

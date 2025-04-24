@@ -92,4 +92,14 @@ class UtenteController extends Controller
 
         return response()->json($terapisti);
     }
+
+    public function professioniTerapisti()
+    {
+        $professioni = StaffDati::select('professione')
+            ->distinct()
+            ->whereNotNull('professione')
+            ->pluck('professione');
+
+        return response()->json($professioni);
+    }
 }
