@@ -5,6 +5,9 @@ use Inertia\Inertia;
 use App\Http\Controllers\UtenteController;
 use App\Http\Controllers\PagamentoController;
 use App\Http\Controllers\AppuntamentiController;
+use App\Http\Controllers\ListaAttesaController;
+
+
 // Route::get('/', function () {
 //     return Inertia::render('Home');
 // });
@@ -30,3 +33,9 @@ Route::get('/tariffario', fn () => Inertia::render('Tariffario'))->name('tariffa
 Route::get('/chi-siamo', fn () => Inertia::render('ChiSiamo'))->name('chi-siamo');
 
 
+
+Route::get('/get-lista-attesa', [ListaAttesaController::class, 'index']);
+Route::post('/aggiungi-lista-attesa', [ListaAttesaController::class, 'store']);
+Route::patch('/lista-attesa/{id}/chiamato', [ListaAttesaController::class, 'segnaChiamato']);
+Route::patch('/lista-attesa/{id}/aggiorna-terapia', [ListaAttesaController::class, 'aggiornaTerapia']);
+Route::patch('/lista-attesa/{id}/aggiorna-terapista', [ListaAttesaController::class, 'aggiornaTerapista']);

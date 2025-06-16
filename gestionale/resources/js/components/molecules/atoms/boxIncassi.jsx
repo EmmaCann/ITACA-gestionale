@@ -32,11 +32,11 @@ export const BoxIncassi = ({ text, money, bgColor }) => {
         const tipo = tipoMap[normalizedText];
         try {
             const data = await getDettagliStats(tipo);
-            console.log("Dati ricevuti per", tipo, data); // 👈👈👈
+            console.log("Dati ricevuti per", tipo, data); 
             setPopupData(data);
         } catch (error) {
             console.error("Errore caricamento popup:", error);
-            setPopupData([]); // fallback sicuro
+            setPopupData([]); 
         }
     };
     

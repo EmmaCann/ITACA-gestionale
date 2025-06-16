@@ -8,7 +8,7 @@ export const ListaAttesaHeader = () => {
     return (
         <div className="bg-bluPrimary flex flex-row w-[95%] h-[48px] mx-4 items-center gap-4 opacity-80 rounded-[12px] mb-6 pl-2">
             <CheckboxRotondo checked={false} isStatic={true} base="white" />
-            <div className="flex-1 flex flex-row items-center">
+            <div className="flex-1 flex flex-row justify-between">
                 <ColonnaTabella width="w-[60px]">
                     <p className={pTagStyle}>#</p>
                 </ColonnaTabella>
