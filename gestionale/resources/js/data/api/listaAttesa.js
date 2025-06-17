@@ -1,9 +1,15 @@
 import { baseCall } from "./baseCall";
 
 // Recupera tutta la lista d’attesa
-export const getListaAttesa = async () => {
+export const getListaAttesa = async (filters = {}) => {
+    const params = new URLSearchParams();
+
+    if (filters.tipoUtente) params.append('tipo_utente', filters.tipoUtente);
+    if (filters.terapia) params.append('terapia', filters.terapia);
+    if (filters.richiestaTerapista) params.append('richiesta_terapista', '1');
+
     return baseCall({
-        endpoint: "/get-lista-attesa",
+        endpoint: `/get-lista-attesa?${params.toString()}`,
         method: "GET",
     });
 };

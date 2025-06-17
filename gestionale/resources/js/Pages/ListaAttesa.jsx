@@ -15,11 +15,15 @@ const ListaAttesa = () => {
 
     const aggiornaLista = () => setRefreshTrigger((prev) => prev + 1);
 
+    const handleFilterChange = (newFilters) => {
+        setFilters(newFilters);
+    };
+
     return (
-        <Home>
-            <div className="w-full h-full flex flex-col">
+        <Home hideFAB={true}>
+            <div className="w-full h-full flex flex-col overflow-hidden">
                 <div className="flex flex-row w-full items-center justify-center p-2">
-                    <ListaAttesaFilters />
+                     <ListaAttesaFilters onFilterChange={handleFilterChange} />
                     <FABicon isFAB={false} onClick={openModal} />
                 </div>
 
@@ -43,7 +47,7 @@ const ListaAttesa = () => {
                     }}
                 />
             </CustomModal>
-        </Home>
+        </Home >
     );
 };
 

@@ -4,7 +4,7 @@ import { FilterItem } from "../molecules/atoms/fiterItem.jsx";
 import { baseCall } from "@/data/api/baseCall";
 import { toast } from "react-toastify";
 
-export const ListaAttesaFilters = () => {
+export const ListaAttesaFilters = ({onFilterChange}) => {
     const [professioniOptions, setProfessioniOptions] = useState([]);
     const [professioneSelezionata, setProfessioneSelezionata] = useState(null);
     const [richiestaTerapistaSpecifico, setRichiestaTerapistaSpecifico] = useState(false);
@@ -15,12 +15,13 @@ export const ListaAttesaFilters = () => {
     }, []);
 
     useEffect(() => {
-        onFilterChange({
-            tipoUtente,
-            terapia: professioneSelezionata?.value || null,
-            richiestaTerapista: richiestaTerapistaSpecifico,
-        });
-    }, [tipoUtente, professioneSelezionata, richiestaTerapistaSpecifico]);
+    onFilterChange({
+        tipoUtente: tipoUtente, // registrato / nuovo / null
+        terapia: professioneSelezionata?.value || null,
+        richiestaTerapista: richiestaTerapistaSpecifico,
+    });
+}, [professioneSelezionata, richiestaTerapistaSpecifico, tipoUtente]);
+
 
     const fetchProfessioni = async () => {
 

@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 
 class ListaAttesaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         // Pulizia solo una volta al giorno
         $oggi = now()->toDateString();
@@ -22,9 +22,28 @@ class ListaAttesaController extends Controller
             cache(['ultima_pulizia' => $oggi], now()->addDay());
         }
 
-        $voci = ListaAttesa::with(['terapista', 'utente'])
-            ->orderByDesc('data')
-            ->get();
+        $query = ListaAttesa::with(['terapista', 'utente']);
+
+        // Filtro: tipo utente (registrato / nuovo)
+        if ($request->has('tipo_utente')) {
+            if ($request->tipo_utente === 'registrato') {
+                $query->whereNotNull('utente_id');
+            } elseif ($request->tipo_utente === 'nuovo') {
+                $query->whereNull('utente_id');
+            }
+        }
+
+        // Filtro: tipologia terapia
+        if ($request->has('terapia')) {
+            $query->where('terapia', $request->terapia);
+        }
+
+        // Filtro: richiesta terapista specifico
+        if ($request->has('richiesta_terapista') && $request->richiesta_terapista === '1') {
+            $query->whereNotNull('terapista_id');
+        }
+
+        $voci = $query->orderByDesc('data')->get();
 
         return response()->json($voci);
     }

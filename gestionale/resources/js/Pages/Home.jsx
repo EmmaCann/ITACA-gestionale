@@ -31,7 +31,7 @@ import { TopBar } from "../components/topBar";
 import { FAB } from "../components/molecules/FAB.jsx";
 import { ToastContainer } from "react-toastify";
 
-const Home = ({ children }) => {
+const Home = ({ children,hideFAB=false }) => {
     return (
         <div className="bg-background flex w-screen h-screen overflow-hidden">
             {/* Navbar a sinistra */}
@@ -49,7 +49,7 @@ const Home = ({ children }) => {
                 {/* Content-container che occupa tutto lo spazio sotto la TopBar */}
                 <div className="flex-1 overflow-y-auto p-4 mr-1 ">
                     {children}
-                    <FAB />
+                    {!hideFAB && <FAB />}
                 </div>
             </div>
             <ToastContainer position="top-right" autoClose={2000} />

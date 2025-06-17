@@ -108,7 +108,7 @@ export const ListaAttesaRow = ({
 
     return (
         <>
-            <div className="bg-white flex flex-row w-[95%] h-auto py-2 mx-4 items-center gap-4 rounded-[8px] pl-2">
+            <div className="bg-white flex flex-row w-[95%] h-auto py-2 mx-4 items-center gap-4 rounded-[8px] pl-2 my-1">
                 <CheckboxRotondo
                     checked={chiamato}
                     onChange={async () => {
@@ -158,6 +158,13 @@ export const ListaAttesaRow = ({
                             placeholder="Tipo terapia"
                             className="text-[12px]"
                             isSearchable={false}
+                            menuPortalTarget={document.body}
+                                    styles={{
+                                        menuPortal: (base) => ({
+                                            ...base,
+                                            zIndex: 100000,
+                                        }),
+                                    }}
                         />
                     </ColonnaTabella>
 
@@ -198,7 +205,7 @@ export const ListaAttesaRow = ({
                                     styles={{
                                         menuPortal: (base) => ({
                                             ...base,
-                                            zIndex: 9999,
+                                            zIndex: 100000,
                                         }),
                                     }}
                                 />
