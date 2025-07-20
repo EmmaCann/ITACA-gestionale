@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -15,7 +16,7 @@ class Pagamento extends Model
         'nome',
         'cognome',
     ];
-    
+
 
     protected $casts = [
         'data' => 'date',
@@ -32,6 +33,6 @@ class Pagamento extends Model
 
     public function terapista()
     {
-        return $this->belongsTo(Utente::class, 'terapista_id');
+        return $this->belongsTo(Utente::class, 'terapista_id')->with('staffDati');
     }
 }

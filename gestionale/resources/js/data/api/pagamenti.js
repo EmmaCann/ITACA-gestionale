@@ -49,3 +49,29 @@ export const getDettagliStats = async (tipo) => {
     }
 };
 
+export const getIncassiAnnui = async () => {
+    try {
+        const response = await baseCall({
+            endpoint: "/incassi-per-anno",
+            method: "GET",
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Errore durante il recupero delle statistiche degli incassi:", error.message);
+        throw error;
+    }
+};
+
+export const getPagamentiFiltrati = async (params) => {
+    const response = await baseCall({
+        endpoint: "/pagamenti/filtrati",
+        method: "GET",
+        params: params,
+    });
+
+    return response.data; 
+};
+
+
+
+

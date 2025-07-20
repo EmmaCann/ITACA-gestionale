@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FaChevronRight } from "react-icons/fa6";
 import { IncassiItemContainer } from "../incassiItemContainer.jsx";
+import { Link } from "@inertiajs/react";
 import { getDettagliStats } from "../../../data/api/pagamenti.js";
 
 export const BoxIncassi = ({ text, money, bgColor }) => {
@@ -17,29 +18,27 @@ export const BoxIncassi = ({ text, money, bgColor }) => {
     };
 
     const normalizedText = text.toUpperCase().trim();
+    const tipo = tipoMap[normalizedText];
 
     const handleMouseEnter = async (event) => {
         setShowDetails(true);
         const box = event.target.getBoundingClientRect();
         const windowHeight = window.innerHeight;
-    
+
         if (box.bottom + 300 > windowHeight) {
             setPopupPosition("bottom-0 left-full ml-2");
         } else {
             setPopupPosition("top-0 left-full ml-2");
         }
-    
-        const tipo = tipoMap[normalizedText];
+
         try {
             const data = await getDettagliStats(tipo);
-            console.log("Dati ricevuti per", tipo, data); 
             setPopupData(data);
         } catch (error) {
             console.error("Errore caricamento popup:", error);
-            setPopupData([]); 
+            setPopupData([]);
         }
     };
-    
 
     const handleMouseLeave = () => {
         setTimeout(() => {
@@ -48,23 +47,25 @@ export const BoxIncassi = ({ text, money, bgColor }) => {
             }
         }, 200);
     };
-    const safePopupData = Array.isArray(popupData) ? popupData : Object.values(popupData || {});
 
+    const safePopupData = Array.isArray(popupData) ? popupData : Object.values(popupData || {});
     const params = {
-        param1: safePopupData.map(el => el.label),
+        param1: safePopupData.map((el) => el.label),
         param2List: null,
-        moneyList: safePopupData.map(el => el.valore),
+        moneyList: safePopupData.map((el) => el.valore),
     };
-    
 
     return (
         <div
             className="relative w-[290px] h-[100px] rounded-[20px] flex flex-col justify-center items-center text-center shadow-md py-3"
             style={{ backgroundColor: bgColor }}
         >
-            <p className="text-white font-marcellusSC text-[18px] cursor-pointer transition duration-300 hover:underline hover:underline-offset-4 mt-2">
+            <Link
+                href={`/incassi/${tipo}`}
+                className="text-white font-marcellusSC text-[18px] cursor-pointer transition duration-300 hover:underline hover:underline-offset-4 mt-2"
+            >
                 {text}
-            </p>
+            </Link>
 
             <span className="text-white font-marcellusSC text-[28px] mt-2 mb-4">
                 {money}

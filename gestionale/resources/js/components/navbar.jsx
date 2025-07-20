@@ -38,7 +38,7 @@ export const Navbar = () => {
                 
                 {/* Home */}
                 <div className={commonClass}>
-                    <Link href="/home" className={`${commonClass} ${isActive("/home")}`}>
+                    <Link href="/home" className={`${commonClass} mt-6 ${isActive("/home")}`}>
                         <IconTextNavbar icon={IoMdHome} text="HOME" iconSize={22} />
                     </Link>
                 </div>
@@ -60,7 +60,7 @@ export const Navbar = () => {
                 </div>
 
                 {/* Tariffario */}
-                <div className="mt-10">
+                <div className="mt-6">
                     <Link href="/tariffario" className={`${commonClass} ${isActive("/tariffario")}`}>
                         <IconTextNavbar icon={FaEuroSign} text="TARIFFARIO" iconSize={18} />
                     </Link>
@@ -68,7 +68,7 @@ export const Navbar = () => {
             </div>
 
             {/* Footer della Navbar */}
-            <div className="flex flex-col mt-8 mb-2">
+            <div className="flex flex-col mt-8 mb-4">
                 <Link href="/chi-siamo" className={`${commonClass} ${isActive("/chi-siamo")}`}>
                     <IconTextNavbar icon={IoMdInformationCircleOutline} text="CHI SIAMO?" iconSize={19} />
                 </Link>

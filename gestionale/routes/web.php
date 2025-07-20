@@ -16,11 +16,13 @@ Route::post('/utenti', [UtenteController::class, 'store'])->name('utenti.store')
 Route::get('/get-pazienti', [UtenteController::class, 'indexPazienti']);
 Route::get('/terapisti', [UtenteController::class, 'terapisti'])->name('utenti.terapisti');
 Route::get('/professioni/terapisti', [UtenteController::class, 'professioniTerapisti'])->name('utenti.professioniTerapisti');
+
 Route::post('/pagamenti', [PagamentoController::class, 'store'])->name('pagamento.store');
 Route::get('/pagamenti/stats', [PagamentoController::class, 'stats']);
 Route::get('/pagamenti/dettagli-stats', [PagamentoController::class, 'dettagliStats']);
 Route::post('/appuntamenti', [AppuntamentiController::class, 'store']);
-
+Route::get('/incassi-per-anno', [PagamentoController::class, 'incassiPerAnno']);
+Route::get('/pagamenti/filtrati', [PagamentoController::class, 'filtraPagamenti']);
 
 
 Route::get('/', fn () => Inertia::render('Home'))->name('home');
@@ -31,6 +33,10 @@ Route::get('/archivio-firme', fn () => Inertia::render('ArchivioFirme'))->name('
 Route::get('/lista-attesa', fn () => Inertia::render('ListaAttesa'))->name('lista-attesa');
 Route::get('/tariffario', fn () => Inertia::render('Tariffario'))->name('tariffario');
 Route::get('/chi-siamo', fn () => Inertia::render('ChiSiamo'))->name('chi-siamo');
+
+Route::get('/incassi/{tipo}', function ($tipo) {
+    return Inertia::render('IncassoDettaglio', ['tipo' => $tipo]);
+})->name('incassi.dettaglio');
 
 
 

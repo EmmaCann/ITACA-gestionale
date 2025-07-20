@@ -24,7 +24,7 @@ export const BoxIncassiContainer = ({ reloadTrigger }) => {
     }, [reloadTrigger]); 
 
     return (
-        <div className="h-full flex flex-col w-fit gap-4 justify-center drop-shadow">
+        <div className="h-full flex flex-col w-fit gap-8 justify-center drop-shadow">
             <BoxIncassi text="INCASSI DEL GIORNO" money={`${incassi.giorno}€`} bgColor="#D8A4C9" />
             <BoxIncassi text="INCASSI DELLA SETTIMANA" money={`${incassi.settimana}€`} bgColor="#9BCEEB" />
             <BoxIncassi text="INCASSI DEL MESE" money={`${incassi.mese}€`} bgColor="#474849" />
