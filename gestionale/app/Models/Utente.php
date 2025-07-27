@@ -75,4 +75,9 @@ class Utente extends Authenticatable
     {
         return $this->hasMany(ListaAttesa::class, 'utente_id');
     }
+
+    public function tariffe()
+    {
+        return $this->hasMany(Tariffa::class, 'utente_id');
+    }
 }

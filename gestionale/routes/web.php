@@ -6,7 +6,7 @@ use App\Http\Controllers\UtenteController;
 use App\Http\Controllers\PagamentoController;
 use App\Http\Controllers\AppuntamentiController;
 use App\Http\Controllers\ListaAttesaController;
-
+use App\Http\Controllers\TariffaController;
 
 // Route::get('/', function () {
 //     return Inertia::render('Home');
@@ -25,14 +25,14 @@ Route::get('/incassi-per-anno', [PagamentoController::class, 'incassiPerAnno']);
 Route::get('/pagamenti/filtrati', [PagamentoController::class, 'filtraPagamenti']);
 
 
-Route::get('/', fn () => Inertia::render('Home'))->name('home');
-Route::get('/home', fn () => Inertia::render('Home'))->name('home');
-Route::get('/incassi', fn () => Inertia::render('Incassi'))->name('incassi');
-Route::get('/pazienti', fn () => Inertia::render('Pazienti'))->name('pazienti');
-Route::get('/archivio-firme', fn () => Inertia::render('ArchivioFirme'))->name('archivio-firme');
-Route::get('/lista-attesa', fn () => Inertia::render('ListaAttesa'))->name('lista-attesa');
-Route::get('/tariffario', fn () => Inertia::render('Tariffario'))->name('tariffario');
-Route::get('/chi-siamo', fn () => Inertia::render('ChiSiamo'))->name('chi-siamo');
+Route::get('/', fn() => Inertia::render('Home'))->name('home');
+Route::get('/home', fn() => Inertia::render('Home'))->name('home');
+Route::get('/incassi', fn() => Inertia::render('Incassi'))->name('incassi');
+Route::get('/pazienti', fn() => Inertia::render('Pazienti'))->name('pazienti');
+Route::get('/archivio-firme', fn() => Inertia::render('ArchivioFirme'))->name('archivio-firme');
+Route::get('/lista-attesa', fn() => Inertia::render('ListaAttesa'))->name('lista-attesa');
+Route::get('/tariffario', fn() => Inertia::render('Tariffario'))->name('tariffario');
+Route::get('/chi-siamo', fn() => Inertia::render('ChiSiamo'))->name('chi-siamo');
 
 Route::get('/incassi/{tipo}', function ($tipo) {
     return Inertia::render('IncassoDettaglio', ['tipo' => $tipo]);
@@ -45,3 +45,11 @@ Route::post('/aggiungi-lista-attesa', [ListaAttesaController::class, 'store']);
 Route::patch('/lista-attesa/{id}/chiamato', [ListaAttesaController::class, 'segnaChiamato']);
 Route::patch('/lista-attesa/{id}/aggiorna-terapia', [ListaAttesaController::class, 'aggiornaTerapia']);
 Route::patch('/lista-attesa/{id}/aggiorna-terapista', [ListaAttesaController::class, 'aggiornaTerapista']);
+
+
+Route::get('/tariffe', [TariffaController::class, 'index'])->name('tariffe.index');
+Route::post('/tariffe', [TariffaController::class, 'store'])->name('tariffe.store');
+Route::get('/tariffe/{id}', [TariffaController::class, 'show'])->name('tariffe.show');
+Route::post('/tariffe/update/{id}', [TariffaController::class, 'update']);
+Route::delete('/tariffe/{id}', [TariffaController::class, 'destroy']);
+

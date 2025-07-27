@@ -81,7 +81,7 @@ export const BarChartWidget = ({ className, title, description, data, height = 3
     return (
        <div className={`w-full ${className}`}>
 
-            <h2 className="text-xl font-bold mb-2">{title}</h2>
+            <h2 className="text-xl font-semibold mb-2">{title}</h2>
             {description && <p className="text-sm text-gray-600 mb-4">{description}</p>}
             <div className="relative w-full mb-8" style={{ height }}>
                 <canvas ref={chartRef}></canvas>
