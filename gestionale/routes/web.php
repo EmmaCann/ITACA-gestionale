@@ -7,6 +7,7 @@ use App\Http\Controllers\PagamentoController;
 use App\Http\Controllers\AppuntamentiController;
 use App\Http\Controllers\ListaAttesaController;
 use App\Http\Controllers\TariffaController;
+use App\Http\Controllers\FirmaController;
 
 // Route::get('/', function () {
 //     return Inertia::render('Home');
@@ -52,4 +53,8 @@ Route::post('/tariffe', [TariffaController::class, 'store'])->name('tariffe.stor
 Route::get('/tariffe/{id}', [TariffaController::class, 'show'])->name('tariffe.show');
 Route::post('/tariffe/update/{id}', [TariffaController::class, 'update']);
 Route::delete('/tariffe/{id}', [TariffaController::class, 'destroy']);
+
+Route::get('/firme', [FirmaController::class, 'index']);
+Route::post('/firme', [FirmaController::class, 'store']);
+Route::delete('/firme/{id}', [FirmaController::class, 'destroy']);
 

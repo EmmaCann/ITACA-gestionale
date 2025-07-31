@@ -36,8 +36,8 @@ const Tariffario = () => {
             <div className="p-8">
                 <div className="flex justify-between items-center mb-6">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-700 font-marcellusSC">
-                            Gestione Tariffe
+                        <h1 className="text-3xl  text-gray-700 font-marcellusSC">
+                            GESTIONE TARIFFE
                         </h1>
                         <p className="text-gray-500 text-sm">
                             Gestisci i prezzi per dottori e terapie
@@ -46,7 +46,7 @@ const Tariffario = () => {
                     <AddButtonTariffario onClick={() => setModalOpen(true)} />
                 </div>
 
-                <div className="bg-white shadow-md rounded-lg p-4">
+                <div className="bg-white shadow-md rounded-[20px] p-4">
                     <h2 className="text-lg font-semibold mb-4 text-gray-800">
                         Tariffe Correnti
                     </h2>
