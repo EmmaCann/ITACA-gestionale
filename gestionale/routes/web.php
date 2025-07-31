@@ -57,4 +57,4 @@ Route::delete('/tariffe/{id}', [TariffaController::class, 'destroy']);
 Route::get('/firme', [FirmaController::class, 'index']);
 Route::post('/firme', [FirmaController::class, 'store']);
 Route::delete('/firme/{id}', [FirmaController::class, 'destroy']);
-
+Route::get('/firme/export', [FirmaController::class, 'export']);

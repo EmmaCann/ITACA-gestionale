@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Firma;
 use Illuminate\Http\Request;
+use Spatie\SimpleExcel\SimpleExcelWriter;
 
 class FirmaController extends Controller
 {
@@ -62,4 +63,44 @@ class FirmaController extends Controller
             'message' => 'Firma eliminata con successo.',
         ]);
     }
+
+
+
+
+public function export(Request $request)
+{
+    $query = Firma::with('terapista');
+
+    if ($request->filled('mese')) {
+        $query->whereMonth('data', $request->input('mese'));
+    }
+
+    if ($request->filled('anno')) {
+        $query->whereYear('data', $request->input('anno'));
+    }
+
+    $rows = $query->get()->map(function ($firma) {
+        return [
+            'ID'        => $firma->id,
+            'Nome'      => $firma->nome,
+            'Cognome'   => $firma->cognome,
+            'Data'      => $firma->data->format('Y-m-d'),
+            'Terapia'   => $firma->terapia,
+            'Terapista' => optional($firma->terapista)->nome . ' ' . optional($firma->terapista)->cognome,
+        ];
+    })->toArray();
+
+    // Percorso temporaneo per il file Excel
+    $tempPath = storage_path('app/archivio_firme.xlsx');
+
+    // Crea e salva il file Excel
+    SimpleExcelWriter::create($tempPath)
+        ->addRows($rows)
+        ->close(); // <-- importante per chiudere e salvare il file
+
+    // Ritorna il file per il download e lo elimina dopo l'invio
+    return response()->download($tempPath, 'archivio_firme.xlsx')->deleteFileAfterSend(true);
+}
+
+
 }

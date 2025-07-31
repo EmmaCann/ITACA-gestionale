@@ -96,6 +96,12 @@ export const IncassiFilters = ({ onFilterChange }) => {
                     className="text-[12px]"
                     isSearchable
                     isClearable
+                     styles={{
+                        control: (provided) => ({
+                            ...provided,
+                            borderRadius: "12px",
+                        }),
+                    }}
                 />
             </div>
 
@@ -111,6 +117,12 @@ export const IncassiFilters = ({ onFilterChange }) => {
                     className="text-[12px]"
                     isSearchable
                     isClearable
+                     styles={{
+                        control: (provided) => ({
+                            ...provided,
+                            borderRadius: "12px",
+                        }),
+                    }}
                 />
             </div>
         </div>

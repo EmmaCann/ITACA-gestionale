@@ -5,7 +5,11 @@ import { ColonnaTabella } from "./atoms/ColonnaTabella";
 import Select from "react-select";
 import { baseCall } from "@/data/api/baseCall";
 import { toast } from "react-toastify";
-import { segnaChiamato, aggiornaTerapia, aggiornaTerapista } from "@/data/api/listaAttesa";
+import {
+    segnaChiamato,
+    aggiornaTerapia,
+    aggiornaTerapista,
+} from "@/data/api/listaAttesa";
 import dayjs from "dayjs";
 
 export const ListaAttesaRow = ({
@@ -14,7 +18,9 @@ export const ListaAttesaRow = ({
     aggiornaLista = () => {},
 }) => {
     const [chiamato, setChiamato] = useState(data.chiamato || false);
-    const [richiestaTerapista, setRichiestaTerapista] = useState(!!data.terapista_id);
+    const [richiestaTerapista, setRichiestaTerapista] = useState(
+        !!data.terapista_id
+    );
     const [terapiaSelezionata, setTerapiaSelezionata] = useState(null);
     const [terapistaSelezionato, setTerapistaSelezionato] = useState(null);
     const [professioniOptions, setProfessioniOptions] = useState([]);
@@ -39,7 +45,8 @@ export const ListaAttesaRow = ({
     useEffect(() => {
         if (terapistiOptions.length > 0 && data.terapista_id) {
             const t = terapistiOptions.find(
-                (t) => t.value === data.terapista_id || t.id === data.terapista_id
+                (t) =>
+                    t.value === data.terapista_id || t.id === data.terapista_id
             );
             if (t) {
                 setTerapistaSelezionato(t);
@@ -143,7 +150,9 @@ export const ListaAttesaRow = ({
                     </ColonnaTabella>
                     <ColonnaTabella>
                         <p className={dateStyle}>
-                            {data.data ? dayjs(data.data).format("DD/MM/YYYY") : "-"}
+                            {data.data
+                                ? dayjs(data.data).format("DD/MM/YYYY")
+                                : "-"}
                         </p>
                     </ColonnaTabella>
 
@@ -159,12 +168,17 @@ export const ListaAttesaRow = ({
                             className="text-[12px]"
                             isSearchable={false}
                             menuPortalTarget={document.body}
-                                    styles={{
-                                        menuPortal: (base) => ({
-                                            ...base,
-                                            zIndex: 100000,
-                                        }),
-                                    }}
+                            styles={{
+                                menuPortal: (base) => ({
+                                    ...base,
+                                    zIndex: 100000,
+                                }),
+
+                                control: (provided) => ({
+                                    ...provided,
+                                    borderRadius: "12px",
+                                }),
+                            }}
                         />
                     </ColonnaTabella>
 
@@ -191,11 +205,18 @@ export const ListaAttesaRow = ({
                                                 data.id,
                                                 selected.value
                                             );
-                                            toast.success("Terapista aggiornato con successo");
+                                            toast.success(
+                                                "Terapista aggiornato con successo"
+                                            );
                                             aggiornaLista();
                                         } catch (error) {
-                                            console.error("Errore aggiornamento terapista:", error);
-                                            toast.error("Errore aggiornamento terapista");
+                                            console.error(
+                                                "Errore aggiornamento terapista:",
+                                                error
+                                            );
+                                            toast.error(
+                                                "Errore aggiornamento terapista"
+                                            );
                                         }
                                     }}
                                     placeholder="Seleziona terapista"
@@ -206,6 +227,11 @@ export const ListaAttesaRow = ({
                                         menuPortal: (base) => ({
                                             ...base,
                                             zIndex: 100000,
+                                        }),
+
+                                        control: (provided) => ({
+                                            ...provided,
+                                            borderRadius: "12px",
                                         }),
                                     }}
                                 />
@@ -232,7 +258,9 @@ export const ListaAttesaRow = ({
                         className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-300 shadow-lg p-4 rounded-md z-[9999] p-8 flex flex-col"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <p className="text-lg text-gray-800 mb-2">{popupContent}</p>
+                        <p className="text-lg text-gray-800 mb-2">
+                            {popupContent}
+                        </p>
                         <button
                             onClick={() => setShowPopup(false)}
                             className="text-black-600 text-sm underline pt-4"
