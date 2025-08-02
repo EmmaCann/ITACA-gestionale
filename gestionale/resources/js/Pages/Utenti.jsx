@@ -1,10 +1,10 @@
 import React from "react";
-import Home from "./Home";
+import Home from "./Home.jsx";
 
-import { SearchBar } from "../components/molecules/atoms/searchBar";
+import { SearchBar } from "../components/molecules/atoms/searchBar.jsx";
 import { Filters } from "../components/molecules/filters.jsx";
 import { Container } from "../components/molecules/container.jsx";
-const Pazienti = () => {
+const Utenti = () => {
     return (
         <Home>
             <div className=" overflow-y-auto">
@@ -22,4 +22,4 @@ const Pazienti = () => {
     );
 };
 
-export default Pazienti;
+export default Utenti;

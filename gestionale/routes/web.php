@@ -29,11 +29,12 @@ Route::get('/pagamenti/filtrati', [PagamentoController::class, 'filtraPagamenti'
 Route::get('/', fn() => Inertia::render('Home'))->name('home');
 Route::get('/home', fn() => Inertia::render('Home'))->name('home');
 Route::get('/incassi', fn() => Inertia::render('Incassi'))->name('incassi');
-Route::get('/pazienti', fn() => Inertia::render('Pazienti'))->name('pazienti');
+Route::get('/utenti', fn() => Inertia::render('Utenti'))->name('utenti');
 Route::get('/archivio-firme', fn() => Inertia::render('ArchivioFirme'))->name('archivio-firme');
 Route::get('/lista-attesa', fn() => Inertia::render('ListaAttesa'))->name('lista-attesa');
 Route::get('/tariffario', fn() => Inertia::render('Tariffario'))->name('tariffario');
 Route::get('/chi-siamo', fn() => Inertia::render('ChiSiamo'))->name('chi-siamo');
+Route::get('/utilita', fn() => Inertia::render('Utilità'))->name('utilita');
 
 Route::get('/incassi/{tipo}', function ($tipo) {
     return Inertia::render('IncassoDettaglio', ['tipo' => $tipo]);

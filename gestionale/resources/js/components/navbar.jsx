@@ -13,6 +13,7 @@ import { FaEuroSign } from "react-icons/fa";
 import { FaList } from "react-icons/fa";
 import { IoMdInformationCircleOutline } from "react-icons/io";
 import { MdOutlineLogout } from "react-icons/md";
+import { IoSettingsSharp } from "react-icons/io5";
 
 export const Navbar = () => {
     const { url } = usePage(); // Otteniamo l'URL corrente per evidenziare l'elemento attivo
@@ -48,8 +49,8 @@ export const Navbar = () => {
                     <Link href="/incassi" className={`${commonClass} ${isActive("/incassi")}`}>
                         <IconTextNavbar icon={FaRegCreditCard} text="INCASSI" iconSize={18} />
                     </Link>
-                    <Link href="/pazienti" className={`${commonClass} ${isActive("/pazienti")}`}>
-                        <IconTextNavbar image={BrainIcon} text="PAZIENTI" />
+                    <Link href="/utenti" className={`${commonClass} ${isActive("/utenti")}`}>
+                        <IconTextNavbar image={BrainIcon} text="UTENTI" />
                     </Link>
                     <Link href="/archivio-firme" className={`${commonClass} ${isActive("/archivio-firme")}`}>
                         <IconTextNavbar icon={FaPencilAlt} text="ARCHIVIO FIRME" iconSize={16} />
@@ -69,8 +70,8 @@ export const Navbar = () => {
 
             {/* Footer della Navbar */}
             <div className="flex flex-col mt-8 mb-4">
-                <Link href="/chi-siamo" className={`${commonClass} ${isActive("/chi-siamo")}`}>
-                    <IconTextNavbar icon={IoMdInformationCircleOutline} text="CHI SIAMO?" iconSize={19} />
+                <Link href="/utilita" className={`${commonClass} ${isActive("/utilita")}`}>
+                    <IconTextNavbar icon={IoSettingsSharp} text="UTILITA'" iconSize={19} />
                 </Link>
                 <Link href="/logout" className={`${commonClass} `}>
                     <IconTextNavbar icon={MdOutlineLogout} text="LOGOUT" iconSize={19} />
