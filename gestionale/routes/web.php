@@ -21,6 +21,12 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login_form
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// routes/web.php
+Route::get('/calendario', fn() => Inertia::render('Calendario'))
+    ->middleware([AuthSession::class])
+    ->name('calendario');
+
+
 Route::middleware([AuthSession::class])->group(function () {
 
 Route::get('/home-admin', [HomeController::class, 'admin'])->name('home_admin');
@@ -35,12 +41,23 @@ Route::post('/pagamenti', [PagamentoController::class, 'store'])->name('pagament
 Route::get('/pagamenti/stats', [PagamentoController::class, 'stats']);
 Route::get('/pagamenti/dettagli-stats', [PagamentoController::class, 'dettagliStats']);
 Route::post('/appuntamenti', [AppuntamentiController::class, 'store']);
+Route::get('/appuntamenti', [AppuntamentiController::class, 'index']);
+Route::patch('/appuntamenti/{id}', [AppuntamentiController::class, 'update']);
+
 Route::get('/incassi-per-anno', [PagamentoController::class, 'incassiPerAnno']);
 Route::get('/pagamenti/filtrati', [PagamentoController::class, 'filtraPagamenti']);
 
 
-Route::get('/', fn() => Inertia::render('Home'))->name('home');
-Route::get('/home', fn() => Inertia::render('Home'))->name('home');
+Route::get('/', function () {
+    $ruolo = session('logged_user.ruolo');
+    return Inertia::render('Home', ['canEdit' => $ruolo === 'admin']);
+})->name('home');
+
+Route::get('/home', function () {
+    $ruolo = session('logged_user.ruolo');
+    return Inertia::render('Home', ['canEdit' => $ruolo === 'admin']);
+})->name('home');
+
 Route::get('/incassi', fn() => Inertia::render('Incassi'))->name('incassi');
 Route::get('/utenti', fn() => Inertia::render('Utenti'))->name('utenti');
 Route::get('/archivio-firme', fn() => Inertia::render('ArchivioFirme'))->name('archivio-firme');

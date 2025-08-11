@@ -26,7 +26,7 @@ export const DatePicker = () => {
   };
 
   return (
-    <div className="flex items-center justify-between bg-bluSecondary text-white rounded-full px-2 py-1 w-[200px] h-[35px] shadow-lg space-x-1">
+    <div className="flex items-center justify-between bg-bluSecondary text-white  rounded-full px-2 py-1 w-[220px] h-[35px] shadow-lg space-x-1">
       {/* Pulsante sinistro */}
       <button onClick={() => changeDate(-1)} className="p-1 hover:bg-blue-500 rounded-full transition">
         <FaChevronLeft size={12} />
@@ -43,7 +43,7 @@ export const DatePicker = () => {
         ref={dateInputRef}
         value={date}
         onChange={handleDateChange}
-        className="bg-transparent outline-none text-[15px] text-white text-center font-marcellusSC w-20 cursor-pointer date-input"
+        className="bg-transparent outline-none text-[14px] text-white text-center font-marcellusSC w-20 cursor-pointer date-input"
       />
 
       {/* Freccia giù (non funzionante per ora) */}

@@ -12,6 +12,25 @@
 @tailwind utilities;
 
 
+/* Migliora leggibilità eventi */
+.fc .fc-timegrid-event,
+.fc .fc-daygrid-event {
+  border-radius: 10px;
+  padding: 2px 6px;
+}
+
+.fc .fc-event-time,
+.fc .fc-event-title {
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.fc .fc-event-title {
+  white-space: normal;    /* consente andare a capo */
+  word-break: break-word; /* evita overflow su nomi lunghi */
+}
+
+
 
 /* Rimuove l'icona predefinita del calendario nei browser principali */
 .date-input::-webkit-calendar-picker-indicator {
