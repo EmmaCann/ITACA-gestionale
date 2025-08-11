@@ -7,13 +7,23 @@ export default {
         './storage/framework/views/*.php',
         './resources/**/*.blade.php',
         './resources/**/*.js',
+        './resources/**/*.jsx',
         './resources/**/*.vue',
     ],
     theme: {
         extend: {
             fontFamily: {
+               
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                marcellus:['Marcellus','serif'],
+                marcellusSC:['Marcellus SC','serif'],
             },
+            colors: {
+                background: "#ECEFF2",
+                bluPrimary: "#3DA4DD",
+                pinkPrimary: "#BB4E97"
+                
+            }
         },
     },
     plugins: [],
