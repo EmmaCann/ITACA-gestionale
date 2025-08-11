@@ -2,10 +2,16 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AuthController;
 use App\Http\Middleware\AuthSession;
-
+use App\Http\Controllers\UtenteController;
+use App\Http\Controllers\PagamentoController;
+use App\Http\Controllers\AppuntamentiController;
+use App\Http\Controllers\ListaAttesaController;
+use App\Http\Controllers\TariffaController;
+use App\Http\Controllers\FirmaController;
 
 Route::get('/', function () {
     return redirect()->route('login_form');
@@ -20,5 +26,59 @@ Route::middleware([AuthSession::class])->group(function () {
     Route::get('/home-admin', [HomeController::class, 'admin'])->name('home_admin');
     Route::get('/home-staff', [HomeController::class, 'staff'])->name('home_staff');
     Route::get('/home-paziente', [HomeController::class, 'paziente'])->name('home_paziente');
+    Route::post('/utenti', [UtenteController::class, 'store'])->name('utenti.store');
+Route::get('/get-pazienti', [UtenteController::class, 'indexPazienti']);
+Route::get('/terapisti', [UtenteController::class, 'terapisti'])->name('utenti.terapisti');
+Route::get('/professioni/terapisti', [UtenteController::class, 'professioniTerapisti'])->name('utenti.professioniTerapisti');
+
+Route::post('/pagamenti', [PagamentoController::class, 'store'])->name('pagamento.store');
+Route::get('/pagamenti/stats', [PagamentoController::class, 'stats']);
+Route::get('/pagamenti/dettagli-stats', [PagamentoController::class, 'dettagliStats']);
+Route::post('/appuntamenti', [AppuntamentiController::class, 'store']);
+Route::get('/incassi-per-anno', [PagamentoController::class, 'incassiPerAnno']);
+Route::get('/pagamenti/filtrati', [PagamentoController::class, 'filtraPagamenti']);
+
+
+Route::get('/', fn() => Inertia::render('Home'))->name('home');
+Route::get('/home', fn() => Inertia::render('Home'))->name('home');
+Route::get('/incassi', fn() => Inertia::render('Incassi'))->name('incassi');
+Route::get('/utenti', fn() => Inertia::render('Utenti'))->name('utenti');
+Route::get('/archivio-firme', fn() => Inertia::render('ArchivioFirme'))->name('archivio-firme');
+Route::get('/lista-attesa', fn() => Inertia::render('ListaAttesa'))->name('lista-attesa');
+Route::get('/tariffario', fn() => Inertia::render('Tariffario'))->name('tariffario');
+Route::get('/chi-siamo', fn() => Inertia::render('ChiSiamo'))->name('chi-siamo');
+Route::get('/utilita', fn() => Inertia::render('Utilità'))->name('utilita');
+
+Route::get('/incassi/{tipo}', function ($tipo) {
+    return Inertia::render('IncassoDettaglio', ['tipo' => $tipo]);
+})->name('incassi.dettaglio');
+
+
+
+Route::get('/get-lista-attesa', [ListaAttesaController::class, 'index']);
+Route::post('/aggiungi-lista-attesa', [ListaAttesaController::class, 'store']);
+Route::patch('/lista-attesa/{id}/chiamato', [ListaAttesaController::class, 'segnaChiamato']);
+Route::patch('/lista-attesa/{id}/aggiorna-terapia', [ListaAttesaController::class, 'aggiornaTerapia']);
+Route::patch('/lista-attesa/{id}/aggiorna-terapista', [ListaAttesaController::class, 'aggiornaTerapista']);
+
+
+Route::get('/tariffe', [TariffaController::class, 'index'])->name('tariffe.index');
+Route::post('/tariffe', [TariffaController::class, 'store'])->name('tariffe.store');
+Route::get('/tariffe/{id}', [TariffaController::class, 'show'])->name('tariffe.show');
+Route::post('/tariffe/update/{id}', [TariffaController::class, 'update']);
+Route::delete('/tariffe/{id}', [TariffaController::class, 'destroy']);
+
+Route::get('/firme', [FirmaController::class, 'index']);
+Route::post('/firme', [FirmaController::class, 'store']);
+Route::delete('/firme/{id}', [FirmaController::class, 'destroy']);
+Route::get('/firme/export', [FirmaController::class, 'export']);
+
     
 });
+
+
+// Route::get('/', function () {
+//     return Inertia::render('Home');
+// });
+
+

@@ -1,11 +1,83 @@
 
-
-
 @import url('https://fonts.googleapis.com/css2?family=Marcellus&family=Marcellus+SC&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 
 @import url('https://fonts.googleapis.com/css2?family=Marcellus&family=Marcellus+SC&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Jua&family=Kodchasan:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&family=Noto+Color+Emoji&family=Noto+Emoji:wght@300..700&display=swap');
+
 
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+
+/* Rimuove l'icona predefinita del calendario nei browser principali */
+.date-input::-webkit-calendar-picker-indicator {
+    display: none !important;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  
+  .date-input {
+    position: relative;
+    background: transparent;
+    border: none;
+    outline: none;
+  }
+  
+/*SCROLLBAR*/
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px; /* Scrollbar sottile */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1); /* Sfondo scrollbar */
+  border-radius: 10px;
+  padding-top: 10px; /* Spazio vuoto sopra la scrollbar */
+  margin-top: 10px; /* Solleva il contenuto, spostando in basso la scrollbar */
+  margin-bottom: 10px; /* Bilancia l’effetto */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3); /* Colore iniziale */
+  border-radius: 10px;
+  transition: all 0.3s ease-in-out;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.5); /* Colore al passaggio del mouse */
+}
+
+
+
+.Modal {
+  /* background-color: #D1E8F6; */
+background-color: #F8F9FA;
+  border-radius: 24px;
+  padding: 20px;
+  max-width: 600px;
+  margin: auto;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  max-height: 70%;
+  z-index: 1000;
+}
+
+
+
+
+
+.Overlay {
+  background: rgba(0, 0, 0, 0.75);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+}
