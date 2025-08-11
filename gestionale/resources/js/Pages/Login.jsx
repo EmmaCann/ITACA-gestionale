@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { LoginForm } from '../components/molecules/loginForm';
-import { LogoItaca } from '../components/molecules/atoms/logoItaca';
+import { LogoItaca } from '../components/molecules/atoms/logo-ITACA';
 
 export default function Login({errors}){
     return (
@@ -17,7 +17,8 @@ export default function Login({errors}){
                     <div className="absolute top-[100px] left-[-200px] w-[1000px] h-[3px] bg-pinkPrimary opacity-70 rotate-[-45deg] shadow-md"></div>
                 </div>
                 <div className="  absolute bottom-8 left-[120px]">
-                    <LogoItaca />
+                      <LogoItaca width="w-[260px]" height="h-[120px]" />
+                   
                 </div>
             </div>
 

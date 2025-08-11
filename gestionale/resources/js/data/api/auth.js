@@ -7,7 +7,6 @@ export const loginUser = async (data) => {
             endpoint: "/login",
             method: "POST",
             headers: {
-                "X-CSRF-TOKEN": data._token,
                 "Content-Type": "application/json",
             },
             data,

@@ -22,39 +22,42 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+
         // Validazione dei dati
         $request->validate([
             'username' => 'required|string',
             'password' => 'required|string',
         ]);
 
-        $user = Utente::where('username', $request->username)->first();
+        $user = Utente::where('username', $request->username)
+            ->orWhere('email', $request->username)
+            ->first();
 
-        if ($user && Hash::check($request->password, $user->password)) {
-            Session::put('logged_user', [
-                'id_utente' => $user->id,
-                'username' => $user->username,
-                'nome' => $user->nome,
-                'cognome' => $user->cognome,
-                'ruolo' => $user->ruolo,
-            ]);
-            Session::regenerate();
-
-            // Determina la URL di reindirizzamento in base al ruolo
-            $redirectUrl = match ($user->ruolo) {
-                'admin' => route('home_admin'),
-                'staff' => route('home_staff'),
-                'paziente' => route('home_paziente'),
-                default => route('login_form'),
-            };
-
-
-            return response()->json(['success' => true, 'redirect_url' => $redirectUrl]);
+        if (!$user) {
+            return response()->json(['errore' => 'Utente inesistente'], 401);
         }
 
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json(['errore' => 'Password errata'], 401);
+        }
 
+        Session::put('logged_user', [
+            'id_utente' => $user->id,
+            'username'  => $user->username,
+            'nome'      => $user->nome,
+            'cognome'   => $user->cognome,
+            'ruolo'     => $user->ruolo,
+        ]);
+        Session::regenerate();
 
-        return response()->json(['errore' => "Ops! C'è qualcosa che non va"], 401);
+        $redirectUrl = match ($user->ruolo) {
+            'admin'   => route('home_admin'),
+            'staff'   => route('home_staff'),
+            'paziente' => route('home_paziente'),
+            default   => route('login_form'),
+        };
+
+        return response()->json(['success' => true, 'redirect_url' => $redirectUrl]);
     }
 
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, usePage } from "@inertiajs/react";
-import { LogoItaca } from "./molecules/atoms/logo-itaca.jsx";
+import { LogoItaca } from "./molecules/atoms/logo-ITACA.jsx"
 
 // Icone navbar
 import BrainIcon from "../../../public/icons/brain.png";
@@ -31,7 +31,7 @@ export const Navbar = () => {
             
             {/* Logo */}
             <div className={`${commonClass} pr-2 pt-1`}>
-                <LogoItaca width="w-[180px]" height="h-[95px]" />
+                <LogoItaca width="w-[180px]" height="h-[90px]" />
             </div>
 
             {/* Sezioni Navbar */}
