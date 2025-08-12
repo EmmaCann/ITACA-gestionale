@@ -7,15 +7,22 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import EventDetailsModal from "./molecules/EventDetailModal.jsx";
 
+// format YYYY-MM-DD in **local time**
+const formatLocalYMD = (d) => {
+  if (!(d instanceof Date)) return "";
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
+
 export function CalendarBoard() {
   const calRef = useRef(null);
   const { props } = usePage();
   const canEdit = props.canEdit === true;
   const [selectedId, setSelectedId] = useState(null);
-  console.log("props.canEdit =", props.canEdit);
-console.log("canEdit =", canEdit);
 
-  // NEW: flag per evitare che il click apra il modal durante drag/resize
+  // per evitare click durante drag/resize
   const isDraggingRef = useRef(false);
   const isResizingRef = useRef(false);
 
@@ -25,7 +32,18 @@ console.log("canEdit =", canEdit);
     return () => window.removeEventListener("calendar:refresh", handler);
   }, []);
 
-  console.log("RENDER: canEdit", canEdit);
+  // ascolta la data dal DatePicker e naviga
+  useEffect(() => {
+    const goto = (e) => {
+      const dateStr = e?.detail?.date; // "YYYY-MM-DD"
+      if (!dateStr) return;
+      const api = calRef.current?.getApi();
+      api?.gotoDate(dateStr); // naviga alla data
+      api?.refetchEvents();   // opzionale
+    };
+    window.addEventListener("calendar:goto", goto);
+    return () => window.removeEventListener("calendar:goto", goto);
+  }, []);
 
   return (
     <div className="h-full w-full">
@@ -33,12 +51,20 @@ console.log("canEdit =", canEdit);
         eventDisplay="block"
         ref={calRef}
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-        initialView="timeGridWeek"
+        initialView="timeGridDay"
         timeZone="local"
+        locale="it"
         headerToolbar={{
-          left: "prev,next today",
+          left: "today", // tieni solo Oggi
           center: "title",
           right: "dayGridMonth,timeGridWeek,timeGridDay",
+        }}
+        buttonText={{
+          today: "Oggi",
+          month: "Mese",
+          week: "Settimana",
+          day: "Giorno",
+          list: "Lista",
         }}
         height="100%"
         expandRows
@@ -46,10 +72,24 @@ console.log("canEdit =", canEdit);
         eventStartEditable={canEdit}
         eventDurationEditable={canEdit}
         eventResizableFromStart={true}
-
+        // Sync inverso: quando cambia la vista/range, aggiorna il DatePicker (in locale)
+        datesSet={() => {
+          const api = calRef.current?.getApi();
+          const d = api?.getDate(); // Date centrata sulla vista
+          const dateStr = d ? formatLocalYMD(d) : null;
+          if (dateStr) {
+            window.dispatchEvent(
+              new CustomEvent("calendar:datesSet", { detail: { date: dateStr } })
+            );
+          }
+        }}
         /* === DRAG === */
-        eventDragStart={() => { isDraggingRef.current = true; }}
-        eventDragStop={() => { isDraggingRef.current = false; }}
+        eventDragStart={() => {
+          isDraggingRef.current = true;
+        }}
+        eventDragStop={() => {
+          isDraggingRef.current = false;
+        }}
         eventDrop={async (info) => {
           try {
             await axios.patch(`/appuntamenti/${info.event.id}`, {
@@ -60,10 +100,13 @@ console.log("canEdit =", canEdit);
             alert("Errore nello spostamento appuntamento");
           }
         }}
-
         /* === RESIZE === */
-        eventResizeStart={() => { isResizingRef.current = true; }}
-        eventResizeStop={() => { isResizingRef.current = false; }}
+        eventResizeStart={() => {
+          isResizingRef.current = true;
+        }}
+        eventResizeStop={() => {
+          isResizingRef.current = false;
+        }}
         eventResize={async (info) => {
           try {
             await axios.patch(`/appuntamenti/${info.event.id}`, {
@@ -75,20 +118,11 @@ console.log("canEdit =", canEdit);
             alert("Errore nel ridimensionamento della durata");
           }
         }}
-
-        // /* === CLICK / DOPPIO CLICK === */
-        // eventClick={(info) => {
-        //   // se sto drag/resize, ignoro il click
-        //   if (isDraggingRef.current || isResizingRef.current) return;
-
-        //   // apri solo su DOPPIO click (jsEvent.detail === 2)
-        //   if (info.jsEvent?.detail >= 2) {
-        //     setSelectedId(info.event.id);
-        //   }
-        // }}
-        eventClick={(info) => setSelectedId(info.event.id)}
-
-
+        /* === CLICK === */
+        eventClick={(info) => {
+          if (isDraggingRef.current || isResizingRef.current) return;
+          setSelectedId(info.event.id);
+        }}
         eventSources={[
           {
             url: "/appuntamenti",
