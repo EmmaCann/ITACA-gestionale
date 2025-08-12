@@ -8,24 +8,23 @@ use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
+
     public function admin()
     {
         return Inertia::render('Home', [
-            'user' => Session::get('logged_user')
+            'canEdit' => session('logged_user.ruolo') === 'admin',
         ]);
     }
-
     public function staff()
     {
-        return Inertia::render('HomeStaff', [
-            'user' => Session::get('logged_user')
+        return Inertia::render('Home', [
+            'canEdit' => session('logged_user.ruolo') === 'admin',
         ]);
     }
-
     public function paziente()
     {
-        return Inertia::render('HomePaziente', [
-            'user' => Session::get('logged_user')
+        return Inertia::render('Home', [
+            'canEdit' => session('logged_user.ruolo') === 'admin',
         ]);
     }
 }

@@ -40,9 +40,13 @@ Route::get('/professioni/terapisti', [UtenteController::class, 'professioniTerap
 Route::post('/pagamenti', [PagamentoController::class, 'store'])->name('pagamento.store');
 Route::get('/pagamenti/stats', [PagamentoController::class, 'stats']);
 Route::get('/pagamenti/dettagli-stats', [PagamentoController::class, 'dettagliStats']);
+
 Route::post('/appuntamenti', [AppuntamentiController::class, 'store']);
 Route::get('/appuntamenti', [AppuntamentiController::class, 'index']);
 Route::patch('/appuntamenti/{id}', [AppuntamentiController::class, 'update']);
+Route::get('/appuntamenti/{id}', [AppuntamentiController::class, 'show']);
+Route::delete('/appuntamenti/{id}', [AppuntamentiController::class, 'destroy']);
+
 
 Route::get('/incassi-per-anno', [PagamentoController::class, 'incassiPerAnno']);
 Route::get('/pagamenti/filtrati', [PagamentoController::class, 'filtraPagamenti']);

@@ -95,7 +95,7 @@ class AppuntamentiController extends Controller
                 ? trim(($a->terapista->nome ?? '') . ' ' . ($a->terapista->cognome ?? ''))
                 : 'Terapista';
 
-            $title = "{$pazienteName} — {$terapistaName}";
+            $title = "{$pazienteName} — Dr. {$terapistaName}";
 
             $bg = $this->colorForTherapist((int)$a->terapista_id);
             $fg = $this->idealTextColor($bg);
@@ -145,6 +145,7 @@ class AppuntamentiController extends Controller
         ], 201);
     }
 
+
     public function update(Request $request, $id)
     {
         $ruolo = session('logged_user.ruolo');
@@ -154,24 +155,96 @@ class AppuntamentiController extends Controller
 
 
         $validated = $request->validate([
-            'start' => ['required', 'date'], // drag/drop & resize
-            'end'   => ['nullable', 'date'], // presente su resize
+            'start'          => ['nullable', 'date'],
+            'end'            => ['nullable', 'date'],
+            'data'           => ['nullable', 'date'],
+            'ora'            => ['nullable', 'date_format:H:i'],
+            'durata_minuti'  => ['nullable', 'integer', 'min:5', 'max:720'],
+            'note'           => ['nullable', 'string'],
+            'terapista_id'   => ['nullable', 'exists:utente,id'],
+            'paziente_id'    => ['nullable', 'exists:utente,id'],
+            'nome'           => ['nullable', 'string'],   // per ospite
+            'cognome'        => ['nullable', 'string'],   // per ospite
         ]);
 
         $a = Appuntamento::findOrFail($id);
 
-        $start = Carbon::parse($validated['start']);
-        $a->data = $start->toDateString();
-        $a->ora  = $start->format('H:i:s');
-
-        if (!empty($validated['end'])) {
-            $end = Carbon::parse($validated['end']);
-            $diff = $start->diffInMinutes($end);
-            $a->durata_minuti = max(5, min($diff, 12 * 60));
+        // caso drag/resize
+        if (!empty($validated['start'])) {
+            $start = \Illuminate\Support\Carbon::parse($validated['start']);
+            $a->data = $start->toDateString();
+            $a->ora  = $start->format('H:i:s');
+            if (!empty($validated['end'])) {
+                $end  = \Illuminate\Support\Carbon::parse($validated['end']);
+                $diff = $start->diffInMinutes($end);
+                $a->durata_minuti = max(5, min($diff, 12 * 60));
+            }
         }
+
+        // caso form (edit manuale)
+        if (!empty($validated['data'])) $a->data = $validated['data'];
+        if (!empty($validated['ora']))  $a->ora  = $validated['ora'];
+        if (array_key_exists('durata_minuti', $validated) && $validated['durata_minuti'] !== null) {
+            $a->durata_minuti = $validated['durata_minuti'];
+        }
+        if (array_key_exists('note', $validated))        $a->note = $validated['note'];
+        if (!empty($validated['terapista_id']))         $a->terapista_id = $validated['terapista_id'];
+
+        // ospite o cambio paziente
+        if (array_key_exists('paziente_id', $validated)) $a->paziente_id = $validated['paziente_id'];
+        if (array_key_exists('nome', $validated))        $a->nome = $validated['nome'];
+        if (array_key_exists('cognome', $validated))     $a->cognome = $validated['cognome'];
 
         $a->save();
 
         return response()->json(['ok' => true]);
+    }
+
+    public function destroy(Request $request, $id)
+    {
+        $ruolo = session('logged_user.ruolo');
+        if ($ruolo !== 'admin') {
+            return response()->json(['message' => 'Non autorizzato'], 403);
+        }
+
+        $a = Appuntamento::findOrFail($id);
+        $a->delete();
+
+        return response()->json(['ok' => true]);
+    }
+
+
+    public function show(Request $request, $id)
+    {
+        $ruolo  = session('logged_user.ruolo');
+        $userId = session('logged_user.id_utente');
+
+        $a = Appuntamento::with([
+            'paziente:id,nome,cognome',
+            'terapista:id,nome,cognome',
+        ])->findOrFail($id);
+
+        // visibilità base
+        if ($ruolo === 'staff' && $a->terapista_id !== $userId) {
+            return response()->json(['message' => 'Non autorizzato'], 403);
+        }
+        if ($ruolo === 'paziente' && $a->paziente_id !== $userId) {
+            return response()->json(['message' => 'Non autorizzato'], 403);
+        }
+
+        return response()->json([
+            'id'             => $a->id,
+            'data'           => $a->data?->toDateString(),
+            'ora'            => $a->ora instanceof \Carbon\Carbon ? $a->ora->format('H:i:s') : $a->ora,
+            'durata_minuti'  => $a->durata_minuti,
+            'note'           => $a->note,
+            'paziente_id'    => $a->paziente_id,
+            'paziente_nome'  => $a->paziente?->nome ?? $a->nome,
+            'paziente_cognome' => $a->paziente?->cognome ?? $a->cognome,
+            'terapista_id'   => $a->terapista_id,
+            'terapista_nome' => $a->terapista?->nome,
+            'terapista_cognome' => $a->terapista?->cognome,
+            'created_at'     => $a->created_at,
+        ]);
     }
 }

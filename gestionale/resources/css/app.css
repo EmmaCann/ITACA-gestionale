@@ -21,13 +21,14 @@
 
 .fc .fc-event-time,
 .fc .fc-event-title {
-  font-weight: 600;
-  line-height: 1.2;
+  font-weight: 400;
+  line-height: 1;
 }
 
 .fc .fc-event-title {
   white-space: normal;    /* consente andare a capo */
   word-break: break-word; /* evita overflow su nomi lunghi */
+  font-size: 12px;
 }
 
 
