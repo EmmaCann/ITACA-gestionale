@@ -55,7 +55,7 @@ export function CalendarBoard() {
         timeZone="local"
         locale="it"
         headerToolbar={{
-          left: "today", // tieni solo Oggi
+          left: "today", 
           center: "title",
           right: "dayGridMonth,timeGridWeek,timeGridDay",
         }}
