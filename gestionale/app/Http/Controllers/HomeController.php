@@ -17,13 +17,13 @@ class HomeController extends Controller
     }
     public function staff()
     {
-        return Inertia::render('Home', [
+        return Inertia::render('HomeStaff', [
             'canEdit' => session('logged_user.ruolo') === 'admin',
         ]);
     }
     public function paziente()
     {
-        return Inertia::render('Home', [
+        return Inertia::render('HomePaziente', [
             'canEdit' => session('logged_user.ruolo') === 'admin',
         ]);
     }
