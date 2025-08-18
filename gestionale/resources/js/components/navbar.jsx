@@ -73,7 +73,7 @@ export const Navbar = () => {
                 <Link href="/utilita" className={`${commonClass} ${isActive("/utilita")}`}>
                     <IconTextNavbar icon={IoSettingsSharp} text="UTILITA'" iconSize={19} />
                 </Link>
-                <Link href="/logout" className={`${commonClass} `}>
+                <Link href="/logout" method="post" className={`${commonClass} `}>
                     <IconTextNavbar icon={MdOutlineLogout} text="LOGOUT" iconSize={19} />
                 </Link>
             </div>
