@@ -31,7 +31,7 @@ export const Navbar = () => {
             
             {/* Logo */}
             <div className={`${commonClass} pr-2 pt-2`}>
-                <LogoItaca width="w-[180px]" height="h-[90px]" />
+                <LogoItaca width="w-[180px]" height="h-[85px]" />
             </div>
 
             {/* Sezioni Navbar */}

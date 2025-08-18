@@ -20,6 +20,17 @@
   margin-right: 6px;
 
 }
+.fc .fc-toolbar { filter: none !important; opacity: 1 !important; }
+
+.fc .fc-toolbar .fc-therapistFilter-button{
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  line-height: normal !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
 
 
 /* Migliora leggibilità eventi */

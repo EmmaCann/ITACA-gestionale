@@ -50,6 +50,7 @@ class AppuntamentiController extends Controller
 
         $start = $request->query('start');
         $end   = $request->query('end');
+        $terapistaId = $request->query('terapista_id');
 
         $q = Appuntamento::query()->with([
             'paziente:id,nome,cognome',
@@ -62,6 +63,11 @@ class AppuntamentiController extends Controller
                 \Illuminate\Support\Carbon::parse($end)->toDateString()
             ]);
         }
+
+        if ($terapistaId) {
+            $q->where('terapista_id', $terapistaId);
+        }
+
 
         if ($ruolo === 'staff') {
             $q->where('terapista_id', $userId);
