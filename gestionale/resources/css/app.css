@@ -11,6 +11,36 @@
 @tailwind components;
 @tailwind utilities;
 
+.fc .fc-button {
+  background-color: #3DA4DD !important;
+  color: #fff !important;
+  border-radius: 10px !important;
+  border: none;
+  opacity: 60%;
+  margin-right: 6px;
+
+}
+
+
+/* Migliora leggibilità eventi */
+.fc .fc-timegrid-event,
+.fc .fc-daygrid-event {
+  border-radius: 10px;
+  padding: 2px 6px;
+}
+
+.fc .fc-event-time,
+.fc .fc-event-title {
+  font-weight: 400;
+  line-height: 1;
+}
+
+.fc .fc-event-title {
+  white-space: normal;    /* consente andare a capo */
+  word-break: break-word; /* evita overflow su nomi lunghi */
+  font-size: 12px;
+}
+
 
 
 /* Rimuove l'icona predefinita del calendario nei browser principali */

@@ -1,58 +1,105 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { FaChevronLeft, FaChevronRight, FaCalendarAlt, FaChevronDown } from "react-icons/fa";
 
+// util: format/parsing **locale** (niente UTC)
+const formatLocalYMD = (d) => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
+const parseYMD = (ymd) => {
+  const [y, m, d] = ymd.split("-").map((n) => parseInt(n, 10));
+  // costruttore locale (YYYY, M-1, D)
+  return new Date(y, (m || 1) - 1, d || 1);
+};
+
 export const DatePicker = () => {
-  const today = new Date().toISOString().split("T")[0]; // Data di oggi in formato YYYY-MM-DD
+  const today = formatLocalYMD(new Date()); // YYYY-MM-DD in locale
   const [date, setDate] = useState(today);
-  const dateInputRef = useRef(null); // Riferimento all'input di tipo date
+  const dateInputRef = useRef(null);
 
-  // Funzione per cambiare la data manualmente
+  // avvisa il calendario di andare ad una data (stringa YYYY-MM-DD)
+  const dispatchGoto = (dateStr) => {
+    window.dispatchEvent(
+      new CustomEvent("calendar:goto", { detail: { date: dateStr } })
+    );
+  };
+
+  // cambio manuale dal picker
   const handleDateChange = (e) => {
-    setDate(e.target.value);
+    const value = e.target.value;
+    setDate(value);
+    dispatchGoto(value);
   };
 
-  // Funzione per spostarsi avanti o indietro di un giorno
+  // frecce: +/- 1 giorno (in locale)
   const changeDate = (days) => {
-    const newDate = new Date(date);
-    newDate.setDate(newDate.getDate() + days);
-    setDate(newDate.toISOString().split("T")[0]); // Aggiorna la data
+    const base = parseYMD(date);
+    base.setDate(base.getDate() + days);
+    const newDateStr = formatLocalYMD(base);
+    setDate(newDateStr);
+    dispatchGoto(newDateStr);
   };
 
-  // Funzione per aprire il date picker quando si clicca sull'icona del calendario
   const openDatePicker = () => {
-    if (dateInputRef.current) {
-      dateInputRef.current.showPicker(); // Apri il selettore di date
+    if (dateInputRef.current?.showPicker) {
+      dateInputRef.current.showPicker();
+    } else {
+      dateInputRef.current?.focus();
+      dateInputRef.current?.click();
     }
   };
 
+  // sync: quando il calendario cambia range, aggiorna il datepicker
+  useEffect(() => {
+    const onDatesSet = (e) => {
+      if (e?.detail?.date) setDate(e.detail.date);
+    };
+    window.addEventListener("calendar:datesSet", onDatesSet);
+
+    // all'avvio, porta anche il calendario ad "oggi"
+    dispatchGoto(today);
+
+    return () => window.removeEventListener("calendar:datesSet", onDatesSet);
+  }, [today]);
+
   return (
-    <div className="flex items-center justify-between bg-bluSecondary text-white rounded-full px-2 py-1 w-[200px] h-[35px] shadow-lg space-x-1">
-      {/* Pulsante sinistro */}
-      <button onClick={() => changeDate(-1)} className="p-1 hover:bg-blue-500 rounded-full transition">
+    <div className="flex items-center justify-between bg-bluSecondary text-white rounded-full px-2 py-1 w-[240px] h-[35px] shadow-lg space-x-1">
+      {/* freccia sinistra */}
+      <button
+        onClick={() => changeDate(-1)}
+        className="p-1 hover:bg-blue-500 rounded-full transition"
+        aria-label="Giorno precedente"
+      >
         <FaChevronLeft size={12} />
       </button>
 
-      {/* Icona Calendario (Cliccabile per aprire il selettore di date) */}
-      <button onClick={openDatePicker} className="p-1">
+      {/* icona calendario */}
+      <button onClick={openDatePicker} className="p-1" aria-label="Apri selettore data">
         <FaCalendarAlt size={14} />
       </button>
 
-      {/* Campo Data Modificabile (senza icona predefinita) */}
+      {/* input data */}
       <input
         type="date"
         ref={dateInputRef}
         value={date}
         onChange={handleDateChange}
-        className="bg-transparent outline-none text-[15px] text-white text-center font-marcellusSC w-20 cursor-pointer date-input"
+        className="bg-transparent outline-none text-[14px] text-white text-center font-marcellusSC w-24 cursor-pointer date-input"
       />
 
-      {/* Freccia giù (non funzionante per ora) */}
-      <button className="p-1 hover:bg-blue-500 rounded-full transition">
+      {/* caret estetico */}
+      <span className="p-1">
         <FaChevronDown size={12} />
-      </button>
+      </span>
 
-      {/* Pulsante destro */}
-      <button onClick={() => changeDate(1)} className="p-1 hover:bg-blue-500 rounded-full transition">
+      {/* freccia destra */}
+      <button
+        onClick={() => changeDate(1)}
+        className="p-1 hover:bg-blue-500 rounded-full transition"
+        aria-label="Giorno successivo"
+      >
         <FaChevronRight size={12} />
       </button>
     </div>

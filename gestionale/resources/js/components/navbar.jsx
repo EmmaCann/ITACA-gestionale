@@ -30,7 +30,7 @@ export const Navbar = () => {
         <div className="bg-navbar w-[200px] h-[98%] flex flex-col m-2 rounded-[20px] opacity-[60%] drop-shadow">
             
             {/* Logo */}
-            <div className={`${commonClass} pr-2 pt-1`}>
+            <div className={`${commonClass} pr-2 pt-2`}>
                 <LogoItaca width="w-[180px]" height="h-[90px]" />
             </div>
 
