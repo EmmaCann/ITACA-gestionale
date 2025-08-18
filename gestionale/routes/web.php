@@ -8,6 +8,7 @@ use App\Http\Controllers\AppuntamentiController;
 use App\Http\Controllers\ListaAttesaController;
 use App\Http\Controllers\TariffaController;
 use App\Http\Controllers\FirmaController;
+use App\Http\Controllers\SystemMaintenanceController;
 
 // Route::get('/', function () {
 //     return Inertia::render('Home');
@@ -59,3 +60,14 @@ Route::get('/firme', [FirmaController::class, 'index']);
 Route::post('/firme', [FirmaController::class, 'store']);
 Route::delete('/firme/{id}', [FirmaController::class, 'destroy']);
 Route::get('/firme/export', [FirmaController::class, 'export']);
+
+
+
+
+Route::post('/admin/utilita/purge/waitlist',       [SystemMaintenanceController::class, 'purgeWaitlist'])->name('utilita.purge.waitlist');
+Route::post('/admin/utilita/purge/signatures',     [SystemMaintenanceController::class, 'purgeSignatures'])->name('utilita.purge.signatures');
+Route::post('/admin/utilita/purge/appointments',   [SystemMaintenanceController::class, 'purgeAppointments'])->name('utilita.purge.appointments');
+Route::post('/admin/utilita/purge/payments',       [SystemMaintenanceController::class, 'purgePayments'])->name('utilita.purge.payments');
+Route::post('/admin/utilita/purge/prices',         [SystemMaintenanceController::class, 'purgePrices'])->name('utilita.purge.prices');
+Route::post('/admin/utilita/purge/medical-charts', [SystemMaintenanceController::class, 'purgeMedicalCharts'])->name('utilita.purge.medical');
+
