@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Appuntamento;
+use App\Models\PazienteTerapista;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
@@ -145,11 +146,27 @@ class AppuntamentiController extends Controller
 
         $appuntamento = Appuntamento::create($validated);
 
+        // Se l'appuntamento ha un paziente, assicuriamoci che la coppia paziente-terapista esista
+        if (!empty($validated['paziente_id'])) {
+            $exists = PazienteTerapista::where('paziente_id', $validated['paziente_id'])
+                ->where('terapista_id', $validated['terapista_id'])
+                ->exists();
+
+            if (! $exists) {
+                PazienteTerapista::create([
+                    'paziente_id'  => $validated['paziente_id'],
+                    'terapista_id' => $validated['terapista_id'],
+                    'data'         => $validated['data'], // puoi decidere cosa salvare
+                ]);
+            }
+        }
+
         return response()->json([
             'message' => 'Appuntamento creato con successo!',
             'data' => $appuntamento
         ], 201);
     }
+
 
 
     public function update(Request $request, $id)
@@ -158,7 +175,6 @@ class AppuntamentiController extends Controller
         if ($ruolo !== 'admin') {
             return response()->json(['message' => 'Non autorizzato'], 403);
         }
-
 
         $validated = $request->validate([
             'start'          => ['nullable', 'date'],
@@ -203,54 +219,21 @@ class AppuntamentiController extends Controller
 
         $a->save();
 
+        // 🔹 dopo aver salvato l'appuntamento, assicuriamo il record in pazienti_terapisti
+        if (!empty($a->paziente_id) && !empty($a->terapista_id)) {
+            $exists = PazienteTerapista::where('paziente_id', $a->paziente_id)
+                ->where('terapista_id', $a->terapista_id)
+                ->exists();
+
+            if (! $exists) {
+                PazienteTerapista::create([
+                    'paziente_id'  => $a->paziente_id,
+                    'terapista_id' => $a->terapista_id,
+                    'data'         => $a->data?->toDateString() ?? now()->toDateString(),
+                ]);
+            }
+        }
+
         return response()->json(['ok' => true]);
-    }
-
-    public function destroy(Request $request, $id)
-    {
-        $ruolo = session('logged_user.ruolo');
-        if ($ruolo !== 'admin') {
-            return response()->json(['message' => 'Non autorizzato'], 403);
-        }
-
-        $a = Appuntamento::findOrFail($id);
-        $a->delete();
-
-        return response()->json(['ok' => true]);
-    }
-
-
-    public function show(Request $request, $id)
-    {
-        $ruolo  = session('logged_user.ruolo');
-        $userId = session('logged_user.id_utente');
-
-        $a = Appuntamento::with([
-            'paziente:id,nome,cognome',
-            'terapista:id,nome,cognome',
-        ])->findOrFail($id);
-
-        // visibilità base
-        if ($ruolo === 'staff' && $a->terapista_id !== $userId) {
-            return response()->json(['message' => 'Non autorizzato'], 403);
-        }
-        if ($ruolo === 'paziente' && $a->paziente_id !== $userId) {
-            return response()->json(['message' => 'Non autorizzato'], 403);
-        }
-
-        return response()->json([
-            'id'             => $a->id,
-            'data'           => $a->data?->toDateString(),
-            'ora'            => $a->ora instanceof \Carbon\Carbon ? $a->ora->format('H:i:s') : $a->ora,
-            'durata_minuti'  => $a->durata_minuti,
-            'note'           => $a->note,
-            'paziente_id'    => $a->paziente_id,
-            'paziente_nome'  => $a->paziente?->nome ?? $a->nome,
-            'paziente_cognome' => $a->paziente?->cognome ?? $a->cognome,
-            'terapista_id'   => $a->terapista_id,
-            'terapista_nome' => $a->terapista?->nome,
-            'terapista_cognome' => $a->terapista?->cognome,
-            'created_at'     => $a->created_at,
-        ]);
     }
 }
