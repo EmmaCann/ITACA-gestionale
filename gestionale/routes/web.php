@@ -65,6 +65,8 @@ Route::get('/home', function () {
 
 Route::get('/incassi', fn() => Inertia::render('Incassi'))->name('incassi');
 Route::get('/utenti', fn() => Inertia::render('Utenti'))->name('utenti');
+Route::get('/pagamenti', fn() => Inertia::render('Pagamenti'))->name('pagamenti');
+Route::get('/appuntamenti', fn() => Inertia::render('Appuntamenti'))->name('appuntamenti');
 Route::get('/archivio-firme', fn() => Inertia::render('ArchivioFirme'))->name('archivio-firme');
 Route::get('/lista-attesa', fn() => Inertia::render('ListaAttesa'))->name('lista-attesa');
 Route::get('/tariffario', fn() => Inertia::render('Tariffario'))->name('tariffario');
