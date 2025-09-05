@@ -5,46 +5,46 @@ import {
     FaCalendarAlt,
     FaPhoneAlt,
     FaRegThumbsUp,
+    FaLock,
 } from "react-icons/fa";
 import { MdOutlineEmail } from "react-icons/md";
 import { toast } from "react-toastify";
-import { creaUtente } from "@/data/api/utenti";
 import { baseCall } from "../../data/api/baseCall";
 import { IconInputWrapperModal } from "../molecules/atoms/iconInputWrapperModal.jsx";
 
-
-const ModalContentAggiungiUtente = ({
-    tipoIniziale = "paziente",
-    onSubmit,
-    onClose,
-}) => {
-    const [tipoUtente, setTipoUtente] = useState(tipoIniziale);
+const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
     const [formData, setFormData] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [terapistiOptions, setTerapistiOptions] = useState([]);
     const [terapistaSelezionato, setTerapistaSelezionato] = useState(null);
 
-    useEffect(() => {
-        setTipoUtente(tipoIniziale);
-        setFormData({});
-        setTerapistaSelezionato(null);
-    }, [tipoIniziale]);
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-    };
-
-    const tipoOptions = [
-        { value: "paziente", label: "Paziente" },
-        { value: "staff", label: "Staff" },
-    ];
+    const tipoUtente = utente?.ruolo === "paziente" ? "paziente" : "staff";
 
     useEffect(() => {
-        if (tipoUtente === "paziente") {
-            fetchTerapisti();
+        if (utente) {
+            setFormData({
+                nome: utente.nome || "",
+                cognome: utente.cognome || "",
+                nascita: utente.nascita || "",
+                sesso: utente.sesso || null,
+                telefono: utente.telefono || "",
+                email: utente.email || "",
+                professione: utente.professione || "",
+                diagnosi: utente.diagnosi || "",
+                password: "",
+            });
+
+            if (tipoUtente === "paziente") {
+                fetchTerapisti();
+                if (Array.isArray(utente.terapisti) && utente.terapisti.length) {
+                    setTerapistaSelezionato({
+                        value: utente.terapisti[0].id,
+                        label: `${utente.terapisti[0].nome} ${utente.terapisti[0].cognome}`,
+                    });
+                }
+            }
         }
-    }, [tipoUtente]);
+    }, [utente]);
 
     const fetchTerapisti = async () => {
         try {
@@ -52,48 +52,53 @@ const ModalContentAggiungiUtente = ({
                 endpoint: "/terapisti",
                 method: "GET",
             });
-            setTerapistiOptions(Object.values(response.data));
+            setTerapistiOptions(
+                Object.values(response.data).map((t) => ({
+                    value: t.id,
+                    label: `${t.nome} ${t.cognome}`,
+                }))
+            );
         } catch (error) {
             toast.error("Errore nel recupero dei terapisti");
             console.error("Errore terapisti:", error);
         }
     };
 
-    const handleTipoChange = (option) => {
-        setTipoUtente(option.value);
-        setFormData({});
-        setTerapistaSelezionato(null);
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async () => {
         const data = {
-            tipoUtente,
             ...formData,
             ...(tipoUtente === "paziente" && {
-                terapista: terapistaSelezionato,
+                terapista_id: terapistaSelezionato?.value,
             }),
         };
+
+        // Se la password è vuota non la mando
+        if (!data.password) {
+            delete data.password;
+        }
 
         setIsSubmitting(true);
 
         try {
-            const response = await creaUtente(data);
-            toast.success("Utente creato con successo!");
+            const response = await baseCall({
+                endpoint: `/utenti/${utente.id}`,
+                method: "PUT",
+                data,
+            });
+
+            toast.success("Utente modificato con successo!");
             onSubmit?.(response);
             onClose();
         } catch (error) {
-            console.error("Errore completo:", error);
-            if (error.response?.data?.errors) {
-                const validationErrors = error.response.data.errors;
-                Object.values(validationErrors).forEach((messages) =>
-                    messages.forEach((msg) => toast.error(msg))
-                );
-            } else {
-                toast.error(
-                    "Errore nella creazione: " +
-                        (error.message || "Errore sconosciuto")
-                );
-            }
+            console.error("Errore update:", error);
+            toast.error(
+                error.response?.data?.message || "Errore durante la modifica"
+            );
         } finally {
             setIsSubmitting(false);
         }
@@ -106,19 +111,8 @@ const ModalContentAggiungiUtente = ({
         <div className="flex flex-col h-full overflow-hidden">
             <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-4">
                 <h2 className="font-marcellusSC font-bold text-center text-[22px]">
-                    AGGIUNGI NUOVO {tipoUtente.toUpperCase()}
+                    MODIFICA {tipoUtente.toUpperCase()}
                 </h2>
-
-                <div className="w-[40%]">
-                    <Select
-                        options={tipoOptions}
-                        value={tipoOptions.find(
-                            (opt) => opt.value === tipoUtente
-                        )}
-                        onChange={handleTipoChange}
-                        className="text-[14px]"
-                    />
-                </div>
 
                 {/* Nome + Cognome */}
                 <div className="flex flex-row gap-4">
@@ -127,6 +121,7 @@ const ModalContentAggiungiUtente = ({
                             name="nome"
                             placeholder="Nome"
                             className={inputStyle}
+                            value={formData.nome || ""}
                             onChange={handleChange}
                         />
                     </IconInputWrapperModal>
@@ -135,12 +130,13 @@ const ModalContentAggiungiUtente = ({
                             name="cognome"
                             placeholder="Cognome"
                             className={inputStyle}
+                            value={formData.cognome || ""}
                             onChange={handleChange}
                         />
                     </IconInputWrapperModal>
                 </div>
 
-                {/* Data di nascita + Telefono */}
+                {/* Data di nascita + sesso */}
                 <div className="flex flex-row gap-4">
                     <div className="flex flex-col flex-1">
                         <label className="text-sm text-gray-600 mb-1 font-marcellus">
@@ -149,14 +145,13 @@ const ModalContentAggiungiUtente = ({
                         <IconInputWrapperModal icon={FaCalendarAlt}>
                             <input
                                 type="date"
-                                name="dataNascita"
+                                name="nascita"
                                 className={inputStyle}
+                                value={formData.nascita || ""}
                                 onChange={handleChange}
-                                value={formData.dataNascita || ""}
                             />
                         </IconInputWrapperModal>
                     </div>
-                    {/* Sesso */}
                     <div className="flex flex-col">
                         <label className="text-sm text-gray-600 mb-1 font-marcellus">
                             Sesso
@@ -186,23 +181,20 @@ const ModalContentAggiungiUtente = ({
                             }
                             placeholder="Seleziona sesso"
                             className="text-[14px] w-[200px]"
-                            menuPlacement="auto"
                         />
                     </div>
                 </div>
-                <div className="flex flex-col flex-1">
-                    <label className="text-sm text-gray-600 mb-1 ml-2 invisible">
-                        Telefono
-                    </label>
-                    <IconInputWrapperModal icon={FaPhoneAlt}>
-                        <input
-                            name="telefono"
-                            placeholder="Telefono"
-                            className={inputStyle}
-                            onChange={handleChange}
-                        />
-                    </IconInputWrapperModal>
-                </div>
+
+                {/* Telefono */}
+                <IconInputWrapperModal icon={FaPhoneAlt}>
+                    <input
+                        name="telefono"
+                        placeholder="Telefono"
+                        className={inputStyle}
+                        value={formData.telefono || ""}
+                        onChange={handleChange}
+                    />
+                </IconInputWrapperModal>
 
                 {/* Email */}
                 <IconInputWrapperModal icon={MdOutlineEmail}>
@@ -210,6 +202,19 @@ const ModalContentAggiungiUtente = ({
                         name="email"
                         placeholder="Email"
                         className={inputStyle}
+                        value={formData.email || ""}
+                        onChange={handleChange}
+                    />
+                </IconInputWrapperModal>
+
+                {/* Password */}
+                <IconInputWrapperModal icon={FaLock}>
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Nuova password (lascia vuoto per non cambiare)"
+                        className={inputStyle}
+                        value={formData.password || ""}
                         onChange={handleChange}
                     />
                 </IconInputWrapperModal>
@@ -221,17 +226,12 @@ const ModalContentAggiungiUtente = ({
                             Terapista
                         </label>
                         <Select
-                            options={
-                                Array.isArray(terapistiOptions)
-                                    ? terapistiOptions
-                                    : []
-                            }
+                            options={terapistiOptions}
                             value={terapistaSelezionato}
                             onChange={setTerapistaSelezionato}
                             placeholder="Seleziona un terapista"
                             className="text-[14px]"
                             menuPlacement="auto"
-                            maxMenuHeight={100}
                         />
                     </div>
                 ) : (
@@ -240,6 +240,7 @@ const ModalContentAggiungiUtente = ({
                             name="professione"
                             placeholder="Professione"
                             className={inputStyle}
+                            value={formData.professione || ""}
                             onChange={handleChange}
                         />
                     </IconInputWrapperModal>
@@ -253,6 +254,7 @@ const ModalContentAggiungiUtente = ({
                             placeholder="Diagnosi"
                             rows={3}
                             className={`${inputStyle} resize-none`}
+                            value={formData.diagnosi || ""}
                             onChange={handleChange}
                         />
                     </IconInputWrapperModal>
@@ -278,7 +280,7 @@ const ModalContentAggiungiUtente = ({
                     }`}
                     disabled={isSubmitting}
                 >
-                    {isSubmitting ? "Aggiungendo..." : "Aggiungi utente!"}
+                    {isSubmitting ? "Salvando..." : "Salva modifiche"}
                     <FaRegThumbsUp
                         className="text-gray-700 text-sm"
                         size={16}
@@ -290,4 +292,4 @@ const ModalContentAggiungiUtente = ({
     );
 };
 
-export default ModalContentAggiungiUtente;
+export default ModalContentModificaUtente;

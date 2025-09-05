@@ -22,7 +22,10 @@ class Utente extends Authenticatable
         'telefono',
         'nascita',
         'ruolo',
+        'sesso',
     ];
+
+
 
     protected $hidden = [
         'password', // Nasconde la password nelle risposte JSON
@@ -32,6 +35,12 @@ class Utente extends Authenticatable
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = Hash::make($value);
+    }
+
+    public function getSessoLetteraAttribute()
+    {
+        if ($this->sesso === null) return null;
+        return $this->sesso ? 'F' : 'M';
     }
 
 
@@ -77,4 +86,25 @@ class Utente extends Authenticatable
         return $this->hasMany(Tariffa::class, 'utente_id');
     }
 
+    // Paziente -> Terapisti
+    public function terapisti()
+    {
+        return $this->belongsToMany(
+            Utente::class,
+            'pazienti_terapisti',
+            'paziente_id',
+            'terapista_id'
+        )->select('utente.id', 'nome', 'cognome');
+    }
+
+    // Terapista -> Pazienti (utile in futuro)
+    public function pazienti()
+    {
+        return $this->belongsToMany(
+            Utente::class,
+            'pazienti_terapisti',
+            'terapista_id',
+            'paziente_id'
+        )->select('utente.id', 'nome', 'cognome');
+    }
 }
