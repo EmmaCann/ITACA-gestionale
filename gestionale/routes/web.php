@@ -35,8 +35,12 @@ Route::get('/home-staff', [HomeController::class, 'staff'])->name('home_staff');
 Route::get('/home-paziente', [HomeController::class, 'paziente'])->name('home_paziente');
 Route::post('/utenti', [UtenteController::class, 'store'])->name('utenti.store');
 Route::get('/get-pazienti', [UtenteController::class, 'indexPazienti']);
+Route::get('/utenti/staff',    [UtenteController::class, 'indexStaff']);
 Route::get('/terapisti', [UtenteController::class, 'terapisti'])->name('utenti.terapisti');
 Route::get('/professioni/terapisti', [UtenteController::class, 'professioniTerapisti'])->name('utenti.professioniTerapisti');
+Route::delete('/utenti/{utente}', [UtenteController::class, 'destroy'])->name('utenti.destroy');
+Route::put('/utenti/{utente}', [UtenteController::class, 'update'])->name('utenti.update');
+
 
 Route::post('/pagamenti', [PagamentoController::class, 'store'])->name('pagamento.store');
 Route::get('/pagamenti/stats', [PagamentoController::class, 'stats']);

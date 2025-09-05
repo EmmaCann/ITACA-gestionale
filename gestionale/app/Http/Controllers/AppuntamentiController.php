@@ -236,4 +236,42 @@ class AppuntamentiController extends Controller
 
         return response()->json(['ok' => true]);
     }
+
+    public function show($id)
+{
+    $a = Appuntamento::with([
+        'paziente:id,nome,cognome,email,telefono',
+        'terapista:id,nome,cognome,email,telefono',
+    ])->findOrFail($id);
+
+    return response()->json([
+        'id'            => $a->id,
+        'data'          => $a->data,
+        'ora'           => $a->ora,
+        'durata_minuti' => $a->durata_minuti,
+        'note'          => $a->note,
+        'paziente'      => $a->paziente
+            ? [
+                'id'       => $a->paziente->id,
+                'nome'     => $a->paziente->nome,
+                'cognome'  => $a->paziente->cognome,
+                'email'    => $a->paziente->email,
+                'telefono' => $a->paziente->telefono,
+            ]
+            : [
+                'nome'    => $a->nome,
+                'cognome' => $a->cognome,
+            ],
+        'terapista'     => $a->terapista
+            ? [
+                'id'       => $a->terapista->id,
+                'nome'     => $a->terapista->nome,
+                'cognome'  => $a->terapista->cognome,
+                'email'    => $a->terapista->email,
+                'telefono' => $a->terapista->telefono,
+            ]
+            : null,
+    ]);
+}
+
 }
