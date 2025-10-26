@@ -26,7 +26,7 @@ const ArchivioFirme = () => {
             if (meseFiltro) params.mese = meseFiltro.value;
             if (annoFiltro) params.anno = annoFiltro.value;
 
-            const endpoint = canEdit ? "/firme" : "/firme/mie";
+            const endpoint = canEdit ? "/firme" : "/firme/paziente";
             const res = await axios.get(endpoint, { params });
             setFirme(res.data);
         } catch {
@@ -155,16 +155,18 @@ const ArchivioFirme = () => {
                     <ArchivioFirmeTable dati={firme} onDelete={handleDelete} canEdit={canEdit} />
                 </div>
 
-                {/* Bottone export discreto */}
-                <div className="mt-12">
-                    <button
-                        onClick={handleExportExcel}
-                        className="text-gray-600 bg-gray-200 hover:bg-gray-300 text-sm py-2 px-3 rounded-md flex items-center gap-1"
-                    >
-                        <FaFileExcel className="text-gray-500" />
-                        Esporta Excel
-                    </button>
-                </div>
+                {/* Bottone export discreto (solo per utenti con permessi di editing) */}
+                {canEdit && (
+                    <div className="mt-12">
+                        <button
+                            onClick={handleExportExcel}
+                            className="text-gray-600 bg-gray-200 hover:bg-gray-300 text-sm py-2 px-3 rounded-md flex items-center gap-1"
+                        >
+                            <FaFileExcel className="text-gray-500" />
+                            Esporta Excel
+                        </button>
+                    </div>
+                )}
 
                 {/* Modal aggiunta firma */}
                 {canEdit && (

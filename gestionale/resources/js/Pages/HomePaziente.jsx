@@ -7,7 +7,8 @@ import { FAB } from "../components/molecules/FAB.jsx";
 import { ToastContainer } from "react-toastify";
 import { CalendarBoard } from "../components/CalendarBoard";
 
-const Home = ({ children, hideFAB=false }) => {
+// Per i pazienti nascondiamo il FAB di default
+const Home = ({ children, hideFAB=true }) => {
   const hasChildren = React.Children.count(children) > 0;
 
   return (

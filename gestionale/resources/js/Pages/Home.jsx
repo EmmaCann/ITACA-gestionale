@@ -51,6 +51,8 @@ const Home = ({ children, hideFAB=false }) => {
   const { props } = usePage();
   const ruolo = props?.ruolo || null;
   const NavbarToShow = ruolo === "paziente" ? NavbarPaziente : Navbar;
+  // Nascondi FAB per i pazienti anche se hideFAB non è passato
+  const effectiveHideFAB = hideFAB || ruolo === "paziente";
 
   return (
     <div className="bg-background flex w-screen h-screen overflow-hidden">
@@ -73,7 +75,7 @@ const Home = ({ children, hideFAB=false }) => {
             </div>
           )}
 
-          {!hideFAB && <FAB />}
+          {!effectiveHideFAB && <FAB />}
         </div>
       </div>
 
