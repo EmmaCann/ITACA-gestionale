@@ -50,11 +50,11 @@ export const NavbarPaziente = () => {
                     <Link href="/pagamenti" className={`${commonClass} ${isActive("/pagamenti")}`}>
                         <IconTextNavbar icon={FaRegCreditCard} text="PAGAMENTI" iconSize={18} />
                     </Link>
-                    <Link href="/appuntamenti" className={`${commonClass} ${isActive("/appuntamenti")}`}>
+                    {/* <Link href="/appuntamenti" className={`${commonClass} ${isActive("/appuntamenti")}`}>
                         <IconTextNavbar image={FaCalendarAlt} text="APPUNTAMENTI" />
-                    </Link>
+                    </Link> */}
                     <Link href="/archivio-firme" className={`${commonClass} ${isActive("/archivio-firme")}`}>
-                        <IconTextNavbar icon={FaPencilAlt} text="APPUNTAMENTI" iconSize={16} />
+                        <IconTextNavbar icon={FaCalendarAlt} text="APPUNTAMENTI" iconSize={16} />
                     </Link>
                     
                 </div>
@@ -70,7 +70,7 @@ export const NavbarPaziente = () => {
             {/* Footer della Navbar */}
             <div className="flex flex-col mt-8 mb-4">
                 <Link href="/chi-siamo" className={`${commonClass} ${isActive("/chi-siamo")}`}>
-                    <IconTextNavbar icon={IoMdInformationCircleOutline} text="CHI SIAMO'" iconSize={19} />
+                    <IconTextNavbar icon={IoMdInformationCircleOutline} text="CHI SIAMO" iconSize={19} />
                 </Link>
                 <Link href="/logout" method="post" className={`${commonClass} `}>
                     <IconTextNavbar icon={MdOutlineLogout} text="LOGOUT" iconSize={19} />

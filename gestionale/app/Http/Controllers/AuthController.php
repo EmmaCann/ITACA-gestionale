@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Models\Utente;
+use App\Models\Firma;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
@@ -67,4 +68,6 @@ class AuthController extends Controller
         Session::flush();
         return redirect()->route('login_form');
     }
+
+   
 }

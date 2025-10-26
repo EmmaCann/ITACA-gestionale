@@ -1,7 +1,7 @@
 import React from "react";
 import ArchivioFirmeRow from "./molecules/archivioFirmeRow";
 
-const ArchivioFirmeTable = ({ dati, onDelete }) => {
+const ArchivioFirmeTable = ({ dati, onDelete, canEdit = true }) => {
     return (
         <div className="overflow-x-auto">
             <table className="min-w-full text-sm text-left text-gray-600">
@@ -12,17 +12,17 @@ const ArchivioFirmeTable = ({ dati, onDelete }) => {
                         <th className="px-6 py-3">Data</th>
                         <th className="px-6 py-3">Terapia</th>
                         <th className="px-6 py-3">Terapista</th>
-                        <th className="px-6 py-3 text-center">Azioni</th>
+                        {canEdit && <th className="px-6 py-3 text-center">Azioni</th>}
                     </tr>
                 </thead>
                 <tbody>
                     {Array.isArray(dati) && dati.length > 0 ? (
                         dati.map((firma) => (
-                            <ArchivioFirmeRow key={firma.id} dati={firma} onDelete={onDelete} />
+                            <ArchivioFirmeRow key={firma.id} dati={firma} onDelete={onDelete} canEdit={canEdit} />
                         ))
                     ) : (
                         <tr>
-                            <td colSpan={6} className="text-center py-4 text-gray-400">
+                            <td colSpan={canEdit ? 6 : 5} className="text-center py-4 text-gray-400">
                                 Nessuna firma registrata
                             </td>
                         </tr>

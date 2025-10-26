@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { usePage } from "@inertiajs/react";
 import Home from "./Home";
 import ArchivioFirmeTable from "../components/archivioFirmeTable";
 import CustomModal from "../components/customModal";
@@ -14,6 +15,9 @@ const ArchivioFirme = () => {
     const [meseFiltro, setMeseFiltro] = useState(null);
     const [annoFiltro, setAnnoFiltro] = useState(null);
     const [firme, setFirme] = useState([]);
+    const { props } = usePage();
+    const ruolo = props?.ruolo || null;
+    const canEdit = ruolo !== "paziente";
 
     const fetchFirme = async () => {
         try {
@@ -21,7 +25,8 @@ const ArchivioFirme = () => {
             if (meseFiltro) params.mese = meseFiltro.value;
             if (annoFiltro) params.anno = annoFiltro.value;
 
-            const res = await axios.get("/firme", { params });
+            const endpoint = canEdit ? "/firme" : "/firme/mie";
+            const res = await axios.get(endpoint, { params });
             setFirme(res.data);
         } catch {
             toast.error("Errore nel recupero delle firme");
@@ -91,14 +96,15 @@ const ArchivioFirme = () => {
                         </p>
                     </div>
                     <div className="flex gap-3">
-                       
-                        <button
-                            onClick={() => setModalOpen(true)}
-                            className="bg-pinkSecondary hover:bg-pinkPrimary text-white font-semibold py-3 px-6 rounded-[18px] flex items-center gap-2"
-                        >
-                            <FiPlus />
-                            Aggiungi Firma
-                        </button>
+                        {canEdit && (
+                            <button
+                                onClick={() => setModalOpen(true)}
+                                className="bg-pinkSecondary hover:bg-pinkPrimary text-white font-semibold py-3 px-6 rounded-[18px] flex items-center gap-2"
+                            >
+                                <FiPlus />
+                                Aggiungi Firma
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -143,7 +149,7 @@ const ArchivioFirme = () => {
                     <h2 className="text-lg font-semibold mb-4 text-gray-800">
                         Firme Registrate
                     </h2>
-                    <ArchivioFirmeTable dati={firme} onDelete={handleDelete} />
+                    <ArchivioFirmeTable dati={firme} onDelete={handleDelete} canEdit={canEdit} />
                 </div>
 
                 {/* Bottone export discreto */}
@@ -158,17 +164,19 @@ const ArchivioFirme = () => {
                 </div>
 
                 {/* Modal aggiunta firma */}
-                <CustomModal
-                    isOpen={modalOpen}
-                    onRequestClose={() => setModalOpen(false)}
-                    title="Nuova Firma"
-                    className="max-w-xl"
-                >
-                    <ModalContentAggiuntaFirma
-                        onClose={() => setModalOpen(false)}
-                        onSubmit={handleAddFirma}
-                    />
-                </CustomModal>
+                {canEdit && (
+                    <CustomModal
+                        isOpen={modalOpen}
+                        onRequestClose={() => setModalOpen(false)}
+                        title="Nuova Firma"
+                        className="max-w-xl"
+                    >
+                        <ModalContentAggiuntaFirma
+                            onClose={() => setModalOpen(false)}
+                            onSubmit={handleAddFirma}
+                        />
+                    </CustomModal>
+                )}
             </div>
         </Home>
     );

@@ -67,7 +67,10 @@ Route::get('/incassi', fn() => Inertia::render('Incassi'))->name('incassi');
 Route::get('/utenti', fn() => Inertia::render('Utenti'))->name('utenti');
 Route::get('/pagamenti', fn() => Inertia::render('Pagamenti'))->name('pagamenti');
 Route::get('/appuntamenti', fn() => Inertia::render('Appuntamenti'))->name('appuntamenti');
-Route::get('/archivio-firme', fn() => Inertia::render('ArchivioFirme'))->name('archivio-firme');
+Route::get('/archivio-firme', function () {
+    $ruolo = session('logged_user.ruolo');
+    return Inertia::render('ArchivioFirme', ['ruolo' => $ruolo]);
+})->name('archivio-firme');
 Route::get('/lista-attesa', fn() => Inertia::render('ListaAttesa'))->name('lista-attesa');
 Route::get('/tariffario', fn() => Inertia::render('Tariffario'))->name('tariffario');
 Route::get('/chi-siamo', fn() => Inertia::render('ChiSiamo'))->name('chi-siamo');
@@ -96,6 +99,9 @@ Route::get('/firme', [FirmaController::class, 'index']);
 Route::post('/firme', [FirmaController::class, 'store']);
 Route::delete('/firme/{id}', [FirmaController::class, 'destroy']);
 Route::get('/firme/export', [FirmaController::class, 'export']);
+// Lista firme per paziente loggato (usa nome/cognome in sessione)
+Route::get('/firme/paziente', [FirmaController::class, 'firmePazienteLoggato']);
+
 
 
 Route::post('/admin/utilita/purge/waitlist',       [SystemMaintenanceController::class, 'purgeWaitlist'])->name('utilita.purge.waitlist');

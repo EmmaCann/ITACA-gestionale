@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Firma;
 use Illuminate\Http\Request;
 use Spatie\SimpleExcel\SimpleExcelWriter;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 
 class FirmaController extends Controller
 {
@@ -79,6 +81,18 @@ public function export(Request $request)
         $query->whereYear('data', $request->input('anno'));
     }
 
+        // Se l'utente in sessione è un paziente, limitiamo l'export solo alle sue firme
+        $logged = Session::get('logged_user');
+        if (!empty($logged) && isset($logged['ruolo']) && $logged['ruolo'] === 'paziente') {
+            $nome = isset($logged['nome']) ? $logged['nome'] : null;
+            $cognome = isset($logged['cognome']) ? $logged['cognome'] : null;
+            if ($nome && $cognome) {
+                // confronto case-insensitive
+                $query->whereRaw('LOWER(nome) = ?', [mb_strtolower($nome)])
+                      ->whereRaw('LOWER(cognome) = ?', [mb_strtolower($cognome)]);
+            }
+        }
+
     $rows = $query->get()->map(function ($firma) {
         return [
             'ID'        => $firma->id,
@@ -101,6 +115,56 @@ public function export(Request $request)
     // Ritorna il file per il download e lo elimina dopo l'invio
     return response()->download($tempPath, 'archivio_firme.xlsx')->deleteFileAfterSend(true);
 }
+
+
+ /**
+     * Ritorna la lista delle firme per l'utente loggato (confronto su nome e cognome
+     * presi dalla sessione). Supporta filtri opzionali: mese, anno, terapista_id.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function firmePazienteLoggato(Request $request)
+    {
+        $logged = Session::get('logged_user');
+
+        if (empty($logged) || empty($logged['nome']) || empty($logged['cognome'])) {
+            return response()->json(['errore' => 'Utente non autenticato o dati mancanti in sessione'], 401);
+        }
+
+        $nome = $logged['nome'];
+        $cognome = $logged['cognome'];
+
+        // confronto case-insensitive su nome e cognome
+        $query = Firma::with('terapista')
+            ->whereRaw('LOWER(nome) = ?', [mb_strtolower($nome)])
+            ->whereRaw('LOWER(cognome) = ?', [mb_strtolower($cognome)]);
+
+        if ($request->filled('mese')) {
+            $query->whereMonth('data', $request->input('mese'));
+        }
+
+        if ($request->filled('anno')) {
+            $query->whereYear('data', $request->input('anno'));
+        }
+
+       
+
+        $firme = $query->get()->map(function ($firma) {
+            return [
+                'id'        => $firma->id,
+                'nome'      => $firma->nome,
+                'cognome'   => $firma->cognome,
+                'data'      => $firma->data ? $firma->data->format('Y-m-d') : null,
+                'terapia'   => $firma->terapia,
+                'terapista' => $firma->terapista
+                    ? $firma->terapista->nome . ' ' . $firma->terapista->cognome
+                    : null,
+            ];
+        });
+
+        return response()->json($firme);
+    }
 
 
 }
