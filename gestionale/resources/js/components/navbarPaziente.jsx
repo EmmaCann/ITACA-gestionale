@@ -50,10 +50,8 @@ export const NavbarPaziente = () => {
                     <Link href="/pagamenti" className={`${commonClass} ${isActive("/pagamenti")}`}>
                         <IconTextNavbar icon={FaRegCreditCard} text="PAGAMENTI" iconSize={18} />
                     </Link>
-                    {/* <Link href="/appuntamenti" className={`${commonClass} ${isActive("/appuntamenti")}`}>
-                        <IconTextNavbar image={FaCalendarAlt} text="APPUNTAMENTI" />
-                    </Link> */}
-                    <Link href="/archivio-firme" className={`${commonClass} ${isActive("/archivio-firme")}`}>
+                    {/* Link appuntamenti */}
+                    <Link href="/appuntamenti" className={`${commonClass} ${isActive("/appuntamenti")}`}>
                         <IconTextNavbar icon={FaCalendarAlt} text="APPUNTAMENTI" iconSize={16} />
                     </Link>
                     

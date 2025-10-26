@@ -39,6 +39,8 @@
 
 import React from "react";
 import { Navbar } from "../components/navbar";
+import { NavbarPaziente } from "../components/navbarPaziente";
+import { usePage } from "@inertiajs/react";
 import { TopBar } from "../components/topBar";
 import { FAB } from "../components/molecules/FAB.jsx";
 import { ToastContainer } from "react-toastify";
@@ -46,11 +48,14 @@ import { CalendarBoard } from "../components/CalendarBoard";
 
 const Home = ({ children, hideFAB=false }) => {
   const hasChildren = React.Children.count(children) > 0;
+  const { props } = usePage();
+  const ruolo = props?.ruolo || null;
+  const NavbarToShow = ruolo === "paziente" ? NavbarPaziente : Navbar;
 
   return (
     <div className="bg-background flex w-screen h-screen overflow-hidden">
       <div>
-        <Navbar />
+        <NavbarToShow />
       </div>
 
       <div className="flex flex-col flex-1 h-full relative">
