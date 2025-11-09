@@ -15,6 +15,8 @@ import { IoMdInformationCircleOutline } from "react-icons/io";
 import { MdOutlineLogout } from "react-icons/md";
 import { IoSettingsSharp } from "react-icons/io5";
 import { FaCalendarAlt } from "react-icons/fa";
+import { FaNotesMedical } from "react-icons/fa";
+
 
 export const NavbarPaziente = () => {
     const { url } = usePage(); // Otteniamo l'URL corrente per evidenziare l'elemento attivo
@@ -50,17 +52,21 @@ export const NavbarPaziente = () => {
                     <Link href="/pagamenti" className={`${commonClass} ${isActive("/pagamenti")}`}>
                         <IconTextNavbar icon={FaRegCreditCard} text="PAGAMENTI" iconSize={18} />
                     </Link>
-                    {/* Link appuntamenti */}
-                    <Link href="/appuntamenti" className={`${commonClass} ${isActive("/appuntamenti")}`}>
-                        <IconTextNavbar icon={FaCalendarAlt} text="PAZIENTE" iconSize={16} />
+                     <Link href="/archivio-firme" className={`${commonClass} ${isActive("/archivio-firme")}`}>
+                        <IconTextNavbar icon={FaPencilAlt} text="ARCHIVIO FIRME" iconSize={16} />
                     </Link>
+                    {/* TODO creare page e URL paziente page  */}
+                    <Link href="/appuntamenti" className={`${commonClass} ${isActive("/appuntamenti")}`}>
+                        <IconTextNavbar icon={FaNotesMedical} text="PAZIENTE" iconSize={16} />
+                    </Link>
+                   
                     
                 </div>
 
-                {/* Tariffario */}
+                {/* STAFF    */}
                 <div className="mt-6">
-                    <Link href="/archivio-firme" className={`${commonClass} ${isActive("/archivio-firme")}`}>
-                        <IconTextNavbar icon={FaPencilAlt} text="ARCHIVIO FIRME" iconSize={16} />
+                    <Link href="/staff" className={`${commonClass} ${isActive("/staff")}`}>
+                        <IconTextNavbar icon={FaUserDoctor} text="STAFF" iconSize={16} />
                     </Link>
                 </div>
             </div>
