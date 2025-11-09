@@ -52,7 +52,7 @@ export const NavbarPaziente = () => {
                     </Link>
                     {/* Link appuntamenti */}
                     <Link href="/appuntamenti" className={`${commonClass} ${isActive("/appuntamenti")}`}>
-                        <IconTextNavbar icon={FaCalendarAlt} text="APPUNTAMENTI" iconSize={16} />
+                        <IconTextNavbar icon={FaCalendarAlt} text="PAZIENTE" iconSize={16} />
                     </Link>
                     
                 </div>

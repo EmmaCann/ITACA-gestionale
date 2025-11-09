@@ -74,6 +74,7 @@ Route::get('/archivio-firme', function () {
 Route::get('/lista-attesa', fn() => Inertia::render('ListaAttesa'))->name('lista-attesa');
 Route::get('/tariffario', fn() => Inertia::render('Tariffario'))->name('tariffario');
 Route::get('/chi-siamo', fn() => Inertia::render('ChiSiamo'))->name('chi-siamo');
+Route::get('/staff', fn() => Inertia::render('Staff'))->name('staff');
 Route::get('/utilita', fn() => Inertia::render('Utilità'))->name('utilita');
 
 Route::get('/incassi/{tipo}', function ($tipo) {

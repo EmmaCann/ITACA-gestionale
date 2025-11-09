@@ -7,20 +7,22 @@ import { FiMessageSquare } from "react-icons/fi";
 import { WelcomeMessage } from "../molecules/atoms/welcomeMessage.jsx";
 
 export const TopNavBar = () => {
-const {url}=usePage();  //otteniamo l'url della pagina in cui ci troviamo al momento
+const {url, props} = usePage();  //otteniamo l'url e le props condivise (ruolo, logged_user)
+const ruolo = props?.ruolo || null;
+const isAdmin = ruolo === 'admin';
 
 const iconsClass= " w-[20px] h-[20px] cursor-pointer" 
     return (
         <div className="bg-navbar opacity-[60%] w-full h-[55px] rounded-[20px] flex flex-row shadow-xs ">
             <div  className="flex flex-row justify-start items-center w-full gap-4 ml-8">
-                <WelcomeMessage username="admin"/>
+                <WelcomeMessage />
                 <DatePicker/>
             </div>
-            <div className="flex flex-row justify-end items-center w-full gap-4 mr-4">
-                {/* Nascondiamo la SearchBar se siamo nella pagina Pazienti */}
-                { !url.startsWith("/pazienti") && <SearchBar isTopBar={true} /> }
+            <div className="flex flex-row justify-end items-center w-full gap-4 mr-4 pr-4">
+                {/* Show SearchBar and chat icon only for admin */}
+                { isAdmin && !url.startsWith("/pazienti") && <SearchBar isTopBar={true} /> }
                 <IoMdNotificationsOutline className={iconsClass} />
-                <FiMessageSquare className={iconsClass} />
+                { isAdmin && <FiMessageSquare className={iconsClass} /> }
             </div>
         </div>
     );

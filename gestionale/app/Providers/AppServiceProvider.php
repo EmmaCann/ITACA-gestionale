@@ -31,9 +31,14 @@ class AppServiceProvider extends ServiceProvider
         // Se vuoi forzare anche la lingua di sistema
         App::setLocale('it');
 
-        // Condividi il ruolo dell'utente loggato con tutte le pagine Inertia
-        Inertia::share('ruolo', function () {
-            return Session::get('logged_user.ruolo');
-        });
+        // Condividi il ruolo e i dati dell'utente loggato con tutte le pagine Inertia
+        Inertia::share([
+            'ruolo' => function () {
+                return Session::get('logged_user.ruolo');
+            },
+            'logged_user' => function () {
+                return Session::get('logged_user');
+            },
+        ]);
     }
 }
