@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useRef } from "react";
 import Home from "./Home";
 import { LogoItaca } from "../components/molecules/atoms/logo-ITACA.jsx";
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
 const BrandITACA = () => {
     const letters = ["I", "T", "A", "C", "A"];
@@ -19,6 +20,14 @@ const BrandITACA = () => {
 };
 
 const ChiSiamo = () => {
+    const images = [1,2,3,4,5,6].map(n => `/images/chi-siamo/${n}.jpg`);
+    const stripRef = useRef(null);
+
+    const scrollBy = (delta) => {
+        if (!stripRef.current) return;
+        stripRef.current.scrollBy({ left: delta, behavior: 'smooth' });
+    };
+
     return (
         <Home>
             <div className="p-8">
@@ -38,7 +47,7 @@ const ChiSiamo = () => {
 
                                 <p className="text-gray-700 leading-relaxed mb-4">
                                     <span className="font-marcellusSC"><BrandITACA /></span>
-                                    {' '}– Centro Multidisciplinare di Riabilitazione nasce dal desiderio di offrire uno spazio di cura, accoglienza e crescita dedicato all’età evolutiva, con particolare attenzione ai disturbi del neurosviluppo. Fondato dalla Dottoressa <strong>Silvia Crisafulli</strong>, tecnico della riabilitazione psichiatrica e psicomotricista funzionale, il centro prende ispirazione dalla poesia “Itaca” di K. Kavafis, che celebra il valore del viaggio come esperienza fondamentale di trasformazione e arricchimento.
+                                    {' '}– Centro Multidisciplinare di Riabilitazione nasce dal desiderio di offrire uno spazio di cura, accoglienza e crescita dedicato all’età evolutiva, con particolare attenzione ai disturbi del neurosviluppo. Fondato dalla Dottoressa <strong>Silvia Crisafulli</strong>, Tecnico della Riabilitazione Psichiatrica e Psicomotricista Funzionale, il centro prende ispirazione dalla poesia “Itaca” di K. Kavafis, che celebra il valore del viaggio come esperienza fondamentale di trasformazione e arricchimento.
                                 </p>
 
                                 <p className="text-gray-700 leading-relaxed mb-4">
@@ -57,7 +66,43 @@ const ChiSiamo = () => {
                                     <BrandITACA /> è più di un centro riabilitativo: è un luogo che accoglie, sostiene e cammina accanto a chi cresce.
                                 </p>
                             </div>
+
+                            {/* previously image strip (moved down to occupy full card width) */}
                         </div>
+                    </div>
+
+                    {/* Full-width image strip inside the white card. Scroll only via arrows; scrollbar hidden. */}
+                    <div className="w-full relative">
+                        <style>{`.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none;}`}</style>
+                        <button aria-label="scroll left" onClick={() => {
+                            if (!stripRef.current) return;
+                            const delta = Math.round(stripRef.current.clientWidth * 0.8) * -1;
+                            scrollBy(delta);
+                        }} className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-bluPrimary hover:bg-bluSecondary text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg">
+                            <FiChevronLeft />
+                        </button>
+
+                        <div className="px-6">
+                            <div ref={stripRef}
+                                    className="no-scrollbar flex gap-4 py-4 overflow-x-auto"
+                                    onWheel={(e) => e.preventDefault()}
+                                    onTouchMove={(e) => e.preventDefault()}
+                                >
+                                    {images.map((src, idx) => (
+                                        <div key={idx} className="flex-shrink-0 min-w-[200px] sm:min-w-[240px] md:min-w-[280px] h-56 sm:h-64 md:h-72 rounded-lg overflow-hidden">
+                                            <img src={src} alt={`chi siamo ${idx+1}`} className="w-full h-full object-cover" />
+                                        </div>
+                                    ))}
+                                </div>
+                        </div>
+
+                        <button aria-label="scroll right" onClick={() => {
+                            if (!stripRef.current) return;
+                            const delta = Math.round(stripRef.current.clientWidth * 0.8);
+                            scrollBy(delta);
+                        }} className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-bluPrimary hover:bg-bluSecondary text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg">
+                            <FiChevronRight />
+                        </button>
                     </div>
 
                     <div className="border-t border-gray-100 bg-bgContainer p-6">
