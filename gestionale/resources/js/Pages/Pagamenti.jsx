@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Home from "./Home";
 import Select from "react-select";
 import {
@@ -7,8 +7,31 @@ import {
     FiAlertCircle,
     FiCheckCircle,
 } from "react-icons/fi";
+import { baseCall } from '../data/api/baseCall';
+
+const formatDate = (dateString) => {
+    if (!dateString) return "—";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("it-IT", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+    });
+};
+
 
 const Pagamenti = () => {
+    const [pagamenti, setPagamenti] = useState([]);
+
+    useEffect(() => {
+    baseCall({ endpoint: '/pagamenti-pazienti', method: 'GET' })
+        .then((response) => {
+            console.log("📥 RESPONSE DAL BACKEND:", response);
+            setPagamenti(response.data.data);
+        })
+        .catch((error) => console.error('❌ Errore nel recupero dei pagamenti:', error));
+}, []);
+
     // ---- mock options per i Select (non filtrano ancora) ----
     const monthOptions = [
         { value: "all", label: "Tutti" },
@@ -57,51 +80,12 @@ const Pagamenti = () => {
         input: () => "text-slate-900",
     };
 
-    // ---- dati mock per la tabella ----
-    const rows = [
-        {
-            date: "15 ott 2025",
-            therapist: "Dr. Mario Rossi",
-            service: "Fisioterapia",
-            amount: "€80.00",
-            status: "paid",
-        },
-        {
-            date: "8 ott 2025",
-            therapist: "Dr.ssa Laura Bianchi",
-            service: "Osteopatia",
-            amount: "€120.00",
-            status: "paid",
-        },
-        {
-            date: "20 ott 2025",
-            therapist: "Dr. Giuseppe Verdi",
-            service: "Massoterapia",
-            amount: "€60.00",
-            status: "paid",
-        },
-        {
-            date: "28 ott 2025",
-            therapist: "Dr. Mario Rossi",
-            service: "Fisioterapia",
-            amount: "€100.00",
-            status: "hold",
-        },
-        {
-            date: "5 nov 2025",
-            therapist: "Dr.ssa Laura Bianchi",
-            service: "Osteopatia",
-            amount: "€90.00",
-            status: "hold",
-        },
-        {
-            date: "22 ott 2025",
-            therapist: "Dr. Giuseppe Verdi",
-            service: "Massoterapia",
-            amount: "€80.00",
-            status: "overdue",
-        },
-    ];
+    // Garantisco che rows sia sempre un array
+    const rows = Array.isArray(pagamenti) ? pagamenti : [];
+
+    // Calcola i conteggi
+    const totalPaid = rows.filter((r) => r.status === "paid").length;
+    const totalToPay = rows.filter((r) => r.status === "unpaid").length;
 
     const StatusBadge = ({ status }) => {
         const map = {
@@ -110,13 +94,8 @@ const Pagamenti = () => {
                 cls: "bg-emerald-50 text-emerald-700 border border-emerald-200",
                 icon: <FiCheckCircle size={14} className="mr-1" />,
             },
-            hold: {
-                label: "In Sospeso",
-                cls: "bg-amber-50 text-amber-700 border border-amber-200",
-                icon: null,
-            },
-            overdue: {
-                label: "Scaduto",
+            unpaid: {
+                label: "Da Pagare",
                 cls: "bg-rose-50 text-rose-700 border border-rose-200",
                 icon: null,
             },
@@ -188,23 +167,23 @@ const Pagamenti = () => {
                 </div>
 
                 {/* STATISTICHE */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-24">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-24">
                     <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
                         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-900">
-                            <FiCreditCard size={22} />
+                            <FiCheckCircle size={22} />
                         </div>
                         <div>
                             <div className="text-xs text-slate-500">
-                                Totale Pagato
+                                Pagamenti Effettuati
                             </div>
                             <div className="font-[Marcellus] text-xl">
-                                €260.00
+                                {totalPaid}
                             </div>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 text-amber-900">
+                    <div className="flex items-center gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-100 text-rose-900">
                             <FiCalendar size={22} />
                         </div>
                         <div>
@@ -212,20 +191,8 @@ const Pagamenti = () => {
                                 Da Pagare
                             </div>
                             <div className="font-[Marcellus] text-xl">
-                                €270.00
+                                {totalToPay}
                             </div>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-100 text-rose-900">
-                            <FiAlertCircle size={22} />
-                        </div>
-                        <div>
-                            <div className="text-xs text-slate-500">
-                                Scadenze Imminenti
-                            </div>
-                            <div className="font-[Marcellus] text-xl">1</div>
                         </div>
                     </div>
                 </div>
@@ -234,7 +201,7 @@ const Pagamenti = () => {
                 <div className="grid grid-cols-3 gap-3 mb-4 mt-8">
                     {[
                         { key: "tutti", label: "Tutti (6)" },
-                        { key: "completati", label: "Completati (3)" },
+                        { key: "completati", label: "Pagati (3)" },
                         { key: "dapagare", label: "Da Pagare (3)" },
                     ].map((t) => (
                         <button
@@ -257,11 +224,10 @@ const Pagamenti = () => {
                 <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
                     {/* header azzurro bluSecondary schiarito */}
                     <div className="grid grid-cols-12 items-center px-6 py-3 bg-bluSecondary/10 text-slate-700 font-semibold border-b border-bluSecondary/30">
-                        <div className="col-span-3">Data</div>
+                        <div className="col-span-4">Data</div>
                         <div className="col-span-3">Terapista</div>
                         <div className="col-span-3">Prestazione</div>
-                        <div className="col-span-2">Importo</div>
-                        <div className="col-span-1">Stato</div>
+                        <div className="col-span-2">Stato</div>
                     </div>
 
                     {rows.map((r, i) => (
@@ -269,19 +235,16 @@ const Pagamenti = () => {
                             key={i}
                             className="grid grid-cols-12 items-center px-6 py-4 border-t border-slate-100 hover:bg-slate-50/60"
                         >
-                            <div className="col-span-3 font-semibold text-slate-800">
-                                {r.date}
+                            <div className="col-span-4 font-semibold text-slate-800">
+                                {formatDate(r.data)}
                             </div>
                             <div className="col-span-3 text-slate-700">
-                                {r.therapist}
+                                 {r.therapist ?? "—"}
                             </div>
                             <div className="col-span-3 text-slate-700">
-                                {r.service}
+                               {r.service ?? "—"}
                             </div>
-                            <div className="col-span-2 font-semibold text-slate-800">
-                                {r.amount}
-                            </div>
-                            <div className="col-span-1">
+                            <div className={`col-span-2 font-semibold ${r.status === 'unpaid' ? 'text-rose-700' : 'text-slate-800'}`}>
                                 <StatusBadge status={r.status} />
                             </div>
                         </div>

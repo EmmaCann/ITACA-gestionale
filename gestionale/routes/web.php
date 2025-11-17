@@ -13,6 +13,7 @@ use App\Http\Controllers\ListaAttesaController;
 use App\Http\Controllers\TariffaController;
 use App\Http\Controllers\FirmaController;
 use App\Http\Controllers\SystemMaintenanceController;
+use App\Http\Controllers\PagamentiPazientiController;
 
 Route::get('/', function () {
     return redirect()->route('login_form');
@@ -103,6 +104,10 @@ Route::get('/firme/export', [FirmaController::class, 'export']);
 // Lista firme per paziente loggato (usa nome/cognome in sessione)
 Route::get('/firme/paziente', [FirmaController::class, 'firmePazienteLoggato']);
 
+
+
+// Route per i pagamenti dei pazienti
+Route::get('/pagamenti-pazienti', [PagamentiPazientiController::class, 'index']);
 
 
 Route::post('/admin/utilita/purge/waitlist',       [SystemMaintenanceController::class, 'purgeWaitlist'])->name('utilita.purge.waitlist');
