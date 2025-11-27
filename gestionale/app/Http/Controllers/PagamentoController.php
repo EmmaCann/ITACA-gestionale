@@ -19,6 +19,7 @@ class PagamentoController extends Controller
             'paziente_id'   => 'nullable|exists:utente,id',
             'nome'          => 'required_without:paziente_id|string|max:255',
             'cognome'       => 'required_without:paziente_id|string|max:255',
+            'fattura'       => 'required|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -28,7 +29,6 @@ class PagamentoController extends Controller
             ], 422);
         }
 
-        // Usa input() invece di all()
         $pagamento = Pagamento::create([
             'terapista_id' => $request->input('terapista_id'),
             'data'         => $request->input('data'),
@@ -36,16 +36,14 @@ class PagamentoController extends Controller
             'paziente_id'  => $request->input('paziente_id'),
             'nome'         => $request->input('nome'),
             'cognome'      => $request->input('cognome'),
+            'fattura'      => $request->boolean('fattura'),
         ]);
-
 
         return response()->json([
             'message' => 'Pagamento creato con successo',
             'pagamento' => $pagamento,
         ], 201);
     }
-
-
 
     public function stats()
     {
@@ -62,16 +60,15 @@ class PagamentoController extends Controller
         ]);
     }
 
-
-
     public function dettagliStats(Request $request)
     {
-        $tipo = $request->input('tipo'); // 'giorno', 'settimana', 'mese', 'anno'
+        $tipo = $request->input('tipo'); 
         $oggi = Carbon::today();
 
         $query = Pagamento::query();
 
         switch ($tipo) {
+
             case 'giorno':
                 $oggi = Carbon::today();
                 $incassi = $query->whereDate('data', $oggi)
@@ -86,7 +83,6 @@ class PagamentoController extends Controller
                     ];
                 });
                 break;
-
 
             case 'settimana':
                 $inizioSettimana = Carbon::now()->startOfWeek();
@@ -104,7 +100,6 @@ class PagamentoController extends Controller
                     ];
                 });
                 break;
-
 
             case 'mese':
                 $inizioMese = Carbon::now()->startOfMonth();
@@ -136,7 +131,6 @@ class PagamentoController extends Controller
                 });
                 break;
 
-
             default:
                 return response()->json(['error' => 'Tipo non valido'], 422);
         }
@@ -154,20 +148,17 @@ class PagamentoController extends Controller
         return response()->json($incassi);
     }
 
-
-
     public function filtraPagamenti(Request $request)
     {
         $tipo = $request->input('tipo');
-        $tipoUtente = $request->input('tipoUtente'); // 'registrato' o 'nuovo'
-        $terapia = $request->input('terapia');       // nome della terapia/professione
-        $terapistaId = $request->input('terapista'); // ID del terapista selezionato
+        $tipoUtente = $request->input('tipoUtente'); 
+        $terapia = $request->input('terapia');       
+        $terapistaId = $request->input('terapista');
 
         $oggi = Carbon::today();
+
         $query = Pagamento::with(['paziente', 'terapista.staffDati']);
 
-
-        // Filtro temporale
         switch ($tipo) {
             case 'giorno':
                 $query->whereDate('data', $oggi);
@@ -185,27 +176,32 @@ class PagamentoController extends Controller
                 return response()->json(['error' => 'Tipo non valido'], 422);
         }
 
-        // Filtro tipo utente
         if ($tipoUtente === 'registrato') {
             $query->whereNotNull('paziente_id');
         } elseif ($tipoUtente === 'nuovo') {
             $query->whereNull('paziente_id');
         }
 
-        // Filtro terapia (professione del terapista)
         if ($terapia) {
             $query->whereHas('terapista.staffDati', function ($q) use ($terapia) {
                 $q->where('professione', $terapia);
             });
         }
 
-        //  Filtro terapista per ID
         if ($terapistaId) {
             $query->where('terapista_id', $terapistaId);
         }
 
         $pagamenti = $query->orderBy('data', 'desc')->get();
 
-        return response()->json($pagamenti->values());
+        return response()->json([
+            'pagamenti' => $pagamenti->values(),
+            'totali' => [
+                'totale'      => $pagamenti->sum('importo'),
+                'numero'      => $pagamenti->count(),
+                'conFattura'  => $pagamenti->where('fattura', 1)->sum('importo'),
+                'senzaFattura'=> $pagamenti->where('fattura', 0)->sum('importo'),
+            ]
+        ]);
     }
 }

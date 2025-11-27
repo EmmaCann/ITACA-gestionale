@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Nov 10, 2025 alle 19:32
+-- Creato il: Nov 27, 2025 alle 18:37
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -145,7 +145,8 @@ CREATE TABLE `firme` (
 --
 
 INSERT INTO `firme` (`id`, `nome`, `cognome`, `data`, `terapia`, `terapista_id`, `created_at`, `updated_at`) VALUES
-(7, 'paziente', 'di test', '0000-00-00', 'logopedia', 2, NULL, NULL);
+(10, 'paziente', 'di test', '2025-11-16', 'fisioterapista', 2, '2025-11-16 16:09:50', '2025-11-16 16:09:50'),
+(11, 'paziente', 'di test', '2025-11-16', 'psichiatra', 5, '2025-11-16 16:10:06', '2025-11-16 16:10:06');
 
 -- --------------------------------------------------------
 
@@ -243,7 +244,8 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (15, '2025_08_11_184931_add_durata_minuti_to_appuntamenti_table', 7),
 (16, '2025_08_24_164719_create_pazienti_terapisti_table', 8),
 (17, '2025_08_24_174512_add_sesso_to_utente_table', 9),
-(18, '2025_08_24_183027_change_sesso_column_in_utente_table', 10);
+(18, '2025_08_24_183027_change_sesso_column_in_utente_table', 10),
+(19, '2025_11_27_183607_add_fattura_to_pagamenti_table', 11);
 
 -- --------------------------------------------------------
 
@@ -259,8 +261,16 @@ CREATE TABLE `pagamenti` (
   `terapista_id` bigint(20) UNSIGNED NOT NULL,
   `data` date NOT NULL,
   `importo` decimal(8,2) NOT NULL,
+  `fattura` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` datetime NOT NULL DEFAULT '2025-07-19 15:54:29'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dump dei dati per la tabella `pagamenti`
+--
+
+INSERT INTO `pagamenti` (`id`, `paziente_id`, `nome`, `cognome`, `terapista_id`, `data`, `importo`, `fattura`, `created_at`) VALUES
+(23, 20, NULL, NULL, 2, '2025-11-16', 20.00, 0, '2025-07-19 15:54:29');
 
 -- --------------------------------------------------------
 
@@ -562,7 +572,7 @@ ALTER TABLE `failed_jobs`
 -- AUTO_INCREMENT per la tabella `firme`
 --
 ALTER TABLE `firme`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT per la tabella `jobs`
@@ -580,13 +590,13 @@ ALTER TABLE `lista_attesa`
 -- AUTO_INCREMENT per la tabella `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT per la tabella `pagamenti`
 --
 ALTER TABLE `pagamenti`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT per la tabella `pazienti_terapisti`

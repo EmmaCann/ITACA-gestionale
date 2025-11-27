@@ -15,14 +15,16 @@ class Pagamento extends Model
         'importo',
         'nome',
         'cognome',
+        'fattura',
     ];
-
 
     protected $casts = [
         'data' => 'date',
         'importo' => 'decimal:2',
         'created_at' => 'datetime',
+        'fattura' => 'boolean',
     ];
+
 
     public $timestamps = false;
 

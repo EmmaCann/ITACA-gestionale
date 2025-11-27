@@ -24,13 +24,11 @@ const DettaglioIncasso = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                  console.log("[API FETCH] tipo:", tipo);
-            console.log("[API FETCH] filters:", filters);
-
                 const res = await getPagamentiFiltrati({ tipo, ...filters });
+
                 console.log("[API FETCH] Risposta pagamenti:", res);
 
-                const pagamentiArray = Object.values(res);
+                const pagamentiArray = res.pagamenti ?? [];
                 setPagamenti(pagamentiArray);
 
                 // Statistiche
@@ -38,6 +36,7 @@ const DettaglioIncasso = () => {
                     (acc, p) => acc + parseFloat(p.importo),
                     0
                 );
+
                 const terapistiSet = new Set(
                     pagamentiArray.map((p) => p.terapista_id)
                 );
@@ -199,11 +198,13 @@ const DettaglioIncasso = () => {
                                                 : `${p.nome} ${p.cognome}`}
                                         </p>
                                         <p className="text-sm text-gray-500">
-                                            {format(
-                                                new Date(p.data),
-                                                "dd MMM yyyy",
-                                                { locale: it }
-                                            )}
+                                            {p.data
+                                                ? format(
+                                                      new Date(p.data),
+                                                      "dd MMM yyyy",
+                                                      { locale: it }
+                                                  )
+                                                : "Data non valida"}
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-4">
@@ -229,7 +230,13 @@ const DettaglioIncasso = () => {
                                                 ? "Registrato"
                                                 : "Non Registrato"}
                                         </span>
-                                        <span className="text-green-600 font-semibold">
+                                        <span
+                                            className={`font-semibold ${
+                                                p.fattura == 1
+                                                    ? "text-green-600" // fattura = sì
+                                                    : "text-yellow-500" // fattura = no
+                                            }`}
+                                        >
                                             €{parseFloat(p.importo).toFixed(2)}
                                         </span>
                                     </div>
