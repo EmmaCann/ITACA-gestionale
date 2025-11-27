@@ -16,9 +16,9 @@ const DettaglioIncasso = () => {
     const [pieData, setPieData] = useState({});
     const [statistiche, setStatistiche] = useState({
         totale: 0,
-        media: 0,
-        totaleRecord: 0,
-        terapisti: 0,
+        numero: 0,
+        conFattura: 0,
+        senzaFattura: 0,
     });
 
     useEffect(() => {
@@ -41,12 +41,10 @@ const DettaglioIncasso = () => {
                     pagamentiArray.map((p) => p.terapista_id)
                 );
                 setStatistiche({
-                    totale,
-                    media: pagamentiArray.length
-                        ? totale / pagamentiArray.length
-                        : 0,
-                    totaleRecord: pagamentiArray.length,
-                    terapisti: terapistiSet.size,
+                    totale: res.totali.totale,
+                    numero: res.totali.numero,
+                    conFattura: res.totali.conFattura,
+                    senzaFattura: res.totali.senzaFattura,
                 });
 
                 // Line Chart: importi per terapista
@@ -100,9 +98,10 @@ const DettaglioIncasso = () => {
                     </Link>
                 </div>
 
-                {/* Statistiche */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="bg-gradient-to-br from-white to-[#D9ECF7] p-5 rounded-xl shadow-md text-center">
+                    {/* Totale Incassi */}
+                    <div className="bg-gradient-to-br from-white to-[#E0F7FA] p-5 rounded-xl shadow-md text-center">
+
                         <h2 className="text-sm text-gray-600 font-medium">
                             Totale Incassi
                         </h2>
@@ -111,30 +110,33 @@ const DettaglioIncasso = () => {
                         </p>
                     </div>
 
-                    <div className="bg-gradient-to-br from-white to-[#F3D9E9] p-5 rounded-xl shadow-md text-center">
+                    {/* Totale (numero) */}
+                    <div className="bg-gradient-to-br from-white to-[#DDEBFF] p-5 rounded-xl shadow-md text-center">
                         <h2 className="text-sm text-gray-600 font-medium">
-                            Totale Record
+                            Totale
                         </h2>
-                        <p className="text-3xl font-bold text-[#BB4E97] mt-1">
-                            {statistiche.totaleRecord}
+                        <p className="text-3xl font-bold text-blue-600 mt-1">
+                            {statistiche.numero}
                         </p>
                     </div>
 
+                    {/* Con fattura */}
                     <div className="bg-gradient-to-br from-white to-[#D6F2DD] p-5 rounded-xl shadow-md text-center">
                         <h2 className="text-sm text-gray-600 font-medium">
-                            Media per Visita
+                            Con Fattura
                         </h2>
-                        <p className="text-3xl font-bold text-[#4CAF50] mt-1">
-                            €{statistiche.media.toFixed(2)}
+                        <p className="text-3xl font-bold text-green-600 mt-1">
+                            €{statistiche.conFattura.toFixed(2)}
                         </p>
                     </div>
 
-                    <div className="bg-gradient-to-br from-white to-[#E0E0E0] p-5 rounded-xl shadow-md text-center">
+                    {/* Senza fattura */}
+                    <div className="bg-gradient-to-br from-white to-[#FFF4C2] p-5 rounded-xl shadow-md text-center">
                         <h2 className="text-sm text-gray-600 font-medium">
-                            Terapisti Attivi
+                            Senza Fattura
                         </h2>
-                        <p className="text-3xl font-bold text-gray-800 mt-1">
-                            {statistiche.terapisti}
+                        <p className="text-3xl font-bold text-yellow-600 mt-1">
+                            €{statistiche.senzaFattura.toFixed(2)}
                         </p>
                     </div>
                 </div>
