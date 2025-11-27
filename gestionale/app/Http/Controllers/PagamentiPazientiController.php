@@ -11,72 +11,61 @@ use Illuminate\Support\Facades\Log;
 
 class PagamentiPazientiController extends Controller
 {
-    public function index()
-    {
-        // Recupera l'ID dell'utente loggato dalla sessione
-        $userId = Session::get('logged_user')['id_utente'];
+   public function index(Request $request)
+{
+    $loggedUser = Session::get('logged_user');
+    $userId = $loggedUser['id_utente'];
 
-        // Recupera i pagamenti dell'utente loggato
-        $pagamenti = Pagamento::where('paziente_id', $userId)->get();
+    $loggedNome = strtolower($loggedUser['nome']);
+    $loggedCognome = strtolower($loggedUser['cognome']);
 
-        // Recupera tutte le firme senza filtri per analisi
-        $firme = Firma::all();
+    
+    $month = $request->query('month');     // 1..12
+    $year = $request->query('year');       // 2025
+    $terapista = $request->query('terapista'); // ID terapista
+    $status = $request->query('status');   // paid | unpaid
 
-        // Log dei dati recuperati dal database
-        Log::info('Pagamenti recuperati:', ['pagamenti' => $pagamenti]);
-        Log::info('Firme recuperate:', ['firme' => $firme]);
+    // FIRME filtrate
+    $firme = Firma::whereRaw('LOWER(nome) = ?', [$loggedNome])
+        ->whereRaw('LOWER(cognome) = ?', [$loggedCognome])
+        ->when($month, fn($q) => $q->whereMonth('data', $month))
+        ->when($year, fn($q) => $q->whereYear('data', $year))
+        ->when($terapista && $terapista != 'all', fn($q) => $q->where('terapista_id', $terapista))
+        ->get();
 
-        // Recupera il nome e cognome dell'utente loggato dalla sessione
-        $loggedUser = Session::get('logged_user');
-        $loggedNome = strtolower($loggedUser['nome']);
-        $loggedCognome = strtolower($loggedUser['cognome']);
+    // PAGAMENTI dell’utente
+    $pagamenti = Pagamento::where('paziente_id', $userId)->get();
 
-        // Determina lo stato dei pagamenti confrontando con le firme
-        $pagamentiConStato = $pagamenti->map(function ($pagamento) use ($firme, $loggedNome, $loggedCognome) {
+    // GENERA RISULTATO
+    $risultato = $firme->map(function ($firma) use ($pagamenti, $status) {
 
-            // Paziente
-            if ($pagamento->paziente_id) {
-                $utente = $pagamento->paziente;
-                $pagamento->nome = $utente->nome;
-                $pagamento->cognome = $utente->cognome;
-            }
-
-            // TERAPISTA
-            if ($pagamento->terapista) {
-                $pagamento->therapist =
-                    $pagamento->terapista->nome . " " . $pagamento->terapista->cognome;
-            } else {
-                $pagamento->therapist = null;
-            }
-            // Cerca la firma corrispondente
-            $firmaCorrispondente = $firme->first(function ($f) use ($pagamento, $loggedNome, $loggedCognome) {
-                return strtolower($f->nome) === $loggedNome &&
-                    strtolower($f->cognome) === $loggedCognome &&
-                    $f->data->eq($pagamento->data) &&
-                    $f->terapista_id === $pagamento->terapista_id;
-            });
-
-            // Prestazione = terapia della firma
-            $pagamento->service = $firmaCorrispondente->terapia ?? null;
-
-
-
-            // STATO
-            $pagamento->status = $firme->contains(function ($firma) use ($pagamento, $loggedNome, $loggedCognome) {
-                return strtolower($firma->nome) === $loggedNome &&
-                    strtolower($firma->cognome) === $loggedCognome &&
-                    $firma->data->eq($pagamento->data) &&
-                    $firma->terapista_id === $pagamento->terapista_id &&
-                    $firma->terapia === $pagamento->terapista->staffDati->terapia;
-            }) ? 'paid' : 'unpaid';
-
-
-            return $pagamento;
+        $pagamento = $pagamenti->first(function ($p) use ($firma) {
+            return $p->data->eq($firma->data) &&
+                   $p->terapista_id == $firma->terapista_id;
         });
 
+        $rowStatus = $pagamento ? 'paid' : 'unpaid';
 
-        return response()->json([
-            'data' => $pagamentiConStato
-        ]);
-    }
+        // filtra per stato (solo se richiesto)
+        if ($status && $status !== $rowStatus) {
+            return null;
+        }
+
+        return [
+            'data' => $firma->data,
+            'therapist' => $firma->terapista?->nome . ' ' . $firma->terapista?->cognome,
+            'therapist_id' => $firma->terapista_id,
+            'service' => $firma->terapia,
+            'status' => $rowStatus,
+        ];
+    })
+    ->filter() // rimuove null
+    ->values();
+
+    return response()->json([
+        'data' => $risultato
+    ]);
+}
+
+
 }

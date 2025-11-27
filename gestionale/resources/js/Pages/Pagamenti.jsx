@@ -7,7 +7,7 @@ import {
     FiAlertCircle,
     FiCheckCircle,
 } from "react-icons/fi";
-import { baseCall } from '../data/api/baseCall';
+import { baseCall } from "../data/api/baseCall";
 
 const formatDate = (dateString) => {
     if (!dateString) return "—";
@@ -15,44 +15,113 @@ const formatDate = (dateString) => {
     return date.toLocaleDateString("it-IT", {
         day: "2-digit",
         month: "short",
-        year: "numeric"
+        year: "numeric",
     });
 };
 
-
 const Pagamenti = () => {
     const [pagamenti, setPagamenti] = useState([]);
+    const [terapisti, setTerapisti] = useState([]);
+
+    // FILTRI SELEZIONATI
+    const [selectedMonth, setSelectedMonth] = useState({
+        value: "all",
+        label: "Tutti",
+    });
+    const [selectedYear, setSelectedYear] = useState(null);
+    const [selectedTherapist, setSelectedTherapist] = useState({
+        value: "all",
+        label: "Tutti",
+    });
 
     useEffect(() => {
-    baseCall({ endpoint: '/pagamenti-pazienti', method: 'GET' })
-        .then((response) => {
-            console.log("📥 RESPONSE DAL BACKEND:", response);
-            setPagamenti(response.data.data);
-        })
-        .catch((error) => console.error('❌ Errore nel recupero dei pagamenti:', error));
-}, []);
+        baseCall({ endpoint: "/pagamenti-pazienti", method: "GET" })
+            .then((response) => {
+                setPagamenti(response.data.data);
+            })
+            .catch((error) =>
+                console.error("❌ Errore nel recupero dei pagamenti:", error)
+            );
 
-    // ---- mock options per i Select (non filtrano ancora) ----
+        // ---- TERAPISTI ----
+        baseCall({ endpoint: "/terapisti", method: "GET" })
+            .then((response) => {
+                console.log("TERAPISTI RAW RESPONSE:", response.data);
+
+                let raw = response.data;
+
+                
+                let arr = Array.isArray(raw)
+                    ? raw
+                    : typeof raw === "object"
+                    ? Object.values(raw)
+                    : [];
+
+                setTerapisti([{ value: "all", label: "Tutti" }, ...arr]);
+            })
+            .catch((error) =>
+                console.error("❌ Errore caricando i terapisti:", error)
+            );
+    }, []);
+
+    // ---- OPZIONI MESI ----
     const monthOptions = [
         { value: "all", label: "Tutti" },
-        { value: "10", label: "Ottobre" },
-        { value: "11", label: "Novembre" },
-    ];
-    const yearOptions = [
-        { value: "2025", label: "2025" },
-        { value: "2024", label: "2024" },
-    ];
-    const therapistOptions = [
-        { value: "all", label: "Tutti" },
-        { value: "rossi", label: "Dr. Mario Rossi" },
-        { value: "bianchi", label: "Dr.ssa Laura Bianchi" },
-        { value: "verdi", label: "Dr. Giuseppe Verdi" },
+        ...[
+            "Gennaio",
+            "Febbraio",
+            "Marzo",
+            "Aprile",
+            "Maggio",
+            "Giugno",
+            "Luglio",
+            "Agosto",
+            "Settembre",
+            "Ottobre",
+            "Novembre",
+            "Dicembre",
+        ].map((m, i) => ({ value: i + 1, label: m })),
     ];
 
-    // solo per evidenziare lo stile del tab (nessuna logica)
+    // ---- OPZIONI ANNI (6 anni da quello corrente) ----
+    const currentYear = new Date().getFullYear();
+    const yearOptions = [...Array(6)].map((_, i) => {
+        const y = currentYear - i;
+        return { value: y, label: `${y}` };
+    });
+
+    // seleziona di default l'anno corrente
+    useEffect(() => {
+        setSelectedYear({ value: currentYear, label: `${currentYear}` });
+    }, [currentYear]);
+
+    // ---- FILTRAGGIO ----
+    const filteredRows = pagamenti.filter((r) => {
+        const d = new Date(r.data);
+        const month = d.getMonth() + 1;
+        const year = d.getFullYear();
+
+        if (selectedMonth.value !== "all" && month !== selectedMonth.value)
+            return false;
+        if (selectedYear && year !== selectedYear.value) return false;
+        if (
+            selectedTherapist.value !== "all" &&
+            r.therapist_id !== selectedTherapist.value
+        )
+            return false;
+
+        return true;
+    });
+
+    // ---- TABS ----
     const [activeTab, setActiveTab] = useState("tutti");
 
-    // classi Tailwind per react-select (unstyled)
+    const tabFilteredRows = filteredRows.filter((r) => {
+        if (activeTab === "completati") return r.status === "paid";
+        if (activeTab === "dapagare") return r.status === "unpaid";
+        return true;
+    });
+
     const selectClassNames = {
         control: ({ isFocused }) =>
             `min-h-11 rounded-xl border bg-white text-sm px-2
@@ -80,12 +149,10 @@ const Pagamenti = () => {
         input: () => "text-slate-900",
     };
 
-    // Garantisco che rows sia sempre un array
-    const rows = Array.isArray(pagamenti) ? pagamenti : [];
-
     // Calcola i conteggi
-    const totalPaid = rows.filter((r) => r.status === "paid").length;
-    const totalToPay = rows.filter((r) => r.status === "unpaid").length;
+    const totalAll = filteredRows.length;
+    const totalPaid = filteredRows.filter((r) => r.status === "paid").length;
+    const totalToPay = filteredRows.filter((r) => r.status === "unpaid").length;
 
     const StatusBadge = ({ status }) => {
         const map = {
@@ -124,7 +191,7 @@ const Pagamenti = () => {
                     </p>
                 </div>
 
-                {/* FILTRI (react-select statici) */}
+                {/* FILTRI */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-12">
                     <div>
                         <label className="block text-xs text-slate-500 mb-1">
@@ -132,36 +199,39 @@ const Pagamenti = () => {
                         </label>
                         <Select
                             unstyled
-                            defaultValue={monthOptions[0]}
                             options={monthOptions}
+                            value={selectedMonth}
+                            onChange={setSelectedMonth}
                             classNames={selectClassNames}
                             components={{ IndicatorSeparator: null }}
-                            placeholder="Tutti"
                         />
                     </div>
+
                     <div>
                         <label className="block text-xs text-slate-500 mb-1">
                             Anno
                         </label>
                         <Select
                             unstyled
-                            defaultValue={yearOptions[0]}
                             options={yearOptions}
+                            value={selectedYear}
+                            onChange={setSelectedYear}
                             classNames={selectClassNames}
                             components={{ IndicatorSeparator: null }}
                         />
                     </div>
+
                     <div>
                         <label className="block text-xs text-slate-500 mb-1">
                             Terapista
                         </label>
                         <Select
                             unstyled
-                            defaultValue={therapistOptions[0]}
-                            options={therapistOptions}
+                            options={terapisti}
+                            value={selectedTherapist}
+                            onChange={setSelectedTherapist}
                             classNames={selectClassNames}
                             components={{ IndicatorSeparator: null }}
-                            placeholder="Tutti"
                         />
                     </div>
                 </div>
@@ -200,9 +270,9 @@ const Pagamenti = () => {
                 {/* TABS */}
                 <div className="grid grid-cols-3 gap-3 mb-4 mt-8">
                     {[
-                        { key: "tutti", label: "Tutti (6)" },
-                        { key: "completati", label: "Pagati (3)" },
-                        { key: "dapagare", label: "Da Pagare (3)" },
+                        { key: "tutti", label: `Tutti (${totalAll})` },
+                        { key: "completati", label: `Pagati (${totalPaid})` },
+                        { key: "dapagare", label: `Da Pagare (${totalToPay})` },
                     ].map((t) => (
                         <button
                             key={t.key}
@@ -230,7 +300,7 @@ const Pagamenti = () => {
                         <div className="col-span-2">Stato</div>
                     </div>
 
-                    {rows.map((r, i) => (
+                    {tabFilteredRows.map((r, i) => (
                         <div
                             key={i}
                             className="grid grid-cols-12 items-center px-6 py-4 border-t border-slate-100 hover:bg-slate-50/60"
@@ -239,12 +309,18 @@ const Pagamenti = () => {
                                 {formatDate(r.data)}
                             </div>
                             <div className="col-span-3 text-slate-700">
-                                 {r.therapist ?? "—"}
+                                {r.therapist ?? "—"}
                             </div>
                             <div className="col-span-3 text-slate-700">
-                               {r.service ?? "—"}
+                                {r.service ?? "—"}
                             </div>
-                            <div className={`col-span-2 font-semibold ${r.status === 'unpaid' ? 'text-rose-700' : 'text-slate-800'}`}>
+                            <div
+                                className={`col-span-2 font-semibold ${
+                                    r.status === "unpaid"
+                                        ? "text-rose-700"
+                                        : "text-slate-800"
+                                }`}
+                            >
                                 <StatusBadge status={r.status} />
                             </div>
                         </div>
