@@ -48,7 +48,7 @@ class PagamentoController extends Controller
     public function stats()
     {
         $oggi = Carbon::today();
-        $settimana = Carbon::now()->subDays(7);
+        $settimana = Carbon::now()->startOfWeek();
         $mese = Carbon::now()->startOfMonth();
         $anno = Carbon::now()->startOfYear();
 

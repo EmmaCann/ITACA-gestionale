@@ -63,17 +63,18 @@ const DettaglioIncasso = () => {
                 }));
                 setBarData(line);
 
-                // Pie Chart: tipo paziente
-                const counts = { registrati: 0, non_registrati: 0 };
+                // Pie Chart: fattura / non fattura
+                const counts = { fattura: 0, noFattura: 0 };
+
                 pagamentiArray.forEach((p) => {
-                    if (p.paziente_id) counts.registrati++;
-                    else counts.non_registrati++;
+                    if (p.fattura) counts.fattura++;
+                    else counts.noFattura++;
                 });
 
                 setPieData({
-                    labels: ["Registrati", "Non Registrati"],
-                    values: [counts.registrati, counts.non_registrati],
-                    colors: ["#4CAF50", "#B2EBF2"],
+                    labels: ["Con Fattura", "Senza Fattura"],
+                    values: [counts.fattura, counts.noFattura],
+                    colors: ["#4CAF50", "#FFC107"], // verde / giallo
                 });
             } catch (err) {
                 console.error("Errore caricando i pagamenti:", err);
@@ -101,7 +102,6 @@ const DettaglioIncasso = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {/* Totale Incassi */}
                     <div className="bg-gradient-to-br from-white to-[#E0F7FA] p-5 rounded-xl shadow-md text-center">
-
                         <h2 className="text-sm text-gray-600 font-medium">
                             Totale Incassi
                         </h2>
@@ -169,7 +169,7 @@ const DettaglioIncasso = () => {
 
                     <div className="bg-white rounded shadow p-4 flex-1 min-w-[300px] h-[350px]">
                         <h2 className="font-semibold text-lg mb-2">
-                            Tipologia Pazienti
+                           Fatturazione
                         </h2>
                         <div className="relative h-[280px] w-full">
                             <DoughnutChartWidget
