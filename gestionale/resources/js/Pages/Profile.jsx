@@ -192,6 +192,7 @@ const Profile = () => {
                         method="post"
                         as="button"
                         className="w-full bg-pinkSecondary text-white py-3 rounded-xl font-semibold shadow hover:bg-pinkPrimary transition"
+
                     >
                         Logout
                     </Link>

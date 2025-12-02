@@ -14,8 +14,6 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-use Symfony\Component\HttpFoundation\Response;
-
 use Illuminate\Support\Facades\Hash;
 
 class UtenteController extends Controller

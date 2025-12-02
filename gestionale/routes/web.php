@@ -43,6 +43,9 @@ Route::get('/profilo', [UtenteController::class, 'profilo'])->name('profilo');
 Route::post('/profilo/cambio-password', [UtenteController::class, 'cambiaPassword'])->name('password.change');
 Route::delete('/utenti/{utente}', [UtenteController::class, 'destroy'])->name('utenti.destroy');
 Route::put('/utenti/{utente}', [UtenteController::class, 'update'])->name('utenti.update');
+Route::get('/profilo', [UtenteController::class, 'profilo'])->name('profilo');
+Route::post('/profilo/cambio-password', [UtenteController::class, 'cambiaPassword'])->name('password.change');
+
 
 
 
