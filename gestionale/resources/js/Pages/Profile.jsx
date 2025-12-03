@@ -191,7 +191,7 @@ const Profile = () => {
                         href="/logout"
                         method="post"
                         as="button"
-                        className="w-full bg-red-500 text-white py-3 rounded-xl font-semibold shadow hover:bg-red-600 transition"
+                        className="w-full bg-pinkSecondary text-white py-3 rounded-xl font-semibold shadow hover:bg-pinkPrimary transition"
                     >
                         Logout
                     </Link>
