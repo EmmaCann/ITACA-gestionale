@@ -53,6 +53,11 @@
 }
 
 
+.fc-toolbar-title {
+    white-space: nowrap !important;
+}
+
+
 
 /* Rimuove l'icona predefinita del calendario nei browser principali */
 .date-input::-webkit-calendar-picker-indicator {
@@ -121,4 +126,122 @@ background-color: #F8F9FA;
   right: 0;
   bottom: 0;
   z-index: 999;
+}
+
+
+
+/* ---- SIDEBAR MOBILE ---- */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 70px;
+        height: calc(100vh - 70px);
+        width: 250px;
+        background: white;
+        z-index: 999;
+        transform: translateX(-100%);
+        transition: 0.3s ease;
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+}
+
+/* ---- FULLCALENDAR - toolbar e pulsanti responsive ---- */
+
+.fc {
+    font-size: 0.85rem;
+}
+
+/* Titolo troppo grande su mobile */
+@media (max-width: 600px) {
+   .fc-toolbar.fc-header-toolbar {
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 6px !important;
+    }
+
+    .fc .fc-button {
+        padding: 3px 6px !important;
+        font-size: 11px !important;
+    }
+
+    .fc .fc-toolbar-title {
+        font-size: 16px !important;
+        font-weight: 500 !important;
+    }
+
+    .fc-header-toolbar .fc-toolbar-chunk {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .fc-button {
+        padding: 4px 6px !important;
+        font-size: 0.75rem !important;
+    }
+}
+
+/* View timeGridDay su mobile overflow fix */
+.fc-timegrid {
+    overflow-x: hidden !important;
+}
+
+
+@media (max-width: 600px) {
+    .fc-timegrid-slot-label {
+        font-size: 10px !important;
+        width: 35px !important;
+    }
+}
+
+
+/* ---- FULLCALENDAR TOOLBAR RESPONSIVE ---- */
+
+/* MOBILE + TABLET PORTRAIT */
+@media (max-width: 900px) {
+
+    /* Toolbar intera in colonna */
+    .fc .fc-header-toolbar {
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 8px;
+        text-align: center;
+    }
+
+    /* Ogni segmento (left / center / right) centrato */
+    .fc .fc-header-toolbar .fc-toolbar-chunk {
+        display: flex !important;
+        justify-content: center !important;
+        width: 100%;
+    }
+
+    /* Titolo centrato e più piccolo */
+    .fc .fc-toolbar-title {
+        font-size: 18px !important;
+        margin-top: 4px;
+    }
+
+    /* Bottoni più piccoli */
+    .fc .fc-button {
+        font-size: 12px !important;
+        padding: 4px 8px !important;
+        border-radius: 6px !important;
+    }
+
+    /* Colonna degli orari del timeGrid resa più stretta */
+    .fc-timegrid-slot-label {
+        font-size: 10px !important;
+        width: 40px !important;
+    }
+}
+
+/* DESKTOP "RESTITUISCI LAYOUT NORMALE" */
+@media (min-width: 901px) {
+    .fc .fc-header-toolbar {
+        flex-direction: row !important;
+    }
 }

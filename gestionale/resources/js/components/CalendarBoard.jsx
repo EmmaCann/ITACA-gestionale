@@ -281,17 +281,37 @@ export function CalendarBoard() {
         );
     }, [therapists, selectedTherapist]);
 
+    const [initialView, setInitialView] = useState("timeGridDay");
+
+    useEffect(() => {
+        const updateView = () => {
+            const w = window.innerWidth;
+
+            if (w < 600) setInitialView("dayGridMonth");
+            else if (w < 900) setInitialView("timeGridWeek");
+            else setInitialView("timeGridDay");
+        };
+
+        updateView();
+        window.addEventListener("resize", updateView);
+        return () => window.removeEventListener("resize", updateView);
+    }, []);
+
     return (
         <div className="h-full w-full">
             <FullCalendar
                 ref={calRef}
                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                initialView="timeGridDay"
+                // initialView="timeGridDay"
                 timeZone="local"
                 locale="it"
-                height="100%"
+                // height="100%"
+                height="auto"
+                contentHeight="auto"
+                expandRows={true}
+                initialView={initialView}
                 eventDisplay="block"
-                expandRows
+                // expandRows
                 editable={canEdit}
                 eventStartEditable={canEdit}
                 eventDurationEditable={canEdit}

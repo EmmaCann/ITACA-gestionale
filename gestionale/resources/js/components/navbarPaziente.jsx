@@ -22,7 +22,7 @@ export const NavbarPaziente = ({ menuOpen, setMenuOpen }) => {
             ? "bg-navbarActive shadow-md border-l-4 rounded-md border-bluSecondary"
             : "";
 
-    console.log("NavbarPaziente props:", { menuOpen });
+    // console.log("NavbarPaziente props:", { menuOpen });
 
     return (
         <>

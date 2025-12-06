@@ -7,30 +7,29 @@ import { CalendarBoard } from "../components/CalendarBoard";
 
 const HomePaziente = ({ children, hideFAB = true }) => {
     const [menuOpen, setMenuOpen] = useState(false);
-    console.log("menuOpen state changed:", menuOpen);
     const hasChildren = React.Children.count(children) > 0;
 
     return (
-        <div className="bg-background flex w-screen h-screen overflow-hidden">
-            {/* SIDEBAR + MOBILE DRAWER */}
-            <NavbarPaziente menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+        <div className="flex w-full h-screen overflow-hidden bg-background">
+            {/* SIDEBAR – resta sempre alta 100% */}
+            <div className="h-full">
+                <NavbarPaziente menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+            </div>
 
-            <div className="flex flex-col flex-1 h-full relative">
-                <div className="h-[70px] w-full">
-                   
-                    <TopBar
-                        onHamburgerClick={() => {
-                            console.log("setMenuOpen(true) CALLED");
-                            setMenuOpen(true);
-                        }}
-                    />
+            {/* COLONNA DESTRA */}
+            <div className="flex flex-col flex-1 h-full">
+                {/* TOPBAR */}
+                <div className="h-[70px] w-full flex-shrink-0">
+                    <TopBar onHamburgerClick={() => setMenuOpen(true)} />
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-4 mr-1">
+                {/* CONTENUTO SCROLLABILE */}
+               <div className="flex-1 overflow-y-auto px-3 pb-3 pt-1">
+
                     {hasChildren ? (
                         children
                     ) : (
-                        <div className="h-[calc(100vh-70px-2rem)]">
+                        <div className="w-full mx-auto max-w-[1600px]">
                             <CalendarBoard />
                         </div>
                     )}
