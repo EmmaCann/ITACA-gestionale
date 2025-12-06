@@ -50,7 +50,6 @@ const Pagamenti = () => {
 
                 let raw = response.data;
 
-                
                 let arr = Array.isArray(raw)
                     ? raw
                     : typeof raw === "object"
@@ -291,9 +290,13 @@ const Pagamenti = () => {
                 </div>
 
                 {/* TABELLA */}
+                {/* TABELLA RESPONSIVE */}
                 <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
-                    {/* header azzurro bluSecondary schiarito */}
-                    <div className="grid grid-cols-12 items-center px-6 py-3 bg-bluSecondary/10 text-slate-700 font-semibold border-b border-bluSecondary/30">
+                    {/* HEADER — visibile solo da md in su */}
+                    <div
+                        className="hidden md:grid grid-cols-12 items-center px-6 py-3 bg-bluSecondary/10 
+                    text-slate-700 font-semibold border-b border-bluSecondary/30"
+                    >
                         <div className="col-span-4">Data</div>
                         <div className="col-span-3">Terapista</div>
                         <div className="col-span-3">Prestazione</div>
@@ -301,27 +304,44 @@ const Pagamenti = () => {
                     </div>
 
                     {tabFilteredRows.map((r, i) => (
-                        <div
-                            key={i}
-                            className="grid grid-cols-12 items-center px-6 py-4 border-t border-slate-100 hover:bg-slate-50/60"
-                        >
-                            <div className="col-span-4 font-semibold text-slate-800">
-                                {formatDate(r.data)}
-                            </div>
-                            <div className="col-span-3 text-slate-700">
-                                {r.therapist ?? "—"}
-                            </div>
-                            <div className="col-span-3 text-slate-700">
-                                {r.service ?? "—"}
-                            </div>
+                        <div key={i}>
+                            {/* VERSIONE DESKTOP */}
                             <div
-                                className={`col-span-2 font-semibold ${
-                                    r.status === "unpaid"
-                                        ? "text-rose-700"
-                                        : "text-slate-800"
-                                }`}
+                                className="hidden md:grid grid-cols-12 items-center px-6 py-4 
+                            border-t border-slate-100 hover:bg-slate-50/60"
                             >
-                                <StatusBadge status={r.status} />
+                                <div className="col-span-4 font-semibold text-slate-800">
+                                    {formatDate(r.data)}
+                                </div>
+                                <div className="col-span-3 text-slate-700">
+                                    {r.therapist ?? "—"}
+                                </div>
+                                <div className="col-span-3 text-slate-700">
+                                    {r.service ?? "—"}
+                                </div>
+                                <div className="col-span-2">
+                                    <StatusBadge status={r.status} />
+                                </div>
+                            </div>
+
+                            {/* VERSIONE MOBILE COMPATTA */}
+                            <div className="md:hidden px-4 py-3 border-t border-slate-100">
+                                {/* Riga principale compatta */}
+                                <div className="flex flex-col text-sm text-slate-700 leading-tight">
+                                    <div className="font-semibold text-slate-800">
+                                        {formatDate(r.data)}
+                                    </div>
+
+                                    <div className="truncate">
+                                        {r.therapist ?? "—"} —{" "}
+                                        {r.service ?? "—"}
+                                    </div>
+                                </div>
+
+                                {/* Stato sotto, piccolo e compatto */}
+                                <div className="mt-2">
+                                    <StatusBadge status={r.status} />
+                                </div>
                             </div>
                         </div>
                     ))}
