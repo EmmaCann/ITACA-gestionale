@@ -306,7 +306,7 @@ export function CalendarBoard() {
                 timeZone="local"
                 locale="it"
                 // height="100%"
-                height="auto"
+                height="100%"
                 contentHeight="auto"
                 expandRows={true}
                 initialView={initialView}

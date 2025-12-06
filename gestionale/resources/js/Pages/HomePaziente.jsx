@@ -11,25 +11,28 @@ const HomePaziente = ({ children, hideFAB = true }) => {
 
     return (
         <div className="flex w-full h-screen overflow-hidden bg-background">
-            {/* SIDEBAR – resta sempre alta 100% */}
+            {/* SIDEBAR */}
             <div className="h-full">
                 <NavbarPaziente menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
             </div>
 
             {/* COLONNA DESTRA */}
             <div className="flex flex-col flex-1 h-full">
+                {/* TOPBAR – niente altezza fissa */}
                 <div className="w-full flex-shrink-0">
                     <TopBar onHamburgerClick={() => setMenuOpen(true)} />
                 </div>
 
-                <div className="flex-1 overflow-y-auto px-3 pb-3 pt-[90px] md:pt-[80px]">
+                {/* CONTENUTO SCROLLABILE */}
+                <div className="flex-1 overflow-y-auto px-3 pb-3 pt-2">
                     {hasChildren ? (
                         children
                     ) : (
-                        <div className="w-full mx-auto max-w-[1600px]">
+                        <div className="w-full mx-auto max-w-[1600px] h-full">
                             <CalendarBoard />
                         </div>
                     )}
+
                     {!hideFAB && <FAB />}
                 </div>
             </div>

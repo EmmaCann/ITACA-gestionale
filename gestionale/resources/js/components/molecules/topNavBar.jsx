@@ -11,7 +11,7 @@ export const TopNavBar = ({ mode = "full" }) => {
     const ruolo = props?.ruolo || null;
     const isAdmin = ruolo === "admin";
 
-    const iconCls = "w-[20px] h-[20px]";
+    const iconCls = "w-[20px] h-[20px] mr-4";
 
     /* MOBILE: SOLO DATE PICKER */
     if (mode === "date") {
@@ -33,34 +33,32 @@ export const TopNavBar = ({ mode = "full" }) => {
     }
 
     /* DESKTOP FULL VERSION (sfondo originale) */
-return (
-    <div
-        className="
-            bg-navbar opacity-[60%] w-full h-[55px] rounded-[20px]
-            flex items-center shadow-xs px-4 gap-6
-        "
-    >
-        {/* Saluto */}
-        <WelcomeMessage />
+    return (
+        <div
+            className="
+                bg-navbar opacity-[60%] w-full h-[55px] rounded-[20px]
+                flex items-center shadow-xs px-4 gap-6
+            "
+        >
+            {/* Saluto */}
+            <WelcomeMessage />
 
-        {/* Datepicker subito dopo il saluto */}
-        <div className="flex items-center">
-            <DatePicker />
+            {/* Datepicker subito dopo il saluto */}
+            <div className="flex items-center">
+                <DatePicker />
+            </div>
+
+            {/* Spazio flessibile */}
+            <div className="flex-1" />
+
+            {/* Icone */}
+            <div className="flex items-center gap-4">
+                {isAdmin && !url.startsWith("/pazienti") && (
+                    <SearchBar isTopBar={true} />
+                )}
+                <IoMdNotificationsOutline className={iconCls}  />
+                {isAdmin && <FiMessageSquare className={iconCls} />}
+            </div>
         </div>
-
-        {/* Spazio flessibile */}
-        <div className="flex-1"></div>
-
-        {/* Icone */}
-        <div className="flex items-center gap-4">
-            {isAdmin && !url.startsWith("/pazienti") && (
-                <SearchBar isTopBar={true} />
-            )}
-            <IoMdNotificationsOutline className={iconCls} />
-            {isAdmin && <FiMessageSquare className={iconCls} />}
-        </div>
-    </div>
-);
-
-}
-
+    );
+};

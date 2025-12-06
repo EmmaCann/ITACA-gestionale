@@ -32,7 +32,7 @@ const Home = ({ children, hideFAB = false }) => {
 
       <div className="flex flex-col flex-1 h-full relative">
         
-        <div className="h-[70px] w-full">
+        <div className=" w-full">
           <TopBar
             onHamburgerClick={() => {
               console.log("CLICK → OPEN DRAWER");
@@ -41,7 +41,9 @@ const Home = ({ children, hideFAB = false }) => {
           />
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 mr-1">
+      <div className="flex-1 overflow-y-auto p-4 mr-1 mt-[10px] md:mt-[20px]">
+
+
           
           {hasChildren ? (
             children

@@ -5,22 +5,17 @@ import { FiMenu } from "react-icons/fi";
 
 export const TopBar = ({ onHamburgerClick }) => {
     return (
-        <div className="w-full px-2 py-2 shadow md:shadow-none z-10 flex flex-col gap-2">
-
+        <div className="w-full px-2 py-2 shadow md:shadow-none flex flex-col gap-2 bg-background">
             {/* DESKTOP */}
             <div className="hidden md:flex items-center w-full gap-2">
-                {/* TopNavBar con sfondo */}
                 <div className="flex-1">
                     <TopNavBar />
                 </div>
-
-                {/* Profilo spostato correttamente a destra */}
                 <ProfileIcon />
             </div>
 
             {/* MOBILE */}
             <div className="md:hidden flex flex-col gap-2 w-full">
-
                 {/* RIGA 1 */}
                 <div className="flex items-center justify-between w-full">
                     <button
@@ -38,7 +33,7 @@ export const TopBar = ({ onHamburgerClick }) => {
                 </div>
 
                 {/* RIGA 2 */}
-                <div className="flex items-center justify-between w-full px-1">
+                <div className="flex items-center justify-between w-full px-1 mb-1">
                     <TopNavBar mode="welcome" />
                 </div>
             </div>
