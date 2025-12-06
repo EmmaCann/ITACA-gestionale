@@ -6,70 +6,61 @@ import { IoMdNotificationsOutline } from "react-icons/io";
 import { FiMessageSquare } from "react-icons/fi";
 import { WelcomeMessage } from "../molecules/atoms/welcomeMessage.jsx";
 
-export const TopNavBar = () => {
+export const TopNavBar = ({ mode = "full" }) => {
     const { url, props } = usePage();
     const ruolo = props?.ruolo || null;
     const isAdmin = ruolo === "admin";
 
-    const iconsClass =
-        "w-[20px] h-[20px] cursor-pointer [@media(max-width:380px)]:w-[16px] [@media(max-width:380px)]:h-[16px]";
+    const iconCls = "w-[20px] h-[20px]";
 
-    return (
-        <div
-            className="
-                bg-navbar opacity-[60%] w-full h-[55px] rounded-[20px]
-                flex flex-row shadow-xs px-4
+    /* MOBILE: SOLO DATE PICKER */
+    if (mode === "date") {
+        return <DatePicker />;
+    }
 
-                /* riduci altezza e tutto il blocco */
-                [@media(max-width:380px)]:h-[48px]
-                [@media(max-width:350px)]:scale-[0.9]
-                [@media(max-width:320px)]:scale-[0.8]
-            "
-        >
-            {/* SINISTRA */}
-            <div
-                className="
-                    flex flex-row justify-start items-center w-full gap-4
+    /* MOBILE: RIGA 2 = WELCOME + ICONE */
+    if (mode === "welcome") {
+        return (
+            <>
+                <WelcomeMessage />
 
-                    [@media(max-width:430px)]:gap-2
-                    [@media(max-width:380px)]:gap-1
-
-                    ml-2
-                "
-            >
-                {/* NASCONDI WELCOME SU SCHERMI PICCOLISSIMI */}
-                <div className="[@media(max-width:350px)]:hidden">
-                    <WelcomeMessage />
+                <div className="flex items-center gap-3">
+                    <IoMdNotificationsOutline className={iconCls} />
+                    {isAdmin && <FiMessageSquare className={iconCls} />}
                 </div>
+            </>
+        );
+    }
 
-                <div
-                    className="
-                        [@media(max-width:380px)]:scale-[0.9]
-                        [@media(max-width:340px)]:scale-[0.8]
-                    "
-                >
-                    <DatePicker />
-                </div>
-            </div>
+    /* DESKTOP FULL VERSION (sfondo originale) */
+return (
+    <div
+        className="
+            bg-navbar opacity-[60%] w-full h-[55px] rounded-[20px]
+            flex items-center shadow-xs px-4 gap-6
+        "
+    >
+        {/* Saluto */}
+        <WelcomeMessage />
 
-            {/* DESTRA */}
-            <div
-                className="
-                    flex flex-row justify-end items-center w-full gap-4 mr-4 pr-4
-                    [@media(max-width:430px)]:gap-2
-                    [@media(max-width:380px)]:gap-1
-                "
-            >
-                {isAdmin && !url.startsWith("/pazienti") && (
-                    <div className="[@media(max-width:380px)]:hidden">
-                        <SearchBar isTopBar={true} />
-                    </div>
-                )}
-
-                <IoMdNotificationsOutline className={iconsClass} />
-
-                {isAdmin && <FiMessageSquare className={iconsClass} />}
-            </div>
+        {/* Datepicker subito dopo il saluto */}
+        <div className="flex items-center">
+            <DatePicker />
         </div>
-    );
-};
+
+        {/* Spazio flessibile */}
+        <div className="flex-1"></div>
+
+        {/* Icone */}
+        <div className="flex items-center gap-4">
+            {isAdmin && !url.startsWith("/pazienti") && (
+                <SearchBar isTopBar={true} />
+            )}
+            <IoMdNotificationsOutline className={iconCls} />
+            {isAdmin && <FiMessageSquare className={iconCls} />}
+        </div>
+    </div>
+);
+
+}
+

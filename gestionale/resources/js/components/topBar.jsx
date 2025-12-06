@@ -5,28 +5,42 @@ import { FiMenu } from "react-icons/fi";
 
 export const TopBar = ({ onHamburgerClick }) => {
     return (
-        <div
-            className="
-                w-full px-2 py-2 shadow md:shadow-none z-10
-                flex items-center gap-2
-            "
-        >
-            {/* HAMBURGER */}
-            <button
-                onClick={onHamburgerClick}
-                className="md:hidden text-3xl text-gray-700 shrink-0"
-            >
-                <FiMenu />
-            </button>
+        <div className="w-full px-2 py-2 shadow md:shadow-none z-10 flex flex-col gap-2">
 
-            {/* BLOCCO CENTRALE — ora NON scrolla, perché si adatta */}
-            <div className="flex-1 flex items-center justify-center">
-                <TopNavBar />
+            {/* DESKTOP */}
+            <div className="hidden md:flex items-center w-full gap-2">
+                {/* TopNavBar con sfondo */}
+                <div className="flex-1">
+                    <TopNavBar />
+                </div>
+
+                {/* Profilo spostato correttamente a destra */}
+                <ProfileIcon />
             </div>
 
-            {/* PROFILE ICON */}
-            <div className="shrink-0 ml-2">
-                <ProfileIcon />
+            {/* MOBILE */}
+            <div className="md:hidden flex flex-col gap-2 w-full">
+
+                {/* RIGA 1 */}
+                <div className="flex items-center justify-between w-full">
+                    <button
+                        onClick={onHamburgerClick}
+                        className="text-3xl text-gray-700"
+                    >
+                        <FiMenu />
+                    </button>
+
+                    <div className="flex-1 flex justify-center">
+                        <TopNavBar mode="date" />
+                    </div>
+
+                    <ProfileIcon />
+                </div>
+
+                {/* RIGA 2 */}
+                <div className="flex items-center justify-between w-full px-1">
+                    <TopNavBar mode="welcome" />
+                </div>
             </div>
         </div>
     );

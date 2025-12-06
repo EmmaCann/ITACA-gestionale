@@ -18,14 +18,11 @@ const HomePaziente = ({ children, hideFAB = true }) => {
 
             {/* COLONNA DESTRA */}
             <div className="flex flex-col flex-1 h-full">
-                {/* TOPBAR */}
-                <div className="h-[70px] w-full flex-shrink-0">
+                <div className="w-full flex-shrink-0">
                     <TopBar onHamburgerClick={() => setMenuOpen(true)} />
                 </div>
 
-                {/* CONTENUTO SCROLLABILE */}
-               <div className="flex-1 overflow-y-auto px-3 pb-3 pt-1">
-
+                <div className="flex-1 overflow-y-auto px-3 pb-3 pt-[90px] md:pt-[80px]">
                     {hasChildren ? (
                         children
                     ) : (
@@ -33,7 +30,6 @@ const HomePaziente = ({ children, hideFAB = true }) => {
                             <CalendarBoard />
                         </div>
                     )}
-
                     {!hideFAB && <FAB />}
                 </div>
             </div>
