@@ -31,9 +31,9 @@ Route::get('/calendario', fn() => Inertia::render('Calendario'))
 
 Route::middleware([AuthSession::class])->group(function () {
 
-Route::get('/home-admin', [HomeController::class, 'admin'])->name('home_admin');
-Route::get('/home-staff', [HomeController::class, 'staff'])->name('home_staff');
-Route::get('/home-paziente', [HomeController::class, 'paziente'])->name('home_paziente');
+// Route::get('/home-admin', [HomeController::class, 'admin'])->name('home_admin');
+// Route::get('/home-staff', [HomeController::class, 'staff'])->name('home_staff');
+// Route::get('/home-paziente', [HomeController::class, 'paziente'])->name('home_paziente');
 Route::post('/utenti', [UtenteController::class, 'store'])->name('utenti.store');
 Route::get('/get-pazienti', [UtenteController::class, 'indexPazienti']);
 Route::get('/terapisti', [UtenteController::class, 'terapisti'])->name('utenti.terapisti');
@@ -58,13 +58,17 @@ Route::get('/pagamenti/filtrati', [PagamentoController::class, 'filtraPagamenti'
 
 
 Route::get('/', function () {
-    $ruolo = session('logged_user.ruolo');
-    return Inertia::render('Home', ['canEdit' => $ruolo === 'admin']);
+    return Inertia::render('Home', [
+        'ruolo' => session('logged_user.ruolo'),
+        'canEdit' => session('logged_user.ruolo') === 'admin'
+    ]);
 })->name('home');
 
 Route::get('/home', function () {
-    $ruolo = session('logged_user.ruolo');
-    return Inertia::render('Home', ['canEdit' => $ruolo === 'admin']);
+   return Inertia::render('Home', [
+        'ruolo' => session('logged_user.ruolo'),
+        'canEdit' => session('logged_user.ruolo') === 'admin'
+    ]);
 })->name('home');
 
 Route::get('/incassi', fn() => Inertia::render('Incassi'))->name('incassi');

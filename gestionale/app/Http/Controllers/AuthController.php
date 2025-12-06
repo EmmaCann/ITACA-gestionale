@@ -51,12 +51,13 @@ class AuthController extends Controller
         ]);
         Session::regenerate();
 
-        $redirectUrl = match ($user->ruolo) {
-            'admin'   => route('home_admin'),
-            'staff'   => route('home_staff'),
-            'paziente' => route('home_paziente'),
-            default   => route('login_form'),
-        };
+        // $redirectUrl = match ($user->ruolo) {
+        //     'admin'   => route('home_admin'),
+        //     'staff'   => route('home_staff'),
+        //     'paziente' => route('home_paziente'),
+        //     default   => route('login_form'),
+        // };
+        $redirectUrl =route('home');
 
         return response()->json(['success' => true, 'redirect_url' => $redirectUrl]);
     }

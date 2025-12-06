@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { usePage } from "@inertiajs/react";
 import Home from "./Home";
-import HomePaziente from "./HomePaziente";
+
 import ArchivioFirmeTable from "../components/archivioFirmeTable";
 import CustomModal from "../components/customModal";
 import ModalContentAggiuntaFirma from "../components/molecules/modalContentAggiuntaFirma";
@@ -83,7 +83,8 @@ const ArchivioFirme = () => {
         return { value: year, label: year };
     });
 
-    const Layout = ruolo === "paziente" ? HomePaziente : Home;
+    // const Layout = ruolo === "paziente" ? HomePaziente : Home;
+    const Layout=Home;
 
     return (
         <Layout>
