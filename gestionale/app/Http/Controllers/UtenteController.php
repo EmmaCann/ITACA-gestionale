@@ -10,10 +10,14 @@ use App\Models\PazienteTerapista;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+
+use Symfony\Component\HttpFoundation\Response;
+
 use Illuminate\Support\Facades\Hash;
 
 class UtenteController extends Controller
@@ -87,6 +91,7 @@ class UtenteController extends Controller
         }
 
         return $q->get();
+
     }
 
 
@@ -118,7 +123,11 @@ class UtenteController extends Controller
         }
 
         return $q->get();
+
     }
+
+
+   
 
     public function profilo()
     {
