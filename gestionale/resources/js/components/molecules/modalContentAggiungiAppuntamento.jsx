@@ -86,6 +86,8 @@ const ModalContentAggiungiAppuntamento = ({ onClose, onSubmit }) => {
                   }),
         };
 
+        console.log("CREATING APPOINTMENT", data);
+
         setIsSubmitting(true);
         try {
             await creaAppuntamento(data);

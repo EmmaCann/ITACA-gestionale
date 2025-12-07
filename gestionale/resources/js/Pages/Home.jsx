@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Navbar } from "../components/navbar";
 import { NavbarPaziente } from "../components/navbarPaziente";
+import { NavbarStaff } from "../components/navbarStaff";
 import { usePage } from "@inertiajs/react";
 import { TopBar } from "../components/topBar";
 import { FAB } from "../components/molecules/FAB.jsx";
@@ -13,22 +14,32 @@ const Home = ({ children, hideFAB = false }) => {
     const { props } = usePage();
     const ruolo = props?.ruolo || null;
 
-    const NavbarToShow = ruolo === "paziente" ? NavbarPaziente : Navbar;
+    // const NavbarToShow = ruolo === "paziente" ? NavbarPaziente : Navbar;
+    let NavbarToShow = Navbar; // default: admin
 
-    const effectiveHideFAB = hideFAB || ruolo === "paziente";
+    if (ruolo === "paziente") {
+        NavbarToShow = NavbarPaziente;
+    } else if (ruolo === "staff") {
+        NavbarToShow = NavbarStaff;
+    }
+
+    // const effectiveHideFAB = hideFAB || ruolo === "paziente";
+    const effectiveHideFAB = hideFAB || ruolo === "paziente" || ruolo === "staff";
+
 
     const hasChildren = React.Children.count(children) > 0;
 
     return (
         <div className="bg-background flex w-screen h-screen overflow-hidden overflow-x-hidden">
-
             <NavbarToShow menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
-            <div className="
+            <div
+                className="
                 flex flex-col flex-1 h-full relative
                 w-full
                 md:max-w-[calc(100vw-200px)]
-            ">
+            "
+            >
                 <div className="w-full">
                     <TopBar onHamburgerClick={() => setMenuOpen(true)} />
                 </div>

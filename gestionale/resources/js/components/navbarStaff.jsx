@@ -3,6 +3,7 @@ import { Link, usePage } from "@inertiajs/react";
 import { LogoItaca } from "./molecules/atoms/logo-ITACA.jsx";
 
 // Icone navbar
+import BrainIcon from "../../../public/icons/brain.png";
 import { IoMdHome } from "react-icons/io";
 import { IconTextNavbar } from "./molecules/atoms/iconTextNavbar.jsx";
 import { FaRegCreditCard } from "react-icons/fa";

@@ -6,6 +6,7 @@ use App\Models\Appuntamento;
 use App\Models\PazienteTerapista;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class AppuntamentiController extends Controller
 {
@@ -49,58 +50,81 @@ class AppuntamentiController extends Controller
         $ruolo  = session('logged_user.ruolo');
         $userId = session('logged_user.id_utente');
 
-        $start = $request->query('start');
-        $end   = $request->query('end');
-        $terapistaId = $request->query('terapista_id');
+        $start        = $request->query('start');
+        $end          = $request->query('end');
+        $terapistaId  = $request->query('terapista_id');
+
+        Log::info("CALENDAR INDEX", [
+            'ruolo'             => $ruolo,
+            'userId'            => $userId,
+            'start'             => $start,
+            'end'               => $end,
+            'terapista_filter'  => $terapistaId,
+        ]);
 
         $q = Appuntamento::query()->with([
             'paziente:id,nome,cognome',
             'terapista:id,nome,cognome',
         ]);
 
+        // Range temporale richiesto da FullCalendar
         if ($start && $end) {
             $q->whereBetween('data', [
-                \Illuminate\Support\Carbon::parse($start)->toDateString(),
-                \Illuminate\Support\Carbon::parse($end)->toDateString()
+                Carbon::parse($start)->toDateString(),
+                Carbon::parse($end)->toDateString()
             ]);
         }
 
-        if ($terapistaId) {
-            $q->where('terapista_id', $terapistaId);
-        }
-
-
-        if ($ruolo === 'staff') {
+        // -----------------------------------------
+        // 1️⃣ FILTRO PER RUOLO
+        // -----------------------------------------
+        if ($ruolo === 'admin') {
+            // admin vede tutto
+        } elseif ($ruolo === 'staff') {
+            // staff vede SOLO i suoi appuntamenti
             $q->where('terapista_id', $userId);
         } elseif ($ruolo === 'paziente') {
+            // paziente vede SOLO i suoi appuntamenti
             $q->where('paziente_id', $userId);
+        }
+
+        // -----------------------------------------
+        // 2️⃣ FILTRO TERAPISTA (solo admin + paziente)
+        // -----------------------------------------
+        if (
+            ($ruolo === 'admin' || $ruolo === 'paziente') &&
+            $terapistaId !== null &&
+            $terapistaId !== '' &&
+            is_numeric($terapistaId)
+        ) {
+            $q->where('terapista_id', intval($terapistaId));
         }
 
         $items = $q->get();
 
+        Log::info("CALENDAR RESULTS", [
+            'count' => $items->count(),
+            'ids'   => $items->pluck('id'),
+        ]);
+
+        // Mappiamo gli eventi per FullCalendar
         $events = $items->map(function ($a) {
-            // data + ora (ora può essere string TIME o Carbon: normalizziamo)
             $date = $a->data instanceof Carbon ? $a->data->toDateString() : $a->data;
             $time = $a->ora instanceof Carbon ? $a->ora->format('H:i:s') : ($a->ora ?: '00:00:00');
 
-            // Crea il datetime in timezone app e invia in formato "locale" senza offset
-            $startAt = Carbon::createFromFormat(
-                'Y-m-d H:i:s',
-                "$date $time",
-                config('app.timezone', 'Europe/Rome')
-            );
-            $durata = $a->durata_minuti ?? 30;
-            $endAt  = (clone $startAt)->addMinutes($durata);
+            $startAt = Carbon::createFromFormat('Y-m-d H:i:s', "$date $time");
+            $durata  = $a->durata_minuti ?? 30;
+            $endAt   = (clone $startAt)->addMinutes($durata);
 
-            // Titoli
-            $pazienteName  = $a->paziente
-                ? trim(($a->paziente->nome ?? '') . ' ' . ($a->paziente->cognome ?? ''))
-                : trim(($a->nome ?? '') . ' ' . ($a->cognome ?? ''));
+            $pazienteName = $a->paziente
+                ? trim("{$a->paziente->nome} {$a->paziente->cognome}")
+                : trim("{$a->nome} {$a->cognome}");
+
             if ($pazienteName === '') $pazienteName = 'Paziente';
 
             $terapistaName = $a->terapista
-                ? trim(($a->terapista->nome ?? '') . ' ' . ($a->terapista->cognome ?? ''))
-                : 'Terapista';
+                ? trim("{$a->terapista->nome} {$a->terapista->cognome}")
+                : "Terapista";
 
             $title = "{$pazienteName} — Dr. {$terapistaName}";
 
@@ -108,14 +132,14 @@ class AppuntamentiController extends Controller
             $fg = $this->idealTextColor($bg);
 
             return [
-                'id'    => $a->id,
-                'title' => $title,                       // "Paziente — Terapista"
-                'start' => $startAt->format('Y-m-d\TH:i:s'),
-                'end'   => $endAt->format('Y-m-d\TH:i:s'),
+                'id'              => $a->id,
+                'title'           => $title,
+                'start'           => $startAt->format('Y-m-d\TH:i:s'),
+                'end'             => $endAt->format('Y-m-d\TH:i:s'),
                 'backgroundColor' => $bg,
                 'borderColor'     => $bg,
-                'textColor'       => $fg,               // <— testo leggibile
-                'extendedProps' => [
+                'textColor'       => $fg,
+                'extendedProps'   => [
                     'paziente_id'   => $a->paziente_id,
                     'terapista_id'  => $a->terapista_id,
                     'note'          => $a->note,
@@ -126,6 +150,7 @@ class AppuntamentiController extends Controller
 
         return response()->json($events);
     }
+
 
     public function store(Request $request)
     {
@@ -238,40 +263,39 @@ class AppuntamentiController extends Controller
     }
 
     public function show($id)
-{
-    $a = Appuntamento::with([
-        'paziente:id,nome,cognome,email,telefono',
-        'terapista:id,nome,cognome,email,telefono',
-    ])->findOrFail($id);
+    {
+        $a = Appuntamento::with([
+            'paziente:id,nome,cognome,email,telefono',
+            'terapista:id,nome,cognome,email,telefono',
+        ])->findOrFail($id);
 
-    return response()->json([
-        'id'            => $a->id,
-        'data'          => $a->data,
-        'ora'           => $a->ora,
-        'durata_minuti' => $a->durata_minuti,
-        'note'          => $a->note,
-        'paziente'      => $a->paziente
-            ? [
-                'id'       => $a->paziente->id,
-                'nome'     => $a->paziente->nome,
-                'cognome'  => $a->paziente->cognome,
-                'email'    => $a->paziente->email,
-                'telefono' => $a->paziente->telefono,
-            ]
-            : [
-                'nome'    => $a->nome,
-                'cognome' => $a->cognome,
-            ],
-        'terapista'     => $a->terapista
-            ? [
-                'id'       => $a->terapista->id,
-                'nome'     => $a->terapista->nome,
-                'cognome'  => $a->terapista->cognome,
-                'email'    => $a->terapista->email,
-                'telefono' => $a->terapista->telefono,
-            ]
-            : null,
-    ]);
-}
-
+        return response()->json([
+            'id'            => $a->id,
+            'data'          => $a->data,
+            'ora'           => $a->ora,
+            'durata_minuti' => $a->durata_minuti,
+            'note'          => $a->note,
+            'paziente'      => $a->paziente
+                ? [
+                    'id'       => $a->paziente->id,
+                    'nome'     => $a->paziente->nome,
+                    'cognome'  => $a->paziente->cognome,
+                    'email'    => $a->paziente->email,
+                    'telefono' => $a->paziente->telefono,
+                ]
+                : [
+                    'nome'    => $a->nome,
+                    'cognome' => $a->cognome,
+                ],
+            'terapista'     => $a->terapista
+                ? [
+                    'id'       => $a->terapista->id,
+                    'nome'     => $a->terapista->nome,
+                    'cognome'  => $a->terapista->cognome,
+                    'email'    => $a->terapista->email,
+                    'telefono' => $a->terapista->telefono,
+                ]
+                : null,
+        ]);
+    }
 }
