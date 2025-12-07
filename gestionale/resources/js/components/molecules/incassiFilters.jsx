@@ -61,7 +61,7 @@ export const IncassiFilters = ({ onFilterChange, ruolo }) => {
     };
 
     return (
-        <div className="flex flex-row w-full gap-4 items-center flex-wrap">
+        <div className="flex flex-row w-full gap-4 items-center justify-center flex-wrap">
             <FilterItem
                 text="PAZIENTI REGISTRATI"
                 bgColor="blu"
