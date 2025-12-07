@@ -9,6 +9,10 @@ import { format } from "date-fns";
 import { it } from "date-fns/locale";
 
 const DettaglioIncasso = () => {
+    const { props } = usePage();
+    const ruolo = props.ruolo;
+    const terapistaIdLoggato = props?.logged_user?.id_utente;
+
     const { tipo } = usePage().props;
     const [filters, setFilters] = useState({});
     const [pagamenti, setPagamenti] = useState([]);
@@ -22,9 +26,17 @@ const DettaglioIncasso = () => {
     });
 
     useEffect(() => {
+        console.log("terapista loggato ", terapistaIdLoggato);
         const fetchData = async () => {
             try {
-                const res = await getPagamentiFiltrati({ tipo, ...filters });
+                const res = await getPagamentiFiltrati({
+                    tipo,
+                    ...filters,
+                    terapista:
+                        ruolo === "staff"
+                            ? terapistaIdLoggato
+                            : filters.terapista ?? null,
+                });
 
                 console.log("[API FETCH] Risposta pagamenti:", res);
 
@@ -142,6 +154,7 @@ const DettaglioIncasso = () => {
                 </div>
 
                 {/* Filtri */}
+              
                 <div className="bg-white p-4 rounded shadow gap-8">
                     <IncassiFilters
                         onFilterChange={(filters) => {
@@ -150,12 +163,13 @@ const DettaglioIncasso = () => {
                                 filters
                             );
                             setFilters(filters);
-                        }}
+                        }} ruolo={ruolo}
                     />
                 </div>
-
+                
                 {/* Grafici */}
                 <div className="flex flex-wrap gap-6 mt-4">
+                    {ruolo === "admin" && (
                     <div className="bg-white rounded shadow p-4 flex-1 min-w-[300px] h-[350px]">
                         <BarChartWidget
                             data={{
@@ -166,10 +180,11 @@ const DettaglioIncasso = () => {
                             height={280}
                         />
                     </div>
+                    )}
 
                     <div className="bg-white rounded shadow p-4 flex-1 min-w-[300px] h-[350px]">
                         <h2 className="font-semibold text-lg mb-2">
-                           Fatturazione
+                            Fatturazione
                         </h2>
                         <div className="relative h-[280px] w-full">
                             <DoughnutChartWidget
