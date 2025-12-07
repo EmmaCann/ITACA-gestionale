@@ -24,7 +24,6 @@ const Home = ({ children, hideFAB = false }) => {
 
             <NavbarToShow menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
-            {/* QUI È IL FIX */}
             <div className="
                 flex flex-col flex-1 h-full relative
                 w-full
