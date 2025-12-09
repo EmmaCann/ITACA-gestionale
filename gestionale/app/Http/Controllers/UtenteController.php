@@ -34,10 +34,27 @@ class UtenteController extends Controller
         $terapistaId    = $request->integer('terapista_id');
         $multiTerapisti = $request->boolean('multi_terapisti');
 
+
+
         // Include i terapisti nel risultato
         $q = Utente::query()
             ->where('ruolo', 'paziente')
             ->with(['terapisti:id,nome,cognome']);
+
+        // STAFF → vede solo i suoi pazienti
+        $session = Session::get('logged_user');
+        if ($session && $session['ruolo'] === 'staff') {
+            $terapistaId = $session['id_utente'];
+
+            $q->whereExists(function ($sub) use ($terapistaId) {
+                $sub->selectRaw(1)
+                    ->from('pazienti_terapisti as pt')
+                    ->whereColumn('pt.paziente_id', 'utente.id')
+                    ->where('pt.terapista_id', $terapistaId);
+            });
+        }
+
+
 
         // search per nome + cognome
         if ($search !== '') {
@@ -90,8 +107,10 @@ class UtenteController extends Controller
             });
         }
 
-        return $q->get();
 
+
+
+        return $q->get();
     }
 
 
@@ -123,11 +142,10 @@ class UtenteController extends Controller
         }
 
         return $q->get();
-
     }
 
 
-   
+
 
     public function profilo()
     {
@@ -283,127 +301,124 @@ class UtenteController extends Controller
     }
 
 
-   public function destroy(Utente $utente)
-{
-    $id = $utente->id;
+    public function destroy(Utente $utente)
+    {
+        $id = $utente->id;
 
-    try {
-        // 1) Cancella appuntamenti (paziente o terapista)
-        Appuntamento::where('paziente_id', $id)
-            ->orWhere('terapista_id', $id)
-            ->delete();
+        try {
+            // 1) Cancella appuntamenti (paziente o terapista)
+            Appuntamento::where('paziente_id', $id)
+                ->orWhere('terapista_id', $id)
+                ->delete();
 
-        // 2) Cancella relazioni pazienti_terapisti
-        PazienteTerapista::where('paziente_id', $id)
-            ->orWhere('terapista_id', $id)
-            ->delete();
+            // 2) Cancella relazioni pazienti_terapisti
+            PazienteTerapista::where('paziente_id', $id)
+                ->orWhere('terapista_id', $id)
+                ->delete();
 
-        // 3) Cancella cartella clinica se è paziente
-        CartellaClinica::where('paziente_id', $id)->delete();
+            // 3) Cancella cartella clinica se è paziente
+            CartellaClinica::where('paziente_id', $id)->delete();
 
-        // 4) Cancella staff_dati se è staff
-        StaffDati::where('utente_id', $id)->delete();
+            // 4) Cancella staff_dati se è staff
+            StaffDati::where('utente_id', $id)->delete();
 
-        // 5) Cancella l'utente stesso
-        $utente->delete();
+            // 5) Cancella l'utente stesso
+            $utente->delete();
 
-        return response()->json([
-            'message' => 'Utente eliminato con tutti i dati collegati.'
-        ], 200);
+            return response()->json([
+                'message' => 'Utente eliminato con tutti i dati collegati.'
+            ], 200);
+        } catch (\Throwable $e) {
+            Log::error('Errore DELETE utente', [
+                'utente_id' => $id,
+                'msg' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
 
-    } catch (\Throwable $e) {
-        Log::error('Errore DELETE utente', [
-            'utente_id' => $id,
-            'msg' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
-        ]);
-
-        return response()->json([
-            'message' => 'Errore durante l\'eliminazione',
-            'error' => $e->getMessage(),
-        ], 500);
-    }
-}
-
-public function update(Request $request, Utente $utente)
-{
-    try {
-        // Validazione base
-        $validated = $request->validate([
-            'nome' => 'nullable|string|max:255',
-            'cognome' => 'nullable|string|max:255',
-            'nascita' => 'nullable|date',
-            'sesso' => 'nullable|in:M,F',
-            'telefono' => 'nullable|string|max:50',
-            'email' => 'nullable|email|max:255',
-            'password' => 'nullable|string|min:6',
-            'professione' => 'nullable|string|max:255',
-            'diagnosi' => 'nullable|string',
-            'terapista_id' => 'nullable|integer|exists:utente,id',
-        ]);
-
-        // Update campi base
-        $utente->fill([
-            'nome' => $validated['nome'] ?? $utente->nome,
-            'cognome' => $validated['cognome'] ?? $utente->cognome,
-            'nascita' => $validated['nascita'] ?? $utente->nascita,
-            'sesso' => $validated['sesso'] ?? $utente->sesso,
-            'telefono' => $validated['telefono'] ?? $utente->telefono,
-            'email' => $validated['email'] ?? $utente->email,
-        ]);
-
-        // Se password presente → aggiorna
-        if (!empty($validated['password'])) {
-            $utente->password = Hash::make($validated['password']);
+            return response()->json([
+                'message' => 'Errore durante l\'eliminazione',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        $utente->save();
-
-        // Se staff → aggiorna professione
-        if ($utente->ruolo === 'staff') {
-            if (!empty($validated['professione'])) {
-                StaffDati::updateOrCreate(
-                    ['utente_id' => $utente->id],
-                    ['professione' => $validated['professione']]
-                );
-            }
-        }
-
-        // Se paziente → aggiorna diagnosi e terapista
-        if ($utente->ruolo === 'paziente') {
-            if (!empty($validated['diagnosi'])) {
-                CartellaClinica::updateOrCreate(
-                    ['paziente_id' => $utente->id],
-                    ['diagnosi' => $validated['diagnosi']]
-                );
-            }
-
-            if (!empty($validated['terapista_id'])) {
-                // elimina relazioni esistenti e crea nuova
-                PazienteTerapista::where('paziente_id', $utente->id)->delete();
-                PazienteTerapista::create([
-                    'paziente_id' => $utente->id,
-                    'terapista_id' => $validated['terapista_id'],
-                    'data' => now(),
-                ]);
-            }
-        }
-
-        return response()->json([
-            'message' => 'Utente aggiornato con successo',
-            'utente' => $utente->fresh(),
-        ], 200);
-
-    } catch (\Throwable $e) {
-        Log::error("Errore update utente", [
-            'id' => $utente->id,
-            'msg' => $e->getMessage(),
-        ]);
-        return response()->json([
-            'message' => 'Errore durante la modifica',
-            'error' => $e->getMessage(),
-        ], 500);
     }
 
-}
+    public function update(Request $request, Utente $utente)
+    {
+        try {
+            // Validazione base
+            $validated = $request->validate([
+                'nome' => 'nullable|string|max:255',
+                'cognome' => 'nullable|string|max:255',
+                'nascita' => 'nullable|date',
+                'sesso' => 'nullable|in:M,F',
+                'telefono' => 'nullable|string|max:50',
+                'email' => 'nullable|email|max:255',
+                'password' => 'nullable|string|min:6',
+                'professione' => 'nullable|string|max:255',
+                'diagnosi' => 'nullable|string',
+                'terapista_id' => 'nullable|integer|exists:utente,id',
+            ]);
+
+            // Update campi base
+            $utente->fill([
+                'nome' => $validated['nome'] ?? $utente->nome,
+                'cognome' => $validated['cognome'] ?? $utente->cognome,
+                'nascita' => $validated['nascita'] ?? $utente->nascita,
+                'sesso' => $validated['sesso'] ?? $utente->sesso,
+                'telefono' => $validated['telefono'] ?? $utente->telefono,
+                'email' => $validated['email'] ?? $utente->email,
+            ]);
+
+            // Se password presente → aggiorna
+            if (!empty($validated['password'])) {
+                $utente->password = Hash::make($validated['password']);
+            }
+
+            $utente->save();
+
+            // Se staff → aggiorna professione
+            if ($utente->ruolo === 'staff') {
+                if (!empty($validated['professione'])) {
+                    StaffDati::updateOrCreate(
+                        ['utente_id' => $utente->id],
+                        ['professione' => $validated['professione']]
+                    );
+                }
+            }
+
+            // Se paziente → aggiorna diagnosi e terapista
+            if ($utente->ruolo === 'paziente') {
+                if (!empty($validated['diagnosi'])) {
+                    CartellaClinica::updateOrCreate(
+                        ['paziente_id' => $utente->id],
+                        ['diagnosi' => $validated['diagnosi']]
+                    );
+                }
+
+                if (!empty($validated['terapista_id'])) {
+                    // elimina relazioni esistenti e crea nuova
+                    PazienteTerapista::where('paziente_id', $utente->id)->delete();
+                    PazienteTerapista::create([
+                        'paziente_id' => $utente->id,
+                        'terapista_id' => $validated['terapista_id'],
+                        'data' => now(),
+                    ]);
+                }
+            }
+
+            return response()->json([
+                'message' => 'Utente aggiornato con successo',
+                'utente' => $utente->fresh(),
+            ], 200);
+        } catch (\Throwable $e) {
+            Log::error("Errore update utente", [
+                'id' => $utente->id,
+                'msg' => $e->getMessage(),
+            ]);
+            return response()->json([
+                'message' => 'Errore durante la modifica',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }
