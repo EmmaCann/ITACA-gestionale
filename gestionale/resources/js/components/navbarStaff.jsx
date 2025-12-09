@@ -173,49 +173,30 @@ export const NavbarStaff = ({ menuOpen, setMenuOpen }) => {
                             />
                         </Link>
                     </div>
-
                     {/* Sezioni centrali */}
                     <div className="flex flex-col gap-4 mt-6">
                         <Link
-                            href="/pagamenti"
+                            href="/incassi"
                             className={`w-full flex justify-center ${isActive(
-                                "/pagamenti"
+                                "/incassi"
                             )}`}
                             onClick={() => setMenuOpen(false)}
                         >
                             <IconTextNavbar
                                 icon={FaRegCreditCard}
-                                text="PAGAMENTI"
+                                text="INCASSI"
                                 iconSize={18}
                             />
                         </Link>
 
                         <Link
-                            href="/archivio-firme"
+                            href="/utenti"
                             className={`w-full flex justify-center ${isActive(
-                                "/archivio-firme"
+                                "/utenti"
                             )}`}
                             onClick={() => setMenuOpen(false)}
                         >
-                            <IconTextNavbar
-                                icon={FaPencilAlt}
-                                text="ARCHIVIO FIRME"
-                                iconSize={16}
-                            />
-                        </Link>
-
-                        <Link
-                            href="/appuntamenti"
-                            className={`w-full flex justify-center ${isActive(
-                                "/appuntamenti"
-                            )}`}
-                            onClick={() => setMenuOpen(false)}
-                        >
-                            <IconTextNavbar
-                                icon={FaNotesMedical}
-                                text="PAZIENTE"
-                                iconSize={16}
-                            />
+                            <IconTextNavbar image={BrainIcon} text="PAZIENTI" />
                         </Link>
                     </div>
 

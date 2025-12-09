@@ -564,7 +564,7 @@ function PazientiView({ registerRefetch,ruolo }) {
                         </div>
                     </div>
 
-                    {/* Terapista → solo per admin */}
+                    {/* Terapista  */}
                     
                         <div className="col-span-12 md:col-span-4 xl:col-span-3">
                             <label className={fieldLabel}>Terapista</label>
@@ -584,12 +584,12 @@ function PazientiView({ registerRefetch,ruolo }) {
                         </div>
                 
 
-                    {/* Collaborazione → solo per admin */}
-                    {ruolo !== "staff" && (
+                    {/* Collaborazione */}
+                
                         <div className="col-span-12 xl:col-span-6">
                             <Toggle checked={multi} onChange={setMulti} />
                         </div>
-                    )}
+                   
                     {/* Reset */}
                     <div className="col-span-12 xl:col-span-3 xl:col-start-10">
                         <button
