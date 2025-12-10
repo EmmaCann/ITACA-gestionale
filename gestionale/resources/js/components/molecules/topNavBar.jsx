@@ -5,13 +5,14 @@ import { DatePicker } from "./datePicker.jsx";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { FiMessageSquare } from "react-icons/fi";
 import { WelcomeMessage } from "../molecules/atoms/welcomeMessage.jsx";
+import { MdNotificationAdd } from "react-icons/md";
 
 export const TopNavBar = ({ mode = "full" }) => {
     const { url, props } = usePage();
     const ruolo = props?.ruolo || null;
     const isAdmin = ruolo === "admin";
 
-    const iconCls = "w-[20px] h-[20px] mr-4";
+    const iconCls = "w-[20px] h-[20px] mr-4 cursor-pointer ";
 
     /* MOBILE: SOLO DATE PICKER */
     if (mode === "date") {
@@ -53,11 +54,9 @@ export const TopNavBar = ({ mode = "full" }) => {
 
             {/* Icone */}
             <div className="flex items-center gap-4">
-                {isAdmin && !url.startsWith("/pazienti") && (
-                    <SearchBar isTopBar={true} />
-                )}
-                <IoMdNotificationsOutline className={iconCls}  />
-                {isAdmin && <FiMessageSquare className={iconCls} />}
+                
+               {!isAdmin && <IoMdNotificationsOutline className={iconCls}  />}
+                {isAdmin && <MdNotificationAdd className={iconCls} />}
             </div>
         </div>
     );
