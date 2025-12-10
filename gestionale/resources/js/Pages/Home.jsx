@@ -9,6 +9,7 @@ import { CalendarBoard } from "../components/CalendarBoard";
 
 const Home = ({ children, hideFAB = false }) => {
     const [menuOpen, setMenuOpen] = useState(false);
+   
 
     const { props } = usePage();
     const ruolo = props?.ruolo || null;
@@ -21,15 +22,16 @@ const Home = ({ children, hideFAB = false }) => {
 
     return (
         <div className="bg-background flex w-screen h-screen overflow-hidden overflow-x-hidden">
-
             <NavbarToShow menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
             {/* QUI È IL FIX */}
-            <div className="
+            <div
+                className="
                 flex flex-col flex-1 h-full relative
                 w-full
                 md:max-w-[calc(100vw-200px)]
-            ">
+            "
+            >
                 <div className="w-full">
                     <TopBar onHamburgerClick={() => setMenuOpen(true)} />
                 </div>
