@@ -10,6 +10,7 @@ import { CalendarBoard } from "../components/CalendarBoard";
 
 const Home = ({ children, hideFAB = false }) => {
     const [menuOpen, setMenuOpen] = useState(false);
+   
 
     const { props } = usePage();
     const ruolo = props?.ruolo || null;
