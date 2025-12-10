@@ -107,4 +107,14 @@ class Utente extends Authenticatable
             'paziente_id'
         )->select('utente.id', 'nome', 'cognome');
     }
+
+    public function notifiche()
+    {
+        return $this->belongsToMany(
+            Notifica::class,
+            'notifica_utente',
+            'utente_id',
+            'notifica_id'
+        )->withPivot('letta', 'letta_il')->withTimestamps();
+    }
 }
