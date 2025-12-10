@@ -42,34 +42,59 @@ const Incassi = () => {
 
     return (
         <Home>
-            <div className="flex w-full h-full overflow-y-auto p-4">
-                <div className="w-fit h-full p-4">
-                    <BoxIncassiContainer
-                        reloadTrigger={reloadTrigger}
-                        ruolo={ruolo}
-                        terapistaId={terapistaId}
+            <div
+    className="
+        flex flex-col md:flex-row
+        flex-wrap
+        w-full min-h-full
+        p-4
+        gap-6 md:gap-12
+        items-center
+        justify-center
+    "
+>
+    {/* WRAPPER INTERNO PER LIMITARE LA LARGHEZZA E MIGLIORARE IL LAYOUT */}
+    <div className="w-full max-w-[1500px] flex flex-col md:flex-row flex-wrap gap-6 md:gap-12 justify-center">
+        
+        {/* COLONNA SINISTRA */}
+        <div className="w-full md:w-auto flex justify-center md:justify-start">
+            <BoxIncassiContainer
+                reloadTrigger={reloadTrigger}
+                ruolo={ruolo}
+                terapistaId={terapistaId}
+            />
+        </div>
+
+        {/* COLONNA DESTRA */}
+        <div className="flex-1 w-full flex flex-col items-center gap-6">
+            {isAdmin && (
+                <div className="w-full flex justify-center md:justify-end">
+                    <AggiungiPagamentoButton
+                        onPagamentoAggiunto={handleNuovoPagamento}
                     />
                 </div>
+            )}
 
-                <div className="flex flex-col flex-grow h-full items-end ">
-                    {props.ruolo === "admin" && (
-                        <div className="flex flex-row justify-end w-full mb-8">
-                            <AggiungiPagamentoButton
-                                onPagamentoAggiunto={handleNuovoPagamento}
-                            />
-                        </div>
-                    )}
-
-                    <div className="w-[90%] bg-white shadow-md rounded-lg p-4 ">
-                        <BarChartWidget
-                            data={chartData}
-                            title="Totale Incassi per Anno"
-                            description="Visualizzazione degli incassi annuali"
-                            height={400}
-                        />
-                    </div>
-                </div>
+            <div
+                className="
+                    w-full 
+                    bg-white shadow-md rounded-lg 
+                    p-4 md:p-6
+                    max-w-full md:max-w-[750px]
+                "
+            >
+                <BarChartWidget
+                    data={chartData}
+                    title="Totale Incassi per Anno"
+                    description="Visualizzazione degli incassi annuali"
+                    height={300}
+                />
             </div>
+        </div>
+
+    </div>
+</div>
+
         </Home>
     );
 };
