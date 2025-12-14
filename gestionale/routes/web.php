@@ -131,6 +131,10 @@ Route::post('/admin/utilita/purge/appointments',   [SystemMaintenanceController:
 Route::post('/admin/utilita/purge/payments',       [SystemMaintenanceController::class, 'purgePayments'])->name('utilita.purge.payments');
 Route::post('/admin/utilita/purge/prices',         [SystemMaintenanceController::class, 'purgePrices'])->name('utilita.purge.prices');
 Route::post('/admin/utilita/purge/medical-charts', [SystemMaintenanceController::class, 'purgeMedicalCharts'])->name('utilita.purge.medical');
+Route::post(
+    '/admin/utilita/purge/notifications',
+    [SystemMaintenanceController::class, 'purgeNotifications']
+)->name('utilita.purge.notifications');
 
 //sistema notifiche
 Route::post('/admin/notifiche', [NotificaController::class, 'store']);
