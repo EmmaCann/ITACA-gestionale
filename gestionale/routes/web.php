@@ -134,6 +134,8 @@ Route::post('/admin/utilita/purge/medical-charts', [SystemMaintenanceController:
 
 //sistema notifiche
 Route::post('/admin/notifiche', [NotificaController::class, 'store']);
+Route::get('/notifiche', [NotificaController::class, 'index']);
+Route::post('/notifiche/{id}/letta', [NotificaController::class, 'segnaComeLetta']);
 
     
 });
