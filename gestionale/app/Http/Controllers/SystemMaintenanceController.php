@@ -9,6 +9,10 @@ use App\Models\Firma;
 use App\Models\ListaAttesa;
 use App\Models\Pagamento;
 use App\Models\Tariffa;
+use App\Models\Notifica;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+
 
 class SystemMaintenanceController extends Controller
 {
@@ -77,4 +81,40 @@ class SystemMaintenanceController extends Controller
             'deleted' => $count,
         ]);
     }
+
+    /** Notifiche di Sistema */
+public function purgeNotifications(Request $request)
+{
+    // puoi cambiare i giorni quando vuoi
+    $limitDate = Carbon::now()->subDays(90);
+
+    // 1. recupera ID notifiche vecchie
+    $notificaIds = Notifica::where('created_at', '<', $limitDate)
+        ->pluck('id');
+
+    if ($notificaIds->isEmpty()) {
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Nessuna notifica da eliminare',
+            'deleted' => 0,
+        ]);
+    }
+
+    // 2. elimina pivot notifica_utente
+    $deletedPivot = DB::table('notifica_utente')
+        ->whereIn('notifica_id', $notificaIds)
+        ->delete();
+
+    // 3. elimina notifiche
+    $deletedNotifiche = Notifica::whereIn('id', $notificaIds)
+        ->delete();
+
+    return response()->json([
+        'status' => 'success',
+        'message' => "Eliminate {$deletedNotifiche} notifiche (più vecchie di 90 giorni)",
+        'deleted_notifiche' => $deletedNotifiche,
+        'deleted_relazioni' => $deletedPivot,
+    ]);
+}
+
 }

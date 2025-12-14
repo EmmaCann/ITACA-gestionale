@@ -8,6 +8,7 @@ import {
     FaMoneyCheckAlt,
     FaFileAlt,
     FaFolderOpen,
+    FaBellSlash,
 } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -112,15 +113,19 @@ const CARDS = [
         icon: FaFolderOpen,
         endpoint: "/admin/utilita/purge/medical-charts",
     },
+    {
+        title: "Notifiche di Sistema",
+        badge: "Comunicazioni",
+        description:
+            "Elimina tutte le notifiche più vecchie di 90 giorni per evitare l'accumulo di dati inutili.",
+        icon: FaBellSlash,
+        endpoint: "/admin/utilita/purge/notifications",
+    },
 ];
 
 const Utilità = () => {
     const handleDeleteClick = async (card) => {
-        if (
-            !confirm(
-                `Confermi l'eliminazione definitiva di: ${card.title}?`
-            )
-        ) {
+        if (!confirm(`Confermi l'eliminazione definitiva di: ${card.title}?`)) {
             return;
         }
 
