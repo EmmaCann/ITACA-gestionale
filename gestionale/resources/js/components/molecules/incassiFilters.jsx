@@ -4,7 +4,7 @@ import { FilterItem } from "../molecules/atoms/fiterItem.jsx";
 import { baseCall } from "@/data/api/baseCall";
 import { toast } from "react-toastify";
 
-export const IncassiFilters = ({ onFilterChange }) => {
+export const IncassiFilters = ({ onFilterChange, ruolo }) => {
     const [professioniOptions, setProfessioniOptions] = useState([]);
     const [professioneSelezionata, setProfessioneSelezionata] = useState(null);
     const [tipoUtente, setTipoUtente] = useState(null);
@@ -45,24 +45,23 @@ export const IncassiFilters = ({ onFilterChange }) => {
     };
 
     const fetchTerapisti = async () => {
-    try {
-        const response = await baseCall({
-            endpoint: "/terapisti",
-            method: "GET",
-        });
+        try {
+            const response = await baseCall({
+                endpoint: "/terapisti",
+                method: "GET",
+            });
 
-        console.log("[API] Terapisti ricevuti:", response.data);
+            console.log("[API] Terapisti ricevuti:", response.data);
 
-       
-        setTerapistiOptions(Object.values(response.data));
-    } catch (error) {
-        console.error("Errore nel recupero terapisti:", error);
-        toast.error("Errore nel recupero dei terapisti");
-    }
-};
+            setTerapistiOptions(Object.values(response.data));
+        } catch (error) {
+            console.error("Errore nel recupero terapisti:", error);
+            toast.error("Errore nel recupero dei terapisti");
+        }
+    };
 
     return (
-        <div className="flex flex-row w-full gap-4 items-center flex-wrap">
+        <div className="flex flex-row w-full gap-4 items-center justify-center flex-wrap">
             <FilterItem
                 text="PAZIENTI REGISTRATI"
                 bgColor="blu"
@@ -78,53 +77,53 @@ export const IncassiFilters = ({ onFilterChange }) => {
                 bgColor="rosa"
                 isActive={tipoUtente === "nuovo"}
                 onClick={() =>
-                    setTipoUtente((prev) =>
-                        prev === "nuovo" ? null : "nuovo"
-                    )
+                    setTipoUtente((prev) => (prev === "nuovo" ? null : "nuovo"))
                 }
             />
-
-            <div className="w-40 min-w-[200px]">
-                <Select
-                    options={professioniOptions}
-                    value={professioneSelezionata}
-                    onChange={(val) => {
-                        console.log("[SELECT] Terapia selezionata:", val);
-                        setProfessioneSelezionata(val);
-                    }}
-                    placeholder="Seleziona tipologia terapia"
-                    className="text-[12px]"
-                    isSearchable
-                    isClearable
-                     styles={{
-                        control: (provided) => ({
-                            ...provided,
-                            borderRadius: "12px",
-                        }),
-                    }}
-                />
-            </div>
-
-            <div className="w-40 min-w-[200px]">
-                <Select
-                    options={terapistiOptions}
-                    value={terapistaSelezionato}
-                    onChange={(val) => {
-                        console.log("[SELECT] Terapista selezionato:", val);
-                        setTerapistaSelezionato(val);
-                    }}
-                    placeholder="Seleziona un terapista"
-                    className="text-[12px]"
-                    isSearchable
-                    isClearable
-                     styles={{
-                        control: (provided) => ({
-                            ...provided,
-                            borderRadius: "12px",
-                        }),
-                    }}
-                />
-            </div>
+            {ruolo === "admin" && (
+                <div className="w-40 min-w-[200px]">
+                    <Select
+                        options={professioniOptions}
+                        value={professioneSelezionata}
+                        onChange={(val) => {
+                            console.log("[SELECT] Terapia selezionata:", val);
+                            setProfessioneSelezionata(val);
+                        }}
+                        placeholder="Seleziona tipologia terapia"
+                        className="text-[12px]"
+                        isSearchable
+                        isClearable
+                        styles={{
+                            control: (provided) => ({
+                                ...provided,
+                                borderRadius: "12px",
+                            }),
+                        }}
+                    />
+                </div>
+            )}
+            {ruolo === "admin" && (
+                <div className="w-40 min-w-[200px]">
+                    <Select
+                        options={terapistiOptions}
+                        value={terapistaSelezionato}
+                        onChange={(val) => {
+                            console.log("[SELECT] Terapista selezionato:", val);
+                            setTerapistaSelezionato(val);
+                        }}
+                        placeholder="Seleziona un terapista"
+                        className="text-[12px]"
+                        isSearchable
+                        isClearable
+                        styles={{
+                            control: (provided) => ({
+                                ...provided,
+                                borderRadius: "12px",
+                            }),
+                        }}
+                    />
+                </div>
+            )}
         </div>
     );
 };

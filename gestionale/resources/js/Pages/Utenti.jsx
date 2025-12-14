@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Link, usePage } from "@inertiajs/react";
 import { baseCall } from "../data/api/baseCall.js";
 import Home from "./Home.jsx";
 import Select from "react-select";
@@ -21,6 +22,7 @@ import {
 import ModalContentAggiungiUtente from "../components/molecules/ModalContentAggiungiUtente.jsx";
 import CustomModal from "../components/customModal.jsx";
 import ModalContentModificaUtente from "../components/molecules/modalContentModificaUtente.jsx";
+
 
 /* --------- helpers --------- */
 const calcEta = (dateStr) => {
@@ -256,6 +258,15 @@ const Utenti = () => {
     const pazientiRefetchRef = useRef(null);
     const staffRefetchRef = useRef(null);
 
+    const { props } = usePage();
+    const ruolo = props?.ruolo;
+
+    useEffect(() => {
+        if (ruolo === "staff") {
+            setTab("pazienti");
+        }
+    }, [ruolo]);
+
     const openAddModal = () => {
         setModalTipo(tab === "pazienti" ? "paziente" : "staff");
         setOpenModal(true);
@@ -282,60 +293,73 @@ const Utenti = () => {
                                     Gestisci pazienti e staff del centro medico
                                 </p>
                             </div>
-                            <button
-                                onClick={openAddModal}
-                                className="inline-flex items-center gap-2 rounded-xl bg-bluPrimary px-4 py-2 text-white hover:bg-bluSecondary"
-                            >
-                                <FaPlus />
-                                Aggiungi Utente
-                            </button>
+                            {ruolo === "admin" && (
+                                <button
+                                    onClick={openAddModal}
+                                    className="inline-flex items-center gap-2 rounded-xl bg-bluPrimary px-4 py-2 text-white hover:bg-bluSecondary"
+                                >
+                                    <FaPlus />
+                                    Aggiungi Utente
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
 
                 {/* Tabs */}
-                <div className="mx-auto max-w-7xl px-6 mt-4">
-                    <div className="rounded-2xl bg-white p-2 shadow-sm ring-1 ring-slate-100">
-                        <div className="flex justify-center gap-2">
-                            <button
-                                onClick={() => setTab("pazienti")}
-                                className={`inline-flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-medium transition ${
-                                    tab === "pazienti"
-                                        ? "bg-pinkSecondary text-white"
-                                        : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"
-                                }`}
-                            >
-                                <FaUser />
-                                Pazienti
-                            </button>
-                            <button
-                                onClick={() => setTab("staff")}
-                                className={`inline-flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-medium transition ${
-                                    tab === "staff"
-                                        ? "bg-bluSecondary text-white "
-                                        : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"
-                                }`}
-                            >
-                                <FaUserMd />
-                                Staff
-                            </button>
+                {ruolo !== "staff" && (
+                    <div className="mx-auto max-w-7xl px-6 mt-4">
+                        <div className="rounded-2xl bg-white p-2 shadow-sm ring-1 ring-slate-100">
+                            <div className="flex justify-center gap-2">
+                                <button
+                                    onClick={() => setTab("pazienti")}
+                                    className={`inline-flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-medium transition ${
+                                        tab === "pazienti"
+                                            ? "bg-pinkSecondary text-white"
+                                            : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"
+                                    }`}
+                                >
+                                    <FaUser />
+                                    Pazienti
+                                </button>
+                                <button
+                                    onClick={() => setTab("staff")}
+                                    className={`inline-flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-medium transition ${
+                                        tab === "staff"
+                                            ? "bg-bluSecondary text-white "
+                                            : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50"
+                                    }`}
+                                >
+                                    <FaUserMd />
+                                    Staff
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
 
                 {/* Content */}
                 <div className="mx-auto max-w-7xl px-6 pb-20">
-                    {tab === "pazienti" ? (
+                    {ruolo === "staff" ? (
                         <PazientiView
                             registerRefetch={(fn) =>
                                 (pazientiRefetchRef.current = fn)
                             }
+                            ruolo={ruolo}
+                        />
+                    ) : tab === "pazienti" ? (
+                        <PazientiView
+                            registerRefetch={(fn) =>
+                                (pazientiRefetchRef.current = fn)
+                            }
+                            ruolo={ruolo}
                         />
                     ) : (
                         <StaffView
                             registerRefetch={(fn) =>
                                 (staffRefetchRef.current = fn)
                             }
+                            ruolo={ruolo}
                         />
                     )}
                 </div>
@@ -364,7 +388,7 @@ export default Utenti;
 
 /* -------------------- Views -------------------- */
 
-function PazientiView({ registerRefetch }) {
+function PazientiView({ registerRefetch,ruolo }) {
     const [loading, setLoading] = useState(true);
     const [pazienti, setPazienti] = useState([]);
 
@@ -540,29 +564,32 @@ function PazientiView({ registerRefetch }) {
                         </div>
                     </div>
 
-                    {/* Terapista */}
-                    <div className="col-span-12 md:col-span-4 xl:col-span-3">
-                        <label className={fieldLabel}>Terapista</label>
-                        <div className="relative">
-                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-                                <FaUserMd className="h-4 w-4" />
+                    {/* Terapista  */}
+                    
+                        <div className="col-span-12 md:col-span-4 xl:col-span-3">
+                            <label className={fieldLabel}>Terapista</label>
+                            <div className="relative">
+                                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                                    <FaUserMd className="h-4 w-4" />
+                                </div>
+                                <Select
+                                    styles={makeSelectStyles(true)}
+                                    placeholder="Seleziona terapista"
+                                    options={terapistiOptions}
+                                    value={terapistaOpt}
+                                    onChange={setTerapistaOpt}
+                                    isClearable
+                                />
                             </div>
-                            <Select
-                                styles={makeSelectStyles(true)}
-                                placeholder="Seleziona terapista"
-                                options={terapistiOptions}
-                                value={terapistaOpt}
-                                onChange={setTerapistaOpt}
-                                isClearable
-                            />
                         </div>
-                    </div>
+                
 
                     {/* Collaborazione */}
-                    <div className="col-span-12 xl:col-span-6">
-                        <Toggle checked={multi} onChange={setMulti} />
-                    </div>
-
+                
+                        <div className="col-span-12 xl:col-span-6">
+                            <Toggle checked={multi} onChange={setMulti} />
+                        </div>
+                   
                     {/* Reset */}
                     <div className="col-span-12 xl:col-span-3 xl:col-start-10">
                         <button
@@ -595,7 +622,7 @@ function PazientiView({ registerRefetch }) {
                         "Sesso",
                         "Contatti",
                         "Terapisti",
-                        "Azioni",
+                        ruolo === "staff" ? "Cartella" : "Azioni",
                     ]}
                 >
                     {loading ? (
@@ -696,22 +723,31 @@ function PazientiView({ registerRefetch }) {
                                     </td>
 
                                     <td className="px-4 py-4">
-                                        <div className="flex items-center gap-4">
-                                            <button
-                                                className="text-sky-700 hover:text-sky-900"
-                                                onClick={() => apriModifica(p)}
-                                            >
-                                                <FaEdit />
+                                        {ruolo === "staff" ? (
+                                            <button className="rounded-[12px] bg-bluSecondary text-white flex text-center text-[12px] p-2">
+                                                Cartella clinica
                                             </button>
+                                        ) : (
+                                            <div className="flex items-center gap-4">
+                                                <button
+                                                    className="text-sky-700 hover:text-sky-900"
+                                                    onClick={() =>
+                                                        apriModifica(p)
+                                                    }
+                                                >
+                                                    <FaEdit />
+                                                </button>
 
-                                            <button
-                                                className="text-red-600 hover:text-red-700"
-                                                onClick={() => confirmDelete(p)}
-                                                title="Elimina utente e dati collegati"
-                                            >
-                                                <FaTrash />
-                                            </button>
-                                        </div>
+                                                <button
+                                                    className="text-red-600 hover:text-red-700"
+                                                    onClick={() =>
+                                                        confirmDelete(p)
+                                                    }
+                                                >
+                                                    <FaTrash />
+                                                </button>
+                                            </div>
+                                        )}
                                     </td>
                                 </tr>
                             );
@@ -746,7 +782,7 @@ function PazientiView({ registerRefetch }) {
     );
 }
 
-function StaffView({ registerRefetch }) {
+function StaffView({ registerRefetch,ruolo }) {
     const [loading, setLoading] = useState(true);
     const [staff, setStaff] = useState([]);
 
@@ -940,7 +976,7 @@ function StaffView({ registerRefetch }) {
                         "Età",
                         "Sesso",
                         "Contatti",
-                        "Azioni",
+                        "Aziioni",
                     ]}
                 >
                     {loading ? (
@@ -986,22 +1022,26 @@ function StaffView({ registerRefetch }) {
                                     </td>
 
                                     <td className="px-4 py-4">
-                                        <div className="flex items-center gap-4">
-                                            <button
-                                                className="text-sky-700 hover:text-sky-900"
-                                                onClick={() => apriModifica(u)}
-                                            >
-                                                <FaEdit />
-                                            </button>
-
-                                            <button
-                                                className="text-red-600 hover:text-red-700"
-                                                onClick={() => confirmDelete(u)}
-                                                title="Elimina utente e dati collegati"
-                                            >
-                                                <FaTrash />
-                                            </button>
-                                        </div>
+                                     
+                                            <div className="flex items-center gap-4">
+                                                <button
+                                                    onClick={() =>
+                                                        apriModifica(p)
+                                                    }
+                                                    className="text-sky-700 hover:text-sky-900"
+                                                >
+                                                    <FaEdit />
+                                                </button>
+                                                <button
+                                                    onClick={() =>
+                                                        confirmDelete(p)
+                                                    }
+                                                    className="text-red-600 hover:text-red-700"
+                                                >
+                                                    <FaTrash />
+                                                </button>
+                                            </div>
+                                        
                                     </td>
                                 </tr>
                             );
@@ -1027,7 +1067,7 @@ function StaffView({ registerRefetch }) {
                     utente={utenteSelezionato}
                     onSubmit={() => {
                         setOpenEditModal(false);
-                        fetchStaff(); 
+                        fetchStaff();
                     }}
                     onClose={() => setOpenEditModal(false)}
                 />

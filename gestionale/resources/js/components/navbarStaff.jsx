@@ -3,6 +3,7 @@ import { Link, usePage } from "@inertiajs/react";
 import { LogoItaca } from "./molecules/atoms/logo-ITACA.jsx";
 
 // Icone navbar
+import BrainIcon from "../../../public/icons/brain.png";
 import { IoMdHome } from "react-icons/io";
 import { IconTextNavbar } from "./molecules/atoms/iconTextNavbar.jsx";
 import { FaRegCreditCard } from "react-icons/fa";
@@ -12,7 +13,7 @@ import { IoMdInformationCircleOutline } from "react-icons/io";
 import { MdOutlineLogout } from "react-icons/md";
 import { FaNotesMedical } from "react-icons/fa";
 
-export const NavbarPaziente = ({ menuOpen, setMenuOpen }) => {
+export const NavbarStaff = ({ menuOpen, setMenuOpen }) => {
     const { url } = usePage();
 
     const commonClass = "w-full flex justify-center items-center";
@@ -54,32 +55,24 @@ export const NavbarPaziente = ({ menuOpen, setMenuOpen }) => {
                     {/* Sezioni centrali */}
                     <div className="flex flex-col gap-4 mt-6">
                         <Link
-                            href="/pagamenti"
-                            className={`${commonClass} ${isActive(
-                                "/pagamenti"
-                            )}`}
+                            href="/incassi"
+                            className={`${commonClass} ${isActive("/incassi")}`}
                         >
                             <IconTextNavbar
                                 icon={FaRegCreditCard}
-                                text="PAGAMENTI"
+                                text="INCASSI"
                                 iconSize={18}
                             />
                         </Link>
 
                         <Link
-                            href="/archivio-firme"
-                            className={`${commonClass} ${isActive(
-                                "/archivio-firme"
-                            )}`}
+                            href="/utenti"
+                            className={`${commonClass} ${isActive("/utenti")}`}
                         >
-                            <IconTextNavbar
-                                icon={FaPencilAlt}
-                                text="ARCHIVIO FIRME"
-                                iconSize={16}
-                            />
+                            <IconTextNavbar image={BrainIcon} text="PAZIENTI" />
                         </Link>
 
-                        <Link
+                        {/* <Link
                             href="/appuntamenti"
                             className={`${commonClass} ${isActive(
                                 "/appuntamenti"
@@ -87,10 +80,10 @@ export const NavbarPaziente = ({ menuOpen, setMenuOpen }) => {
                         >
                             <IconTextNavbar
                                 icon={FaNotesMedical}
-                                text="PAZIENTE"
+                                text="APPUNTAMENTI?"
                                 iconSize={16}
                             />
-                        </Link>
+                        </Link> */}
                     </div>
 
                     {/* Staff */}
@@ -130,7 +123,7 @@ export const NavbarPaziente = ({ menuOpen, setMenuOpen }) => {
                     </Link>
                 </div>
             </div>
-          
+
             {menuOpen && (
                 <div
                     className="fixed inset-0 bg-black/40 z-40 md:hidden"
@@ -180,49 +173,30 @@ export const NavbarPaziente = ({ menuOpen, setMenuOpen }) => {
                             />
                         </Link>
                     </div>
-
                     {/* Sezioni centrali */}
                     <div className="flex flex-col gap-4 mt-6">
                         <Link
-                            href="/pagamenti"
+                            href="/incassi"
                             className={`w-full flex justify-center ${isActive(
-                                "/pagamenti"
+                                "/incassi"
                             )}`}
                             onClick={() => setMenuOpen(false)}
                         >
                             <IconTextNavbar
                                 icon={FaRegCreditCard}
-                                text="PAGAMENTI"
+                                text="INCASSI"
                                 iconSize={18}
                             />
                         </Link>
 
                         <Link
-                            href="/archivio-firme"
+                            href="/utenti"
                             className={`w-full flex justify-center ${isActive(
-                                "/archivio-firme"
+                                "/utenti"
                             )}`}
                             onClick={() => setMenuOpen(false)}
                         >
-                            <IconTextNavbar
-                                icon={FaPencilAlt}
-                                text="ARCHIVIO FIRME"
-                                iconSize={16}
-                            />
-                        </Link>
-
-                        <Link
-                            href="/appuntamenti"
-                            className={`w-full flex justify-center ${isActive(
-                                "/appuntamenti"
-                            )}`}
-                            onClick={() => setMenuOpen(false)}
-                        >
-                            <IconTextNavbar
-                                icon={FaNotesMedical}
-                                text="PAZIENTE"
-                                iconSize={16}
-                            />
+                            <IconTextNavbar image={BrainIcon} text="PAZIENTI" />
                         </Link>
                     </div>
 

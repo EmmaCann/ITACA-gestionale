@@ -4,7 +4,7 @@ import { IncassiItemContainer } from "../incassiItemContainer.jsx";
 import { Link } from "@inertiajs/react";
 import { getDettagliStats } from "../../../data/api/pagamenti.js";
 
-export const BoxIncassi = ({ text, money, bgColor }) => {
+export const BoxIncassi = ({ text, money, bgColor, ruolo, terapistaId  }) => {
     const [showDetails, setShowDetails] = useState(false);
     const [isHoveringPopup, setIsHoveringPopup] = useState(false);
     const [popupPosition, setPopupPosition] = useState("top-0 left-full ml-2");
@@ -32,7 +32,7 @@ export const BoxIncassi = ({ text, money, bgColor }) => {
         }
 
         try {
-            const data = await getDettagliStats(tipo);
+            const data = await getDettagliStats(tipo,ruolo === "staff" ? terapistaId : null);
             setPopupData(data);
         } catch (error) {
             console.error("Errore caricamento popup:", error);

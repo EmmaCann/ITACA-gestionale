@@ -45,30 +45,47 @@ class PagamentoController extends Controller
         ], 201);
     }
 
-    public function stats()
+
+    public function stats(Request $request)
     {
-        $oggi = Carbon::today();
-        $settimana = Carbon::now()->startOfWeek();
-        $mese = Carbon::now()->startOfMonth();
-        $anno = Carbon::now()->startOfYear();
+        $oggi       = Carbon::today();
+        $settimana  = Carbon::now()->startOfWeek();
+        $mese       = Carbon::now()->startOfMonth();
+        $anno       = Carbon::now()->startOfYear();
+
+        $terapistaId = $request->query('terapista_id');
+
+        $base = Pagamento::query();
+        if ($terapistaId) {
+            $base->where('terapista_id', $terapistaId);
+        }
+
+        $giorno = (clone $base)->whereDate('data', $oggi)->sum('importo');
+        $settimanaSum = (clone $base)->where('data', '>=', $settimana)->sum('importo');
+        $meseSum = (clone $base)->where('data', '>=', $mese)->sum('importo');
+        $annoSum = (clone $base)->where('data', '>=', $anno)->sum('importo');
 
         return response()->json([
-            'giorno' => Pagamento::whereDate('data', $oggi)->sum('importo'),
-            'settimana' => Pagamento::where('data', '>=', $settimana)->sum('importo'),
-            'mese' => Pagamento::where('data', '>=', $mese)->sum('importo'),
-            'anno' => Pagamento::where('data', '>=', $anno)->sum('importo'),
+            'giorno'    => $giorno,
+            'settimana' => $settimanaSum,
+            'mese'      => $meseSum,
+            'anno'      => $annoSum,
         ]);
     }
 
+
     public function dettagliStats(Request $request)
     {
-        $tipo = $request->input('tipo'); 
-        $oggi = Carbon::today();
+        $tipo = $request->input('tipo');
+        $terapistaId = $request->query('terapista_id');
 
+        $oggi = Carbon::today();
         $query = Pagamento::query();
 
+        if ($terapistaId) {
+            $query->where('terapista_id', $terapistaId);
+        }
         switch ($tipo) {
-
             case 'giorno':
                 $oggi = Carbon::today();
                 $incassi = $query->whereDate('data', $oggi)
@@ -138,22 +155,33 @@ class PagamentoController extends Controller
         return response()->json($dati->values());
     }
 
-    public function incassiPerAnno()
+
+    public function incassiPerAnno(Request $request)
     {
-        $incassi = Pagamento::selectRaw('YEAR(data) as anno, SUM(importo) as totale')
-            ->groupBy(DB::raw('YEAR(data)'))
+        $terapistaId = $request->query('terapista_id');
+
+        $q = Pagamento::selectRaw('YEAR(data) as anno, SUM(importo) as totale');
+
+        if ($terapistaId) {
+            $q->where('terapista_id', $terapistaId);
+        }
+
+        $incassi = $q->groupBy(DB::raw('YEAR(data)'))
             ->orderBy('anno', 'desc')
             ->get();
 
         return response()->json($incassi);
     }
 
+
+
     public function filtraPagamenti(Request $request)
     {
         $tipo = $request->input('tipo');
-        $tipoUtente = $request->input('tipoUtente'); 
-        $terapia = $request->input('terapia');       
-        $terapistaId = $request->input('terapista');
+        $tipoUtente = $request->input('tipoUtente');
+        $terapia = $request->input('terapia');
+       $terapistaId = $request->query('terapista') ?? $request->input('terapista');
+
 
         $oggi = Carbon::today();
 
@@ -200,7 +228,7 @@ class PagamentoController extends Controller
                 'totale'      => $pagamenti->sum('importo'),
                 'numero'      => $pagamenti->count(),
                 'conFattura'  => $pagamenti->where('fattura', 1)->sum('importo'),
-                'senzaFattura'=> $pagamenti->where('fattura', 0)->sum('importo'),
+                'senzaFattura' => $pagamenti->where('fattura', 0)->sum('importo'),
             ]
         ]);
     }

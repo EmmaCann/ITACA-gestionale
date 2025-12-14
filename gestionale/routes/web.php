@@ -46,7 +46,7 @@ Route::delete('/utenti/{utente}', [UtenteController::class, 'destroy'])->name('u
 Route::put('/utenti/{utente}', [UtenteController::class, 'update'])->name('utenti.update');
 Route::get('/profilo', [UtenteController::class, 'profilo'])->name('profilo');
 Route::post('/profilo/cambio-password', [UtenteController::class, 'cambiaPassword'])->name('password.change');
-
+ 
 
 
 Route::post('/pagamenti', [PagamentoController::class, 'store'])->name('pagamento.store');
@@ -54,7 +54,7 @@ Route::get('/pagamenti/stats', [PagamentoController::class, 'stats']);
 Route::get('/pagamenti/dettagli-stats', [PagamentoController::class, 'dettagliStats']);
 
 Route::post('/appuntamenti', [AppuntamentiController::class, 'store']);
-Route::get('/appuntamenti', [AppuntamentiController::class, 'index']);
+Route::get('/appuntamenti-get', [AppuntamentiController::class, 'index']);
 Route::patch('/appuntamenti/{id}', [AppuntamentiController::class, 'update']);
 Route::get('/appuntamenti/{id}', [AppuntamentiController::class, 'show']);
 Route::delete('/appuntamenti/{id}', [AppuntamentiController::class, 'destroy']);

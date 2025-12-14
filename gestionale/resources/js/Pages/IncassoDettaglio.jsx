@@ -9,6 +9,10 @@ import { format } from "date-fns";
 import { it } from "date-fns/locale";
 
 const DettaglioIncasso = () => {
+    const { props } = usePage();
+    const ruolo = props.ruolo;
+    const terapistaIdLoggato = props?.logged_user?.id_utente;
+
     const { tipo } = usePage().props;
     const [filters, setFilters] = useState({});
     const [pagamenti, setPagamenti] = useState([]);
@@ -22,9 +26,17 @@ const DettaglioIncasso = () => {
     });
 
     useEffect(() => {
+        console.log("terapista loggato ", terapistaIdLoggato);
         const fetchData = async () => {
             try {
-                const res = await getPagamentiFiltrati({ tipo, ...filters });
+                const res = await getPagamentiFiltrati({
+                    tipo,
+                    ...filters,
+                    terapista:
+                        ruolo === "staff"
+                            ? terapistaIdLoggato
+                            : filters.terapista ?? null,
+                });
 
                 console.log("[API FETCH] Risposta pagamenti:", res);
 
@@ -99,49 +111,50 @@ const DettaglioIncasso = () => {
                     </Link>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                     {/* Totale Incassi */}
-                    <div className="bg-gradient-to-br from-white to-[#E0F7FA] p-5 rounded-xl shadow-md text-center">
-                        <h2 className="text-sm text-gray-600 font-medium">
+                    <div className="bg-[#F5F5F5] p-3 rounded-md shadow text-center">
+                        <h2 className="text-xs text-gray-700 font-medium">
                             Totale Incassi
                         </h2>
-                        <p className="text-3xl font-bold text-[#3DA4DD] mt-1">
+                        <p className="text-xl font-bold text-[#3DA4DD] mt-1">
                             €{statistiche.totale.toFixed(2)}
                         </p>
                     </div>
 
                     {/* Totale (numero) */}
-                    <div className="bg-gradient-to-br from-white to-[#DDEBFF] p-5 rounded-xl shadow-md text-center">
-                        <h2 className="text-sm text-gray-600 font-medium">
+                    <div className="bg-[#F5F5F5] p-3 rounded-md shadow text-center">
+                        <h2 className="text-xs text-gray-700 font-medium">
                             Totale
                         </h2>
-                        <p className="text-3xl font-bold text-blue-600 mt-1">
+                        <p className="text-xl font-bold text-blue-600 mt-1">
                             {statistiche.numero}
                         </p>
                     </div>
 
                     {/* Con fattura */}
-                    <div className="bg-gradient-to-br from-white to-[#D6F2DD] p-5 rounded-xl shadow-md text-center">
-                        <h2 className="text-sm text-gray-600 font-medium">
+                    <div className="bg-[#F5F5F5] p-3 rounded-md shadow text-center">
+                        <h2 className="text-xs text-gray-700 font-medium">
                             Con Fattura
                         </h2>
-                        <p className="text-3xl font-bold text-green-600 mt-1">
+                        <p className="text-xl font-bold text-green-600 mt-1">
                             €{statistiche.conFattura.toFixed(2)}
                         </p>
                     </div>
 
                     {/* Senza fattura */}
-                    <div className="bg-gradient-to-br from-white to-[#FFF4C2] p-5 rounded-xl shadow-md text-center">
-                        <h2 className="text-sm text-gray-600 font-medium">
+                    <div className="bg-[#F5F5F5] p-3 rounded-md shadow text-center">
+                        <h2 className="text-xs text-gray-700 font-medium">
                             Senza Fattura
                         </h2>
-                        <p className="text-3xl font-bold text-yellow-600 mt-1">
+                        <p className="text-xl font-bold text-yellow-600 mt-1">
                             €{statistiche.senzaFattura.toFixed(2)}
                         </p>
                     </div>
                 </div>
 
                 {/* Filtri */}
+
                 <div className="bg-white p-4 rounded shadow gap-8">
                     <IncassiFilters
                         onFilterChange={(filters) => {
@@ -151,25 +164,28 @@ const DettaglioIncasso = () => {
                             );
                             setFilters(filters);
                         }}
+                        ruolo={ruolo}
                     />
                 </div>
 
                 {/* Grafici */}
                 <div className="flex flex-wrap gap-6 mt-4">
-                    <div className="bg-white rounded shadow p-4 flex-1 min-w-[300px] h-[350px]">
-                        <BarChartWidget
-                            data={{
-                                labels: barData.map((d) => d.label),
-                                values: barData.map((d) => d.data[0]),
-                            }}
-                            title="Incassi per Terapista"
-                            height={280}
-                        />
-                    </div>
+                    {ruolo === "admin" && (
+                        <div className="bg-white rounded shadow p-4 flex-1 min-w-[300px] h-[350px]">
+                            <BarChartWidget
+                                data={{
+                                    labels: barData.map((d) => d.label),
+                                    values: barData.map((d) => d.data[0]),
+                                }}
+                                title="Incassi per Terapista"
+                                height={280}
+                            />
+                        </div>
+                    )}
 
                     <div className="bg-white rounded shadow p-4 flex-1 min-w-[300px] h-[350px]">
                         <h2 className="font-semibold text-lg mb-2">
-                           Fatturazione
+                            Fatturazione
                         </h2>
                         <div className="relative h-[280px] w-full">
                             <DoughnutChartWidget

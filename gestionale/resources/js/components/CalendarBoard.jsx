@@ -64,6 +64,9 @@ export function CalendarBoard() {
     const isDraggingRef = useRef(false);
     const isResizingRef = useRef(false);
 
+    const ruolo = props?.ruolo;
+    const showTherapistFilter = ruolo === "admin" || ruolo === "paziente";
+
     // refresh da altri componenti
     useEffect(() => {
         const handler = () => calRef.current?.getApi()?.refetchEvents();
@@ -117,6 +120,7 @@ export function CalendarBoard() {
     }, []);
 
     useEffect(() => {
+        //   console.log("🟦 CalendarBoard montato, ruolo:", props?.ruolo);
         const api = calRef.current?.getApi();
         if (!api) return;
 
@@ -138,8 +142,14 @@ export function CalendarBoard() {
         // crea la root UNA volta sola
         if (!selectRootRef.current) {
             btn.innerHTML = "";
-            selectRootRef.current = ReactDOM.createRoot(btn);
+
+            if (showTherapistFilter) {
+                selectRootRef.current = ReactDOM.createRoot(btn);
+            } else {
+                return; // staff → non mostrare selettore
+            }
         }
+
         const root = selectRootRef.current;
 
         const components = {
@@ -231,7 +241,12 @@ export function CalendarBoard() {
                     getOptionValue={(p) => p.id || p.value}
                     // pallino + testo
                     formatOptionLabel={(opt) => (
-                        <div style={{ display: "flex", alignItems: "center" }}>
+                        <div
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                            }}
+                        >
                             <span
                                 style={{
                                     display: "inline-block",
@@ -385,11 +400,33 @@ export function CalendarBoard() {
                 }}
                 eventSources={[
                     {
-                        url: "/appuntamenti",
+                        url: "/appuntamenti-get",
                         method: "GET",
-                        extraParams: () => ({
-                            terapista_id: selectedTherapist || "",
-                        }),
+                        credentials: "include",
+                        extraParams: () => {
+                            // console.log("📡 EXTRA PARAMS:", {
+                            //     ruolo: props?.ruolo,
+                            //     selectedTherapist,
+                            // });
+                            return {
+                                terapista_id:
+                                    props?.ruolo === "staff"
+                                        ? null
+                                        : selectedTherapist ?? null,
+                            };
+                        },
+                        failure: (error) => {
+                            console.error(
+                                "❌ ERRORE FULLCALENDAR FETCH:",
+                                error
+                            );
+                        },
+                        success: (events) => {
+                            // console.log(
+                            //     "✅ FULLCALENDAR HA RICEVUTO EVENTI:",
+                            //     events
+                            // );
+                        },
                     },
                 ]}
             />
