@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Nov 27, 2025 alle 18:37
+-- Creato il: Dic 14, 2025 alle 16:14
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -50,7 +50,11 @@ INSERT INTO `appuntamenti` (`id`, `paziente_id`, `nome`, `cognome`, `terapista_i
 (7, 3, NULL, NULL, 5, '2025-08-24', '17:14:00', 30, NULL, '2025-07-19 15:54:29'),
 (8, 3, NULL, NULL, 5, '2025-09-05', '12:00:00', 50, 'fgdgdgd', '2025-07-19 15:54:29'),
 (9, NULL, NULL, NULL, 5, '2025-09-04', '10:14:00', 30, NULL, '2025-07-19 15:54:29'),
-(10, 19, NULL, NULL, 7, '2025-09-05', '10:21:00', 30, NULL, '2025-07-19 15:54:29');
+(10, 19, NULL, NULL, 7, '2025-09-05', '10:21:00', 30, NULL, '2025-07-19 15:54:29'),
+(11, 4, NULL, NULL, 19, '2025-12-07', '16:45:24', 30, NULL, '2025-07-19 15:54:29'),
+(12, NULL, 'utente', 'di prova', 21, '2025-12-07', '17:46:24', 50, NULL, '2025-07-19 15:54:29'),
+(13, 3, NULL, NULL, 21, '2025-12-07', '17:00:00', 28, 'dxvsdfsd', '2025-07-19 15:54:29'),
+(14, NULL, 'ciccio', 'ciccio', 2, '2025-12-07', '12:00:00', 30, NULL, '2025-07-19 15:54:29');
 
 -- --------------------------------------------------------
 
@@ -69,7 +73,7 @@ CREATE TABLE `cache` (
 --
 
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
-('ultima_pulizia', 's:10:\"2025-08-26\";', 1756319616);
+('ultima_pulizia', 's:10:\"2025-12-07\";', 1765187932);
 
 -- --------------------------------------------------------
 
@@ -245,7 +249,42 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (16, '2025_08_24_164719_create_pazienti_terapisti_table', 8),
 (17, '2025_08_24_174512_add_sesso_to_utente_table', 9),
 (18, '2025_08_24_183027_change_sesso_column_in_utente_table', 10),
-(19, '2025_11_27_183607_add_fattura_to_pagamenti_table', 11);
+(19, '2025_11_27_183607_add_fattura_to_pagamenti_table', 11),
+(20, '2025_12_10_202411_create_notifiche_table', 12),
+(21, '2025_12_10_202458_create_notifica_utente_table', 13);
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `notifica_utente`
+--
+
+CREATE TABLE `notifica_utente` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `notifica_id` bigint(20) UNSIGNED NOT NULL,
+  `utente_id` bigint(20) UNSIGNED NOT NULL,
+  `letta` tinyint(1) NOT NULL DEFAULT 0,
+  `letta_il` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `notifiche`
+--
+
+CREATE TABLE `notifiche` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `admin_id` bigint(20) UNSIGNED NOT NULL,
+  `titolo` varchar(255) DEFAULT NULL,
+  `messaggio` text NOT NULL,
+  `tipologia` varchar(255) DEFAULT NULL,
+  `urgenza` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -270,7 +309,12 @@ CREATE TABLE `pagamenti` (
 --
 
 INSERT INTO `pagamenti` (`id`, `paziente_id`, `nome`, `cognome`, `terapista_id`, `data`, `importo`, `fattura`, `created_at`) VALUES
-(23, 20, NULL, NULL, 2, '2025-11-16', 20.00, 0, '2025-07-19 15:54:29');
+(23, 20, NULL, NULL, 2, '2025-11-16', 20.00, 0, '2025-07-19 15:54:29'),
+(24, 3, NULL, NULL, 5, '2025-11-27', 30.00, 1, '2025-07-19 15:54:29'),
+(25, 4, NULL, NULL, 9, '2025-11-27', 40.00, 0, '2025-07-19 15:54:29'),
+(26, 3, NULL, NULL, 21, '2025-12-07', 30.00, 0, '2025-07-19 15:54:29'),
+(27, 4, NULL, NULL, 2, '2025-12-07', 50.00, 1, '2025-07-19 15:54:29'),
+(28, 20, NULL, NULL, 21, '2025-11-05', 15.00, 1, '2025-07-19 15:54:29');
 
 -- --------------------------------------------------------
 
@@ -307,7 +351,8 @@ INSERT INTO `pazienti_terapisti` (`id`, `paziente_id`, `terapista_id`, `data`, `
 (3, 4, 2, '0000-00-00', NULL, NULL),
 (4, 3, 5, '2025-09-05', '2025-09-05 19:11:51', '2025-09-05 19:11:51'),
 (5, 19, 5, '2025-09-05', '2025-09-05 19:18:02', '2025-09-05 19:18:02'),
-(6, 19, 7, '2025-09-05', '2025-09-05 19:21:30', '2025-09-05 19:21:30');
+(6, 19, 7, '2025-09-05', '2025-09-05 19:21:30', '2025-09-05 19:21:30'),
+(7, 3, 21, '2025-12-07', '2025-12-07 10:49:22', '2025-12-07 10:49:22');
 
 -- --------------------------------------------------------
 
@@ -415,7 +460,8 @@ INSERT INTO `utente` (`id`, `nome`, `cognome`, `username`, `password`, `email`, 
 (8, 'Amministratore', 'Sistema', 'admin', '$2y$12$Y2pbP62AvYTfgiIAsnF62e7GswlT0ovtAL6s5y4rX89xIMfEx8JHi', 'admin@example.com', '0000000000', '1990-01-01', NULL, 'admin', '2025-08-11 15:43:41', '2025-08-11 15:43:41'),
 (9, 'Domenico', 'Messina', 'domenico.messina', '$2y$12$3vZty2IMPeB1nxgCzZWlQ./GSWfANXhut9PqQ0t9/mcUGh2qJsSzm', 'domenicomess@gmail.com', '39283453113', '1995-04-01', NULL, 'staff', '2025-08-24 15:53:36', '2025-08-24 15:53:36'),
 (19, 'Cecilia', 'Grasso', 'cecilia.grasso', '$2y$12$08Pi3u0cSSuYAUUd9UUA5.5XZeYPGJDNLTVO7dWbdVBQBv37207Am', 'grassoceci@gmail.com', '46457567567', '2025-08-24', 'F', 'paziente', '2025-08-24 16:35:42', '2025-08-24 16:35:42'),
-(20, 'paziente', 'di test', 'pazienteTest', '$2y$10$npe6kV116IzI33Ubf7q2L.JL7QxfkhHAyB.ztaEWdXbgfZ7FRwCo2', 'pazientetest@gmail.com', '3641247964', NULL, 'F', 'paziente', NULL, NULL);
+(20, 'paziente', 'di test', 'pazienteTest', '$2y$12$A53zXmnxQzg7MxmxXk4/OuSMjGSxBIkGixjCiXocopRPB1Dcl/nJu', 'pazientetest@gmail.com', '3641247964', NULL, 'F', 'paziente', NULL, '2025-12-02 22:34:55'),
+(21, 'staff', 'di test', 'staffTest', '$2y$12$A53zXmnxQzg7MxmxXk4/OuSMjGSxBIkGixjCiXocopRPB1Dcl/nJu', 'staffditest@gmail.com', '3659842124', '2015-12-02', 'F', 'staff', NULL, NULL);
 
 --
 -- Indici per le tabelle scaricate
@@ -490,6 +536,21 @@ ALTER TABLE `migrations`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indici per le tabelle `notifica_utente`
+--
+ALTER TABLE `notifica_utente`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `notifica_utente_notifica_id_foreign` (`notifica_id`),
+  ADD KEY `notifica_utente_utente_id_foreign` (`utente_id`);
+
+--
+-- Indici per le tabelle `notifiche`
+--
+ALTER TABLE `notifiche`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `notifiche_admin_id_foreign` (`admin_id`);
+
+--
 -- Indici per le tabelle `pagamenti`
 --
 ALTER TABLE `pagamenti`
@@ -554,7 +615,7 @@ ALTER TABLE `utente`
 -- AUTO_INCREMENT per la tabella `appuntamenti`
 --
 ALTER TABLE `appuntamenti`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT per la tabella `cartelle_cliniche`
@@ -590,19 +651,31 @@ ALTER TABLE `lista_attesa`
 -- AUTO_INCREMENT per la tabella `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+
+--
+-- AUTO_INCREMENT per la tabella `notifica_utente`
+--
+ALTER TABLE `notifica_utente`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT per la tabella `notifiche`
+--
+ALTER TABLE `notifiche`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT per la tabella `pagamenti`
 --
 ALTER TABLE `pagamenti`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT per la tabella `pazienti_terapisti`
 --
 ALTER TABLE `pazienti_terapisti`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT per la tabella `staff_dati`
@@ -626,7 +699,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT per la tabella `utente`
 --
 ALTER TABLE `utente`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- Limiti per le tabelle scaricate
@@ -657,6 +730,19 @@ ALTER TABLE `firme`
 ALTER TABLE `lista_attesa`
   ADD CONSTRAINT `lista_attesa_terapista_id_foreign` FOREIGN KEY (`terapista_id`) REFERENCES `utente` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `lista_attesa_utente_id_foreign` FOREIGN KEY (`utente_id`) REFERENCES `utente` (`id`) ON DELETE SET NULL;
+
+--
+-- Limiti per la tabella `notifica_utente`
+--
+ALTER TABLE `notifica_utente`
+  ADD CONSTRAINT `notifica_utente_notifica_id_foreign` FOREIGN KEY (`notifica_id`) REFERENCES `notifiche` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `notifica_utente_utente_id_foreign` FOREIGN KEY (`utente_id`) REFERENCES `utente` (`id`) ON DELETE CASCADE;
+
+--
+-- Limiti per la tabella `notifiche`
+--
+ALTER TABLE `notifiche`
+  ADD CONSTRAINT `notifiche_admin_id_foreign` FOREIGN KEY (`admin_id`) REFERENCES `utente` (`id`) ON DELETE CASCADE;
 
 --
 -- Limiti per la tabella `pagamenti`

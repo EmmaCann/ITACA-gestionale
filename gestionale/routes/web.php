@@ -14,6 +14,7 @@ use App\Http\Controllers\TariffaController;
 use App\Http\Controllers\FirmaController;
 use App\Http\Controllers\SystemMaintenanceController;
 use App\Http\Controllers\PagamentiPazientiController;
+use App\Http\Controllers\NotificaController;
 
 Route::get('/', function () {
     return redirect()->route('login_form');
@@ -46,7 +47,7 @@ Route::delete('/utenti/{utente}', [UtenteController::class, 'destroy'])->name('u
 Route::put('/utenti/{utente}', [UtenteController::class, 'update'])->name('utenti.update');
 Route::get('/profilo', [UtenteController::class, 'profilo'])->name('profilo');
 Route::post('/profilo/cambio-password', [UtenteController::class, 'cambiaPassword'])->name('password.change');
- 
+Route::get('/admin/utenti-per-notifica', [UtenteController::class, 'utentiPerNotifica']);
 
 
 Route::post('/pagamenti', [PagamentoController::class, 'store'])->name('pagamento.store');
@@ -131,6 +132,8 @@ Route::post('/admin/utilita/purge/payments',       [SystemMaintenanceController:
 Route::post('/admin/utilita/purge/prices',         [SystemMaintenanceController::class, 'purgePrices'])->name('utilita.purge.prices');
 Route::post('/admin/utilita/purge/medical-charts', [SystemMaintenanceController::class, 'purgeMedicalCharts'])->name('utilita.purge.medical');
 
+//sistema notifiche
+Route::post('/admin/notifiche', [NotificaController::class, 'store']);
 
     
 });
