@@ -9,6 +9,7 @@ import {
     getUtentiPerNotifica,
 } from "../../data/api/notifiche.js";
 
+
 const destinatariOptions = [
     { value: "tutti", label: "Tutti gli utenti" },
     { value: "staff", label: "Tutto lo staff" },
@@ -40,7 +41,7 @@ const ModalContentInviaNotifica = ({ isOpen, onRequestClose }) => {
 
     const inputStyle =
         "flex-1 border-none outline-none text-[14px] placeholder-gray-400 font-marcellus";
-        
+
     const resetForm = () => {
         setDestinatario(null);
         setUtenteSelezionato(null);

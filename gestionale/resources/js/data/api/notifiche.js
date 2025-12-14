@@ -18,3 +18,20 @@ export const getUtentiPerNotifica = async () => {
         method: "GET",
     });
 };
+
+
+
+
+export const getNotifiche = () => {
+    return baseCall({
+        endpoint: "/notifiche",
+        method: "GET",
+    });
+};
+
+export const segnaNotificaComeLetta = (id) => {
+    return baseCall({
+        endpoint: `/notifiche/${id}/letta`,
+        method: "POST",
+    });
+};
