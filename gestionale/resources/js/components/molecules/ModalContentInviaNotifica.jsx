@@ -1,9 +1,13 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { IconInputWrapperModal } from "./atoms/iconInputWrapperModal.jsx";
 import { FaUser, FaRegBell } from "react-icons/fa";
 import CustomModal from "../customModal.jsx";
 import { toast } from "react-toastify";
+import {
+    inviaNotifica,
+    getUtentiPerNotifica,
+} from "../../data/api/notifiche.js";
 
 const destinatariOptions = [
     { value: "tutti", label: "Tutti gli utenti" },
@@ -36,33 +40,73 @@ const ModalContentInviaNotifica = ({ isOpen, onRequestClose }) => {
 
     const inputStyle =
         "flex-1 border-none outline-none text-[14px] placeholder-gray-400 font-marcellus";
+        
+    const resetForm = () => {
+        setDestinatario(null);
+        setUtenteSelezionato(null);
+        setUtentiOptions([]);
+        setMessaggio("");
+        setUrgenza(null);
+        setTipologia(null);
+    };
 
-    const handleSubmit = () => {
-        if (!destinatario) return toast.error("Seleziona un destinatario");
-        if (!messaggio) return toast.error("Inserisci un messaggio");
+    const handleSubmit = async () => {
+        if (!destinatario) {
+            return toast.error("Seleziona un destinatario");
+        }
 
-        const mock = {
+        if (destinatario.value === "singolo" && !utenteSelezionato) {
+            return toast.error("Seleziona un utente");
+        }
+
+        if (!messaggio.trim()) {
+            return toast.error("Inserisci un messaggio");
+        }
+
+        const payload = {
             destinatario: destinatario.value,
-            utente:destinatario.value === "singolo" ? utenteSelezionato?.id : null,
             messaggio,
             urgenza: urgenza?.value || null,
             tipologia: tipologia?.value || null,
+            destinatario_id:
+                destinatario.value === "singolo" ? utenteSelezionato.id : null,
         };
 
-        console.log("📨 MOCK NOTIFICA INVIATA:", mock);
-        toast.success("Notifica creata (mock)");
-
-        onRequestClose();
+        try {
+            await inviaNotifica(payload);
+            toast.success("Notifica inviata correttamente");
+            resetForm();
+            onRequestClose();
+        } catch (error) {
+            toast.error("Errore durante l'invio della notifica");
+        }
     };
 
     useEffect(() => {
-        // Mock iniziale — sostituibile con API call
-        setUtentiOptions([
-            { id: 1, nome: "Mario", cognome: "Rossi" },
-            { id: 2, nome: "Anna", cognome: "Bianchi" },
-            { id: 3, nome: "Luca", cognome: "Verdi" },
-        ]);
-    }, []);
+        if (destinatario?.value !== "singolo") return;
+        const fetchUtenti = async () => {
+            try {
+                const utenti = await getUtentiPerNotifica();
+
+                const lista = Array.isArray(utenti.data)
+                    ? utenti.data
+                    : Object.values(utenti.data || {});
+
+                setUtentiOptions(lista);
+            } catch (error) {
+                setUtentiOptions([]);
+                toast.error("Errore nel caricamento utenti");
+            }
+        };
+
+        fetchUtenti();
+    }, [destinatario]);
+
+    const handleChangeDestinatario = (value) => {
+        setDestinatario(value);
+        setUtenteSelezionato(null);
+        setUtentiOptions([]);
+    };
 
     return (
         <CustomModal
@@ -86,9 +130,8 @@ const ModalContentInviaNotifica = ({ isOpen, onRequestClose }) => {
                         <Select
                             options={destinatariOptions}
                             value={destinatario}
-                            onChange={setDestinatario}
+                            onChange={handleChangeDestinatario}
                             placeholder="Seleziona destinatario"
-                            className="text-[14px]"
                         />
                     </div>
 
@@ -100,13 +143,14 @@ const ModalContentInviaNotifica = ({ isOpen, onRequestClose }) => {
                             </label>
 
                             <Select
-                                options={utentiOptions}
+                                options={
+                                    Array.isArray(utentiOptions)
+                                        ? utentiOptions
+                                        : []
+                                }
                                 value={utenteSelezionato}
                                 onChange={setUtenteSelezionato}
                                 placeholder="Cerca o seleziona un utente"
-                                className="text-[14px]"
-                                menuPlacement="auto"
-                                maxMenuHeight={140}
                                 isSearchable
                                 getOptionLabel={(u) => `${u.nome} ${u.cognome}`}
                                 getOptionValue={(u) => u.id}
