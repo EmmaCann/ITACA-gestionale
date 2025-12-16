@@ -3,6 +3,10 @@ import Home from "./Home";
 import { usePage } from "@inertiajs/react";
 import { baseCall } from "../data/api/baseCall";
 import { toast } from "react-toastify";
+import { BsFileEarmarkMedical } from "react-icons/bs";
+import { FaUserDoctor } from "react-icons/fa6";
+import { CiMedicalClipboard } from "react-icons/ci";
+import { SiGoogledocs } from "react-icons/si";
 
 /* ===============================
    Cartella Clinica - Staff only
@@ -110,9 +114,14 @@ const CartellaClinica = () => {
                     ANAGRAFICA PAZIENTE
                 ======================== */}
                 <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
-                    <h2 className="text-xl font-semibold mb-4">
-                        Anagrafica paziente
-                    </h2>
+                    <div className="mb-4 flex items-center gap-3">
+                        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600">
+                            <BsFileEarmarkMedical className="text-xl" />
+                        </span>
+                        <h2 className="text-xl font-semibold">
+                            Anagrafica paziente
+                        </h2>
+                    </div>
 
                     <table className="w-full text-sm">
                         <tbody className="divide-y">
@@ -136,9 +145,14 @@ const CartellaClinica = () => {
                     TERAPISTI ASSOCIATI
                 ======================== */}
                 <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
-                    <h2 className="text-xl font-semibold mb-4">
-                        Terapisti associati
-                    </h2>
+                    <div className="mb-4 flex items-center gap-3">
+                        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600">
+                            <FaUserDoctor className="text-xl" />
+                        </span>
+                        <h2 className="text-xl font-semibold">
+                            Terapisti associati
+                        </h2>
+                    </div>
 
                     {terapisti.length === 0 ? (
                         <p className="text-slate-500">
@@ -162,7 +176,13 @@ const CartellaClinica = () => {
                     DATI CLINICI
                 ======================== */}
                 <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
-                    <h2 className="text-xl font-semibold mb-4">Dati clinici</h2>
+                    <div className="mb-4 flex items-center gap-3">
+                        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600">
+                            <CiMedicalClipboard className="text-xl" />
+                        </span>
+                        <h2 className="text-xl font-semibold">Dati clinici</h2>
+                    </div>
+
                     {cartella && (
                         <p className="text-sm text-slate-500 mb-4">
                             Creata il:{" "}
@@ -215,9 +235,15 @@ const CartellaClinica = () => {
                     DOCUMENTI CLINICI
                 ======================== */}
                 <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
-                    <h2 className="text-xl font-semibold mb-2">
-                        Documenti clinici
-                    </h2>
+                    <div className="mb-2 flex items-center gap-3">
+                        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600">
+                            <SiGoogledocs className="text-xl" />
+                        </span>
+                        <h2 className="text-xl font-semibold">
+                            Documenti clinici
+                        </h2>
+                    </div>
+
                     <p className="text-slate-500 text-sm mb-4">
                         File caricati nella cartella clinica del paziente
                     </p>
