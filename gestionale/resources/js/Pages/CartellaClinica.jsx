@@ -20,10 +20,10 @@ const CartellaClinica = () => {
     const [files, setFiles] = useState([]);
 
     // campi modificabili
+    const [anamnesi, setAnamnesi] = useState("");
     const [diagnosi, setDiagnosi] = useState("");
-    const [noteCliniche, setNoteCliniche] = useState("");
-    const [obiettivi, setObiettivi] = useState("");
-    const [osservazioni, setOsservazioni] = useState("");
+    const [terapia, setTerapia] = useState("");
+    const [note, setNote] = useState("");
 
     /* ===============================
        FETCH DATI
@@ -46,6 +46,12 @@ const CartellaClinica = () => {
 
             // se hai cartella clinica separata
             setCartella(data.cartella || null);
+            if (data.cartella) {
+                setAnamnesi(data.cartella.anamnesi || "");
+                setDiagnosi(data.cartella.diagnosi || "");
+                setTerapia(data.cartella.terapia || "");
+                setNote(data.cartella.note || "");
+            }
         } catch (e) {
             console.error(e);
             toast.error("Errore nel caricamento della cartella clinica");
@@ -61,16 +67,17 @@ const CartellaClinica = () => {
         try {
             await baseCall({
                 endpoint: `/cartella-clinica/${pazienteId}`,
-                method: "POST",
+                method: "PUT",
                 data: {
+                    anamnesi,
                     diagnosi,
-                    note_cliniche: noteCliniche,
-                    obiettivi,
-                    osservazioni,
+                    terapia,
+                    note,
                 },
             });
 
             toast.success("Dati clinici salvati con successo");
+            fetchAll();
         } catch (e) {
             console.error(e);
             toast.error("Errore durante il salvataggio");
@@ -156,6 +163,25 @@ const CartellaClinica = () => {
                 ======================== */}
                 <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
                     <h2 className="text-xl font-semibold mb-4">Dati clinici</h2>
+                    {cartella && (
+                        <p className="text-sm text-slate-500 mb-4">
+                            Creata il:{" "}
+                            <span className="font-medium text-slate-700">
+                                {formatDateTime(cartella?.created_at)}
+                            </span>
+                            <br />
+                            Ultimo aggiornamento:{" "}
+                            <span className="font-medium text-slate-700">
+                                {formatDateTime(cartella?.updated_at)}
+                            </span>
+                        </p>
+                    )}
+
+                    <Textarea
+                        label="Anamnesi"
+                        value={anamnesi}
+                        onChange={setAnamnesi}
+                    />
 
                     <Textarea
                         label="Diagnosi"
@@ -164,21 +190,15 @@ const CartellaClinica = () => {
                     />
 
                     <Textarea
+                        label="Terapia"
+                        value={terapia}
+                        onChange={setTerapia}
+                    />
+
+                    <Textarea
                         label="Note cliniche"
-                        value={noteCliniche}
-                        onChange={setNoteCliniche}
-                    />
-
-                    <Textarea
-                        label="Obiettivi terapeutici"
-                        value={obiettivi}
-                        onChange={setObiettivi}
-                    />
-
-                    <Textarea
-                        label="Osservazioni"
-                        value={osservazioni}
-                        onChange={setOsservazioni}
+                        value={note}
+                        onChange={setNote}
                     />
 
                     <div className="mt-4">
@@ -196,7 +216,7 @@ const CartellaClinica = () => {
                 ======================== */}
                 <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
                     <h2 className="text-xl font-semibold mb-2">
-                        📎 Documenti clinici
+                        Documenti clinici
                     </h2>
                     <p className="text-slate-500 text-sm mb-4">
                         File caricati nella cartella clinica del paziente
@@ -230,5 +250,17 @@ const Textarea = ({ label, value, onChange }) => (
         />
     </div>
 );
+
+const formatDateTime = (date) => {
+    if (!date) return "-";
+
+    return new Date(date).toLocaleString("it-IT", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+    });
+};
 
 export default CartellaClinica;

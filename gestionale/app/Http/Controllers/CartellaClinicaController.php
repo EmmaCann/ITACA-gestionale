@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 
+use App\Models\CartellaClinica;
+
 class CartellaClinicaController extends Controller
 {
     public function show(Utente $paziente)
@@ -66,7 +68,7 @@ class CartellaClinicaController extends Controller
         $user = session('logged_user');
         if ($user['ruolo'] !== 'staff') abort(403);
 
-       $paziente = Utente::with(['terapisti', 'cartellaClinica'])->findOrFail($pazienteId);
+        $paziente = Utente::with(['terapisti', 'cartellaClinica'])->findOrFail($pazienteId);
 
 
         $files = CartellaClinicaFile::with('uploader')
@@ -130,5 +132,31 @@ class CartellaClinicaController extends Controller
         $file->delete();
 
         return response()->json(['success' => true]);
+    }
+
+
+    public function update(Request $request, Utente $paziente)
+    {
+        $user = session('logged_user');
+        if ($user['ruolo'] !== 'staff') abort(403);
+
+        $data = $request->validate([
+            'anamnesi' => 'nullable|string',
+            'diagnosi' => 'nullable|string',
+            'terapia'  => 'nullable|string',
+            'note'     => 'nullable|string',
+        ]);
+
+        $cartella = CartellaClinica::firstOrCreate(
+            ['paziente_id' => $paziente->id],
+            $data
+        );
+
+        $cartella->update($data);
+
+        return response()->json([
+            'success' => true,
+            'cartella' => $cartella,
+        ]);
     }
 }
