@@ -107,9 +107,6 @@ class UtenteController extends Controller
             });
         }
 
-
-
-
         return $q->get();
     }
 
@@ -340,6 +337,7 @@ class UtenteController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+
     }
 
     public function update(Request $request, Utente $utente)
@@ -421,4 +419,19 @@ class UtenteController extends Controller
             ], 500);
         }
     }
+
+    public function utentiPerNotifica()
+    {
+        if (!Session::has('logged_user')) {
+            return response()->json(['error' => 'Non autenticato'], 401);
+        }
+
+        $utenti = Utente::select('id', 'nome', 'cognome')
+            ->whereIn('ruolo', ['staff', 'paziente'])
+            ->orderBy('cognome')
+            ->get();
+
+        return response()->json($utenti);
+    }
+
 }

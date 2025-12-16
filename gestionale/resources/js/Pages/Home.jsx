@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Navbar } from "../components/navbar";
 import { NavbarPaziente } from "../components/navbarPaziente";
 import { NavbarStaff } from "../components/navbarStaff";
@@ -32,6 +32,7 @@ const Home = ({ children, hideFAB = false }) => {
     return (
         <div className="bg-background flex w-screen h-screen overflow-hidden overflow-x-hidden">
             <NavbarToShow menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+
 
             <div
                 className="
