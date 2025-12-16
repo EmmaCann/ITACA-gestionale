@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { toast, ToastContainer } from "react-toastify";
 import { Navbar } from "../components/navbar";
 import { NavbarPaziente } from "../components/navbarPaziente";
 import { usePage } from "@inertiajs/react";
@@ -19,12 +18,6 @@ const Home = ({ children, hideFAB = false }) => {
     const effectiveHideFAB = hideFAB || ruolo === "paziente";
 
     const hasChildren = React.Children.count(children) > 0;
-
-    useEffect(() => {
-        if (props?.flash?.notifications_purged && ruolo === "admin") {
-            toast.success("Pulizia automatica delle notifiche completata");
-        }
-    }, []);
 
     return (
         <div className="bg-background flex w-screen h-screen overflow-hidden overflow-x-hidden">
