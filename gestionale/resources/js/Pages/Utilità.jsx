@@ -113,14 +113,14 @@ const CARDS = [
         icon: FaFolderOpen,
         endpoint: "/admin/utilita/purge/medical-charts",
     },
-    {
-        title: "Notifiche di Sistema",
-        badge: "Comunicazioni",
-        description:
-            "Elimina tutte le notifiche più vecchie di 90 giorni per evitare l'accumulo di dati inutili.",
-        icon: FaBellSlash,
-        endpoint: "/admin/utilita/purge/notifications",
-    },
+    // {
+    //     title: "Notifiche di Sistema",
+    //     badge: "Comunicazioni",
+    //     description:
+    //         "Elimina tutte le notifiche più vecchie di 90 giorni per evitare l'accumulo di dati inutili.",
+    //     icon: FaBellSlash,
+    //     endpoint: "/admin/utilita/purge/notifications",
+    // },
 ];
 
 const Utilità = () => {

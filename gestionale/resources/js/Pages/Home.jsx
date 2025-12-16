@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { toast, ToastContainer } from "react-toastify";
 import { Navbar } from "../components/navbar";
 import { NavbarPaziente } from "../components/navbarPaziente";
 import { NavbarStaff } from "../components/navbarStaff";
@@ -10,7 +11,6 @@ import { CalendarBoard } from "../components/CalendarBoard";
 
 const Home = ({ children, hideFAB = false }) => {
     const [menuOpen, setMenuOpen] = useState(false);
-   
 
     const { props } = usePage();
     const ruolo = props?.ruolo || null;
@@ -29,6 +29,12 @@ const Home = ({ children, hideFAB = false }) => {
 
 
     const hasChildren = React.Children.count(children) > 0;
+
+    useEffect(() => {
+        if (props?.flash?.notifications_purged && ruolo === "admin") {
+            toast.success("Pulizia automatica delle notifiche completata");
+        }
+    }, []);
 
     return (
         <div className="bg-background flex w-screen h-screen overflow-hidden overflow-x-hidden">

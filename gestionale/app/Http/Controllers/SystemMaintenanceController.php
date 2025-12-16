@@ -83,38 +83,38 @@ class SystemMaintenanceController extends Controller
     }
 
     /** Notifiche di Sistema */
-public function purgeNotifications(Request $request)
-{
-    // puoi cambiare i giorni quando vuoi
-    $limitDate = Carbon::now()->subDays(90);
+// public function purgeNotifications(Request $request)
+// {
+//     // puoi cambiare i giorni quando vuoi
+//     $limitDate = Carbon::now()->subDays(90);
 
-    // 1. recupera ID notifiche vecchie
-    $notificaIds = Notifica::where('created_at', '<', $limitDate)
-        ->pluck('id');
+//     // 1. recupera ID notifiche vecchie
+//     $notificaIds = Notifica::where('created_at', '<', $limitDate)
+//         ->pluck('id');
 
-    if ($notificaIds->isEmpty()) {
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Nessuna notifica da eliminare',
-            'deleted' => 0,
-        ]);
-    }
+//     if ($notificaIds->isEmpty()) {
+//         return response()->json([
+//             'status' => 'success',
+//             'message' => 'Nessuna notifica da eliminare',
+//             'deleted' => 0,
+//         ]);
+//     }
 
-    // 2. elimina pivot notifica_utente
-    $deletedPivot = DB::table('notifica_utente')
-        ->whereIn('notifica_id', $notificaIds)
-        ->delete();
+//     // 2. elimina pivot notifica_utente
+//     $deletedPivot = DB::table('notifica_utente')
+//         ->whereIn('notifica_id', $notificaIds)
+//         ->delete();
 
-    // 3. elimina notifiche
-    $deletedNotifiche = Notifica::whereIn('id', $notificaIds)
-        ->delete();
+//     // 3. elimina notifiche
+//     $deletedNotifiche = Notifica::whereIn('id', $notificaIds)
+//         ->delete();
 
-    return response()->json([
-        'status' => 'success',
-        'message' => "Eliminate {$deletedNotifiche} notifiche (più vecchie di 90 giorni)",
-        'deleted_notifiche' => $deletedNotifiche,
-        'deleted_relazioni' => $deletedPivot,
-    ]);
-}
+//     return response()->json([
+//         'status' => 'success',
+//         'message' => "Eliminate {$deletedNotifiche} notifiche (più vecchie di 90 giorni)",
+//         'deleted_notifiche' => $deletedNotifiche,
+//         'deleted_relazioni' => $deletedPivot,
+//     ]);
+// }
 
 }
