@@ -33,6 +33,7 @@ const Home = ({ children, hideFAB = false }) => {
         <div className="bg-background flex w-screen h-screen overflow-hidden overflow-x-hidden">
             <NavbarToShow menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
+
             <div
                 className="
                 flex flex-col flex-1 h-full relative

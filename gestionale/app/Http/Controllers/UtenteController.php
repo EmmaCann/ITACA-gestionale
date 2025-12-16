@@ -337,6 +337,7 @@ class UtenteController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+
     }
 
     public function update(Request $request, Utente $utente)
