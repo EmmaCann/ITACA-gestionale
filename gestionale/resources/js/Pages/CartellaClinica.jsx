@@ -1,164 +1,236 @@
 import React, { useEffect, useState } from "react";
-import { usePage } from "@inertiajs/react";
 import Home from "./Home";
+import { usePage } from "@inertiajs/react";
 import { baseCall } from "../data/api/baseCall";
 import { toast } from "react-toastify";
-import { FaUpload, FaFileWord } from "react-icons/fa";
 
-export default function CartellaClinica() {
+/* ===============================
+   Cartella Clinica - Staff only
+================================ */
+const CartellaClinica = () => {
     const { props } = usePage();
-    const { pazienteId, ruolo } = props;
+    const { pazienteId } = props;
 
-    const [paziente, setPaziente] = useState(null);
-    const [files, setFiles] = useState([]);
-    const [uploading, setUploading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
+    // dati
+    const [utente, setUtente] = useState(null);
+    const [terapisti, setTerapisti] = useState([]);
+    const [cartella, setCartella] = useState(null);
+
+    // campi modificabili
+    const [diagnosi, setDiagnosi] = useState("");
+    const [noteCliniche, setNoteCliniche] = useState("");
+    const [obiettivi, setObiettivi] = useState("");
+    const [osservazioni, setOsservazioni] = useState("");
+
+    /* ===============================
+       FETCH DATI
+    ================================ */
     useEffect(() => {
-        if (ruolo !== "staff") {
-            toast.error("Accesso non autorizzato");
-            return;
-        }
-
-        fetchData();
+        fetchAll();
     }, []);
 
-    const fetchData = async () => {
+    const fetchAll = async () => {
         try {
+            setLoading(true);
+
             const { data } = await baseCall({
-                endpoint: `/cartella-clinica/${pazienteId}/data`,
+                endpoint: `/cartella-clinica/${pazienteId}`,
                 method: "GET",
             });
 
-            setPaziente(data.paziente);
-            setFiles(data.files);
+            setUtente(data.utente);
+            setTerapisti(data.terapisti || []);
+            setCartella(data.cartella);
+
+            setDiagnosi(data.cartella?.diagnosi || "");
+            setNoteCliniche(data.cartella?.note_cliniche || "");
+            setObiettivi(data.cartella?.obiettivi || "");
+            setOsservazioni(data.cartella?.osservazioni || "");
         } catch (e) {
-            toast.error("Errore nel caricamento cartella clinica");
-        }
-    };
-
-    const handleUpload = async (e) => {
-        const selectedFiles = e.target.files;
-        if (!selectedFiles.length) return;
-
-        const formData = new FormData();
-        for (const f of selectedFiles) {
-            formData.append("files[]", f);
-        }
-
-        try {
-            setUploading(true);
-            await baseCall({
-                endpoint: `/cartella-clinica/${pazienteId}/files`,
-                method: "POST",
-                data: formData,
-                headers: { "Content-Type": "multipart/form-data" },
-            });
-
-            toast.success("File caricati con successo");
-            fetchData();
-        } catch {
-            toast.error("Errore upload file");
+            console.error(e);
+            toast.error("Errore nel caricamento della cartella clinica");
         } finally {
-            setUploading(false);
+            setLoading(false);
         }
     };
 
-    const deleteFile = async (id) => {
-        if (!confirm("Eliminare definitivamente il file?")) return;
-
+    /* ===============================
+       SALVA DATI CLINICI
+    ================================ */
+    const handleSave = async () => {
         try {
             await baseCall({
-                endpoint: `/cartella-clinica/file/${id}`,
-                method: "DELETE",
+                endpoint: `/cartella-clinica/${pazienteId}`,
+                method: "POST",
+                data: {
+                    diagnosi,
+                    note_cliniche: noteCliniche,
+                    obiettivi,
+                    osservazioni,
+                },
             });
 
-            toast.success("File eliminato");
-            fetchData();
-        } catch {
-            toast.error("Errore eliminazione file");
+            toast.success("Dati clinici salvati con successo");
+        } catch (e) {
+            console.error(e);
+            toast.error("Errore durante il salvataggio");
         }
     };
 
+    if (loading) {
+        return (
+            <Home>
+                <div className="p-6 text-slate-500">Caricamento…</div>
+            </Home>
+        );
+    }
+
+    /* ===============================
+       RENDER
+    ================================ */
     return (
-        <Home hideFAB>
-            <div className="max-w-6xl mx-auto space-y-6">
-                {/* DATI PAZIENTE */}
-                {paziente && (
-                    <div className="bg-white rounded-2xl p-6 shadow-sm ring-1 ring-slate-100">
-                        <h2 className="text-xl font-semibold mb-2">
-                            {paziente.nome} {paziente.cognome}
-                        </h2>
-                        <p className="text-sm text-slate-600">
-                            Età: {paziente.eta ?? "-"} • Sesso:{" "}
-                            {paziente.sesso ?? "-"}
-                        </p>
-                    </div>
-                )}
+        <Home>
+            <div className="max-w-6xl mx-auto p-6 space-y-6">
 
-                {/* FILE */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm ring-1 ring-slate-100">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold">
-                            Documenti clinici
-                        </h3>
+                {/* TORNA INDIETRO */}
+                <button
+                    onClick={() => window.history.back()}
+                    className="text-sm text-slate-600 hover:text-slate-900"
+                >
+                    ← Torna ai pazienti
+                </button>
 
-                        <label className="cursor-pointer flex items-center gap-2 bg-bluPrimary text-white px-4 py-2 rounded-xl text-sm">
-                            <FaUpload />
-                            {uploading ? "Caricamento..." : "Carica file"}
-                            <input
-                                type="file"
-                                multiple
-                                hidden
-                                onChange={handleUpload}
-                            />
-                        </label>
-                    </div>
+                {/* =======================
+                    ANAGRAFICA PAZIENTE
+                ======================== */}
+                <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+                    <h2 className="text-xl font-semibold mb-4">
+                         Anagrafica paziente
+                    </h2>
 
-                    {files.length === 0 ? (
-                        <p className="text-slate-500 text-sm">
-                            Nessun documento caricato
+                    <table className="w-full text-sm">
+                        <tbody className="divide-y">
+                            <Row label="Nome" value={utente?.nome} />
+                            <Row label="Cognome" value={utente?.cognome} />
+                            <Row label="Data di nascita" value={utente?.nascita || "-"} />
+                            <Row label="Sesso" value={utente?.sesso || "-"} />
+                            <Row label="Email" value={utente?.email || "-"} />
+                            <Row label="Telefono" value={utente?.telefono || "-"} />
+                        </tbody>
+                    </table>
+                </section>
+
+                {/* =======================
+                    TERAPISTI ASSOCIATI
+                ======================== */}
+                <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+                    <h2 className="text-xl font-semibold mb-4">
+                         Terapisti associati
+                    </h2>
+
+                    {terapisti.length === 0 ? (
+                        <p className="text-slate-500">
+                            Nessun terapista assegnato
                         </p>
                     ) : (
-                        <ul className="space-y-2">
-                            {files.map((f) => (
-                                <li
-                                    key={f.id}
-                                    className="flex justify-between items-center border rounded-xl px-4 py-3 text-sm"
+                        <div className="flex flex-wrap gap-2">
+                            {terapisti.map((t) => (
+                                <span
+                                    key={t.id}
+                                    className="rounded-full bg-slate-100 px-3 py-1 text-sm"
                                 >
-                                    <div className="flex items-center gap-3">
-                                        <FaFileWord className="text-blue-600" />
-                                        <div>
-                                            <div className="font-medium">
-                                                {f.original_name}
-                                            </div>
-                                            <div className="text-xs text-slate-500">
-                                                Caricato da {f.uploader} •{" "}
-                                                {f.created_at}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center gap-3">
-                                        <a
-                                            href={`/cartella-clinica/file/${f.id}/download`}
-                                            className="text-sky-700 text-xs hover:underline"
-                                        >
-                                            Download
-                                        </a>
-
-                                        <button
-                                            onClick={() => deleteFile(f.id)}
-                                            className="text-red-600 text-xs hover:underline"
-                                        >
-                                            Elimina
-                                        </button>
-                                    </div>
-                                </li>
+                                    {t.nome} {t.cognome}
+                                </span>
                             ))}
-                        </ul>
+                        </div>
                     )}
-                </div>
+                </section>
+
+                {/* =======================
+                    DATI CLINICI
+                ======================== */}
+                <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+                    <h2 className="text-xl font-semibold mb-4">
+                         Dati clinici
+                    </h2>
+
+                    <Textarea
+                        label="Diagnosi"
+                        value={diagnosi}
+                        onChange={setDiagnosi}
+                    />
+
+                    <Textarea
+                        label="Note cliniche"
+                        value={noteCliniche}
+                        onChange={setNoteCliniche}
+                    />
+
+                    <Textarea
+                        label="Obiettivi terapeutici"
+                        value={obiettivi}
+                        onChange={setObiettivi}
+                    />
+
+                    <Textarea
+                        label="Osservazioni"
+                        value={osservazioni}
+                        onChange={setOsservazioni}
+                    />
+
+                    <div className="mt-4">
+                        <button
+                            onClick={handleSave}
+                            className="rounded-xl bg-bluPrimary px-6 py-2 text-white hover:bg-bluSecondary"
+                        >
+                            Salva dati clinici
+                        </button>
+                    </div>
+                </section>
+
+                {/* =======================
+                    DOCUMENTI CLINICI
+                ======================== */}
+                <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+                    <h2 className="text-xl font-semibold mb-2">
+                        📎 Documenti clinici
+                    </h2>
+                    <p className="text-slate-500 text-sm mb-4">
+                        File caricati nella cartella clinica del paziente
+                    </p>
+
+                    {/* Qui rimane il tuo componente upload/lista */}
+                    {/* <DocumentiClinici pazienteId={pazienteId} /> */}
+                </section>
+
             </div>
         </Home>
     );
-}
+};
+
+/* ===============================
+   COMPONENTI DI SUPPORTO
+================================ */
+const Row = ({ label, value }) => (
+    <tr>
+        <td className="py-2 font-medium text-slate-600 w-1/3">{label}</td>
+        <td className="py-2 text-slate-800">{value}</td>
+    </tr>
+);
+
+const Textarea = ({ label, value, onChange }) => (
+    <div className="mb-4">
+        <label className="block text-sm text-slate-600 mb-1">
+            {label}
+        </label>
+        <textarea
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full min-h-[100px] rounded-xl border border-slate-200 bg-slate-50 p-3 outline-none focus:bg-white focus:border-bluPrimary"
+        />
+    </div>
+);
+
+export default CartellaClinica;
