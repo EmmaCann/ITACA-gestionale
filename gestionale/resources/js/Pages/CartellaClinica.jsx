@@ -17,6 +17,7 @@ const CartellaClinica = () => {
     const [utente, setUtente] = useState(null);
     const [terapisti, setTerapisti] = useState([]);
     const [cartella, setCartella] = useState(null);
+    const [files, setFiles] = useState([]);
 
     // campi modificabili
     const [diagnosi, setDiagnosi] = useState("");
@@ -30,24 +31,21 @@ const CartellaClinica = () => {
     useEffect(() => {
         fetchAll();
     }, []);
-
     const fetchAll = async () => {
         try {
             setLoading(true);
 
             const { data } = await baseCall({
-                endpoint: `/cartella-clinica/${pazienteId}`,
+                endpoint: `/cartella-clinica/${pazienteId}/data`,
                 method: "GET",
             });
 
-            setUtente(data.utente);
-            setTerapisti(data.terapisti || []);
-            setCartella(data.cartella);
+            setUtente(data.paziente);
+            setTerapisti(data.paziente?.terapisti || []);
+            setFiles(data.files || []);
 
-            setDiagnosi(data.cartella?.diagnosi || "");
-            setNoteCliniche(data.cartella?.note_cliniche || "");
-            setObiettivi(data.cartella?.obiettivi || "");
-            setOsservazioni(data.cartella?.osservazioni || "");
+            // se hai cartella clinica separata
+            setCartella(data.cartella || null);
         } catch (e) {
             console.error(e);
             toast.error("Errore nel caricamento della cartella clinica");
@@ -93,7 +91,6 @@ const CartellaClinica = () => {
     return (
         <Home>
             <div className="max-w-6xl mx-auto p-6 space-y-6">
-
                 {/* TORNA INDIETRO */}
                 <button
                     onClick={() => window.history.back()}
@@ -107,17 +104,23 @@ const CartellaClinica = () => {
                 ======================== */}
                 <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
                     <h2 className="text-xl font-semibold mb-4">
-                         Anagrafica paziente
+                        Anagrafica paziente
                     </h2>
 
                     <table className="w-full text-sm">
                         <tbody className="divide-y">
                             <Row label="Nome" value={utente?.nome} />
                             <Row label="Cognome" value={utente?.cognome} />
-                            <Row label="Data di nascita" value={utente?.nascita || "-"} />
+                            <Row
+                                label="Data di nascita"
+                                value={utente?.nascita || "-"}
+                            />
                             <Row label="Sesso" value={utente?.sesso || "-"} />
                             <Row label="Email" value={utente?.email || "-"} />
-                            <Row label="Telefono" value={utente?.telefono || "-"} />
+                            <Row
+                                label="Telefono"
+                                value={utente?.telefono || "-"}
+                            />
                         </tbody>
                     </table>
                 </section>
@@ -127,7 +130,7 @@ const CartellaClinica = () => {
                 ======================== */}
                 <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
                     <h2 className="text-xl font-semibold mb-4">
-                         Terapisti associati
+                        Terapisti associati
                     </h2>
 
                     {terapisti.length === 0 ? (
@@ -152,9 +155,7 @@ const CartellaClinica = () => {
                     DATI CLINICI
                 ======================== */}
                 <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
-                    <h2 className="text-xl font-semibold mb-4">
-                         Dati clinici
-                    </h2>
+                    <h2 className="text-xl font-semibold mb-4">Dati clinici</h2>
 
                     <Textarea
                         label="Diagnosi"
@@ -204,7 +205,6 @@ const CartellaClinica = () => {
                     {/* Qui rimane il tuo componente upload/lista */}
                     {/* <DocumentiClinici pazienteId={pazienteId} /> */}
                 </section>
-
             </div>
         </Home>
     );
@@ -222,9 +222,7 @@ const Row = ({ label, value }) => (
 
 const Textarea = ({ label, value, onChange }) => (
     <div className="mb-4">
-        <label className="block text-sm text-slate-600 mb-1">
-            {label}
-        </label>
+        <label className="block text-sm text-slate-600 mb-1">{label}</label>
         <textarea
             value={value}
             onChange={(e) => onChange(e.target.value)}

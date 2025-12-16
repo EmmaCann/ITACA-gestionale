@@ -66,7 +66,8 @@ class CartellaClinicaController extends Controller
         $user = session('logged_user');
         if ($user['ruolo'] !== 'staff') abort(403);
 
-        $paziente = Utente::with('terapisti')->findOrFail($pazienteId);
+       $paziente = Utente::with(['terapisti', 'cartellaClinica'])->findOrFail($pazienteId);
+
 
         $files = CartellaClinicaFile::with('uploader')
             ->where('paziente_id', $pazienteId)
@@ -81,12 +82,16 @@ class CartellaClinicaController extends Controller
 
         return response()->json([
             'paziente' => [
+                'id' => $paziente->id,
                 'nome' => $paziente->nome,
                 'cognome' => $paziente->cognome,
                 'sesso' => $paziente->sesso,
-                'eta' => optional($paziente->nascita)->age,
+                'nascita' => $paziente->nascita,
+                'email' => $paziente->email,
+                'telefono' => $paziente->telefono,
                 'terapisti' => $paziente->terapisti,
             ],
+            'cartella' => $paziente->cartellaClinica,
             'files' => $files,
         ]);
     }

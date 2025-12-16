@@ -724,7 +724,7 @@ function PazientiView({ registerRefetch, ruolo }) {
                                         {ruolo === "staff" ? (
                                             <Link
                                                 href={`/cartella-clinica/${p.id}`}
-                                               className="rounded-[12px] bg-bluSecondary text-white flex text-center text-[12px] p-2"
+                                               className="rounded-[12px] bg-bluSecondary text-white flex text-center justify-center text-[12px] p-2"
                                             >
                                                 Cartella clinica
                                             </Link>
