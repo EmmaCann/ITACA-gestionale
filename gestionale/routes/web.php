@@ -15,6 +15,7 @@ use App\Http\Controllers\FirmaController;
 use App\Http\Controllers\SystemMaintenanceController;
 use App\Http\Controllers\PagamentiPazientiController;
 use App\Http\Controllers\NotificaController;
+use App\Http\Controllers\CartellaClinicaController;
 
 Route::get('/', function () {
     return redirect()->route('login_form');
@@ -141,8 +142,19 @@ Route::post('/admin/notifiche', [NotificaController::class, 'store']);
 Route::get('/notifiche', [NotificaController::class, 'index']);
 Route::post('/notifiche/{id}/letta', [NotificaController::class, 'segnaComeLetta']);
 
+
+//cartella clinica
+
+Route::get(
+    '/cartella-clinica/{paziente}',
+    [CartellaClinicaController::class, 'show']
+)->name('cartella.clinica.show');
     
 });
+Route::post(
+    '/cartella-clinica/{paziente}/files',
+    [CartellaClinicaFileController::class, 'store']
+)->name('cartella.clinica.files.store');
 
 
 
