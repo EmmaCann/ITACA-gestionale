@@ -167,6 +167,15 @@ Route::get(
     '/cartella-clinica/{paziente}/data',
     [CartellaClinicaController::class, 'data']
 );
+Route::get(
+    '/cartella-clinica/file/{file}/download',
+    [CartellaClinicaController::class, 'download']
+);
+
+Route::delete(
+    '/cartella-clinica/file/{file}',
+    [CartellaClinicaController::class, 'destroy']
+);
 
 
 

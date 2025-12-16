@@ -63,10 +63,25 @@ export default function CartellaClinica() {
         }
     };
 
+    const deleteFile = async (id) => {
+        if (!confirm("Eliminare definitivamente il file?")) return;
+
+        try {
+            await baseCall({
+                endpoint: `/cartella-clinica/file/${id}`,
+                method: "DELETE",
+            });
+
+            toast.success("File eliminato");
+            fetchData();
+        } catch {
+            toast.error("Errore eliminazione file");
+        }
+    };
+
     return (
         <Home hideFAB>
             <div className="max-w-6xl mx-auto space-y-6">
-
                 {/* DATI PAZIENTE */}
                 {paziente && (
                     <div className="bg-white rounded-2xl p-6 shadow-sm ring-1 ring-slate-100">
@@ -74,7 +89,8 @@ export default function CartellaClinica() {
                             {paziente.nome} {paziente.cognome}
                         </h2>
                         <p className="text-sm text-slate-600">
-                            Età: {paziente.eta ?? "-"} • Sesso: {paziente.sesso ?? "-"}
+                            Età: {paziente.eta ?? "-"} • Sesso:{" "}
+                            {paziente.sesso ?? "-"}
                         </p>
                     </div>
                 )}
@@ -82,7 +98,9 @@ export default function CartellaClinica() {
                 {/* FILE */}
                 <div className="bg-white rounded-2xl p-6 shadow-sm ring-1 ring-slate-100">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold">Documenti clinici</h3>
+                        <h3 className="text-lg font-semibold">
+                            Documenti clinici
+                        </h3>
 
                         <label className="cursor-pointer flex items-center gap-2 bg-bluPrimary text-white px-4 py-2 rounded-xl text-sm">
                             <FaUpload />
@@ -105,21 +123,41 @@ export default function CartellaClinica() {
                             {files.map((f) => (
                                 <li
                                     key={f.id}
-                                    className="flex justify-between items-center border rounded-xl px-4 py-2 text-sm"
+                                    className="flex justify-between items-center border rounded-xl px-4 py-3 text-sm"
                                 >
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-3">
                                         <FaFileWord className="text-blue-600" />
-                                        {f.original_name}
+                                        <div>
+                                            <div className="font-medium">
+                                                {f.original_name}
+                                            </div>
+                                            <div className="text-xs text-slate-500">
+                                                Caricato da {f.uploader} •{" "}
+                                                {f.created_at}
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="text-slate-500 text-xs">
-                                        Caricato da {f.uploader}
+
+                                    <div className="flex items-center gap-3">
+                                        <a
+                                            href={`/cartella-clinica/file/${f.id}/download`}
+                                            className="text-sky-700 text-xs hover:underline"
+                                        >
+                                            Download
+                                        </a>
+
+                                        <button
+                                            onClick={() => deleteFile(f.id)}
+                                            className="text-red-600 text-xs hover:underline"
+                                        >
+                                            Elimina
+                                        </button>
                                     </div>
                                 </li>
                             ))}
                         </ul>
                     )}
                 </div>
-
             </div>
         </Home>
     );

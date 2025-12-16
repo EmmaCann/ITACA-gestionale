@@ -90,4 +90,40 @@ class CartellaClinicaController extends Controller
             'files' => $files,
         ]);
     }
+
+
+    public function download($fileId)
+    {
+        $user = session('logged_user');
+        if ($user['ruolo'] !== 'staff') {
+            abort(403);
+        }
+
+        $file = CartellaClinicaFile::findOrFail($fileId);
+
+        $fullPath = storage_path('app/' . $file->path);
+
+        if (!file_exists($fullPath)) {
+            abort(404, 'File non trovato');
+        }
+
+        return response()->download(
+            $fullPath,
+            $file->original_name
+        );
+    }
+
+
+    public function destroy($fileId)
+    {
+        $user = session('logged_user');
+        if ($user['ruolo'] !== 'staff') abort(403);
+
+        $file = CartellaClinicaFile::findOrFail($fileId);
+
+        Storage::disk('local')->delete($file->path);
+        $file->delete();
+
+        return response()->json(['success' => true]);
+    }
 }
