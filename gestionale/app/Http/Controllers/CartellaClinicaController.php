@@ -33,23 +33,29 @@ class CartellaClinicaController extends Controller
     public function store(Request $request, $pazienteId)
     {
         $user = Session::get('logged_user');
-
         if (!$user || $user['ruolo'] !== 'staff') {
             abort(403);
         }
 
         $request->validate([
-            'files.*' => 'required|file|max:10240', // 10MB
+            'files'   => 'required',
+            'files.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png|max:51200',
+
         ]);
 
+        $files = $request->file('files');
+
+        // se arriva un solo file lo trasformiamo in array
+        if (!is_array($files)) {
+            $files = [$files];
+        }
+
         foreach ($request->file('files') as $file) {
-            $path = $file->store(
-                "cartelle_cliniche/{$pazienteId}"
-            );
+            $path = $file->store("cartelle_cliniche/{$pazienteId}");
 
             CartellaClinicaFile::create([
                 'paziente_id'   => $pazienteId,
-                'uploaded_by'   => $user['id'],
+                'uploaded_by'   => $user['id_utente'],
                 'original_name' => $file->getClientOriginalName(),
                 'file_path'     => $path,
                 'mime_type'     => $file->getClientMimeType(),
@@ -57,10 +63,12 @@ class CartellaClinicaController extends Controller
             ]);
         }
 
+
         return response()->json([
-            'message' => 'File caricati con successo',
+            'success' => true,
         ]);
     }
+
 
 
     public function data($pazienteId)
@@ -108,7 +116,7 @@ class CartellaClinicaController extends Controller
 
         $file = CartellaClinicaFile::findOrFail($fileId);
 
-        $fullPath = storage_path('app/' . $file->path);
+        $fullPath = storage_path('app/' . $file->file_path);
 
         if (!file_exists($fullPath)) {
             abort(404, 'File non trovato');
@@ -128,7 +136,7 @@ class CartellaClinicaController extends Controller
 
         $file = CartellaClinicaFile::findOrFail($fileId);
 
-        Storage::disk('local')->delete($file->path);
+        Storage::disk('local')->delete($file->file_path);
         $file->delete();
 
         return response()->json(['success' => true]);
