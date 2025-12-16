@@ -153,10 +153,20 @@ Route::get(
 });
 Route::post(
     '/cartella-clinica/{paziente}/files',
-    [CartellaClinicaFileController::class, 'store']
+    [CartellaClinicaController::class, 'store']
 )->name('cartella.clinica.files.store');
 
+Route::get('/cartella-clinica/{paziente}', function ($paziente) {
+    return Inertia::render('CartellaClinica', [
+        'pazienteId' => $paziente,
+        'ruolo' => session('logged_user.ruolo'),
+    ]);
+})->name('cartella.clinica');
 
+Route::get(
+    '/cartella-clinica/{paziente}/data',
+    [CartellaClinicaController::class, 'data']
+);
 
 
 
