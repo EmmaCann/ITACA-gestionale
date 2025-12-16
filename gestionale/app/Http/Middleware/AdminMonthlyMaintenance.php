@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use App\Services\NotificationMaintenanceService;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Log;
 
 class AdminMonthlyMaintenance
 {
@@ -19,6 +20,7 @@ class AdminMonthlyMaintenance
                 Session::flash('notifications_purged', true);
             }
         }
+        Log::info('AdminMonthlyMaintenance executed');
 
         return $next($request);
     }
