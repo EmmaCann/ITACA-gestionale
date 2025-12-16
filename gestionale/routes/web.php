@@ -143,40 +143,28 @@ Route::get('/notifiche', [NotificaController::class, 'index']);
 Route::post('/notifiche/{id}/letta', [NotificaController::class, 'segnaComeLetta']);
 
 
-//cartella clinica
+ /*
+    |---------------------------
+    | Cartella Clinica (CORRETTO)
+    |---------------------------
+    */
 
-Route::get(
-    '/cartella-clinica/{paziente}',
-    [CartellaClinicaController::class, 'show']
-)->name('cartella.clinica.show');
-    
+    // UI
+    Route::get('/cartella-clinica/{paziente}', fn ($paziente) =>
+        Inertia::render('CartellaClinica', [
+            'pazienteId' => $paziente,
+            'ruolo' => session('logged_user.ruolo'),
+        ])
+    )->name('cartella.clinica');
+
+    // DATA
+    Route::get('/cartella-clinica/{paziente}/data', [CartellaClinicaController::class, 'data']);
+
+    // FILES
+    Route::post('/cartella-clinica/{paziente}/files', [CartellaClinicaController::class, 'store']);
+    Route::get('/cartella-clinica/file/{file}/download', [CartellaClinicaController::class, 'download']);
+    Route::delete('/cartella-clinica/file/{file}', [CartellaClinicaController::class, 'destroy']);
+
+
 });
-Route::post(
-    '/cartella-clinica/{paziente}/files',
-    [CartellaClinicaController::class, 'store']
-)->name('cartella.clinica.files.store');
-
-Route::get('/cartella-clinica/{paziente}', function ($paziente) {
-    return Inertia::render('CartellaClinica', [
-        'pazienteId' => $paziente,
-        'ruolo' => session('logged_user.ruolo'),
-    ]);
-})->name('cartella.clinica');
-
-Route::get(
-    '/cartella-clinica/{paziente}/data',
-    [CartellaClinicaController::class, 'data']
-);
-Route::get(
-    '/cartella-clinica/file/{file}/download',
-    [CartellaClinicaController::class, 'download']
-);
-
-Route::delete(
-    '/cartella-clinica/file/{file}',
-    [CartellaClinicaController::class, 'destroy']
-);
-
-
-
 
