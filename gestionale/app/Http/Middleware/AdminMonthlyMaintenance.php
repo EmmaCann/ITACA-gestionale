@@ -20,7 +20,7 @@ class AdminMonthlyMaintenance
                 Session::flash('notifications_purged', true);
             }
         }
-        Log::info('AdminMonthlyMaintenance executed');
+        // Log::info('AdminMonthlyMaintenance executed');
 
         return $next($request);
     }
