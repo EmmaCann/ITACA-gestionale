@@ -93,7 +93,7 @@ Route::middleware([AuthSession::class])->group(function () {
     Route::get('/chi-siamo', fn() => Inertia::render('ChiSiamo'))->name('chi-siamo');
     Route::get('/staff', fn() => Inertia::render('Staff'))->name('staff');
     Route::get('/utilita', fn() => Inertia::render('Utilità'))->name('utilita');
-
+     Route::get('/paziente-info', fn() => Inertia::render('PazienteInfo'))->name('pazienteInfo');
     Route::get('/incassi/{tipo}', function ($tipo) {
         return Inertia::render('IncassoDettaglio', ['tipo' => $tipo]);
     })->name('incassi.dettaglio');

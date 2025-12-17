@@ -80,9 +80,9 @@ export const NavbarPaziente = ({ menuOpen, setMenuOpen }) => {
                         </Link>
 
                         <Link
-                            href="/appuntamenti"
+                            href="/paziente-info"
                             className={`${commonClass} ${isActive(
-                                "/appuntamenti"
+                                "/paziente-info"
                             )}`}
                         >
                             <IconTextNavbar
