@@ -164,7 +164,11 @@ Route::middleware([AuthSession::class])->group(function () {
 
     // FILES
     Route::post('/cartella-clinica/{paziente}/files', [CartellaClinicaController::class, 'store']);
-    Route::get('/cartella-clinica/file/{file}/download', [CartellaClinicaController::class, 'download']);
+    Route::get(
+        '/cartella-clinica/file/{id}/download',
+        [CartellaClinicaController::class, 'download']
+    );
+
     Route::delete('/cartella-clinica/file/{file}', [CartellaClinicaController::class, 'destroy']);
     Route::put(
         '/cartella-clinica/{paziente}',

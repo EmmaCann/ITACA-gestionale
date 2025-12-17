@@ -51,7 +51,10 @@ class CartellaClinicaController extends Controller
         }
 
         foreach ($request->file('files') as $file) {
-            $path = $file->store("cartelle_cliniche/{$pazienteId}");
+            $path = $file->store(
+                "cartelle_cliniche/{$pazienteId}",
+                'private'
+            );
 
             CartellaClinicaFile::create([
                 'paziente_id'   => $pazienteId,
@@ -107,26 +110,42 @@ class CartellaClinicaController extends Controller
     }
 
 
-    public function download($fileId)
+
+    public function download($id)
     {
         $user = session('logged_user');
-        if ($user['ruolo'] !== 'staff') {
-            abort(403);
-        }
+        if ($user['ruolo'] !== 'staff') abort(403);
 
-        $file = CartellaClinicaFile::findOrFail($fileId);
+        $file = CartellaClinicaFile::findOrFail($id);
 
-        $fullPath = storage_path('app/' . $file->file_path);
-
-        if (!file_exists($fullPath)) {
+        if (!Storage::disk('private')->exists($file->file_path)) {
             abort(404, 'File non trovato');
         }
+
+        $fullPath = Storage::disk('private')->path($file->file_path);
+      
 
         return response()->download(
             $fullPath,
             $file->original_name
         );
     }
+
+
+    // public function download($id)
+    // {
+    //     $file = CartellaClinicaFile::findOrFail($id);
+
+    //     $fullPath = storage_path('app/' . $file->file_path);
+
+    //     dd([
+    //         'db_path' => $file->file_path,
+    //         'full_path' => $fullPath,
+    //         'exists' => file_exists($fullPath),
+    //     ]);
+    // }
+
+
 
 
     public function destroy($fileId)
