@@ -34,16 +34,25 @@ const Tariffario = () => {
     return (
         <Home>
             <div className="p-8">
-                <div className="flex justify-between items-center mb-6">
-                    <div>
-                        <h1 className="text-3xl  text-gray-700 font-marcellusSC">
+                <div className="mb-6">
+                    {/* titolo */}
+                    <div className="mb-4">
+                        <h1 className="text-3xl text-gray-700 font-marcellusSC">
                             GESTIONE TARIFFE
                         </h1>
                         <p className="text-gray-500 text-sm">
                             Gestisci i prezzi per dottori e terapie
                         </p>
                     </div>
-                    <AddButtonTariffario onClick={() => setModalOpen(true)} />
+
+                    {/* bottone */}
+                    <div className="flex justify-start md:justify-end">
+                        <div className="w-full md:w-auto">
+                            <AddButtonTariffario
+                                onClick={() => setModalOpen(true)}
+                            />
+                        </div>
+                    </div>
                 </div>
 
                 <div className="bg-white shadow-md rounded-[20px] p-4">
