@@ -115,7 +115,7 @@ export const ListaAttesaRow = ({
 
     return (
         <>
-            <div className="bg-white flex flex-row w-[95%] h-auto py-2 mx-4 items-center gap-4 rounded-[8px] pl-2 my-1">
+            <div className="hidden md:flex bg-white flex-row w-[95%] h-auto py-2 mx-4 items-center gap-4 rounded-[8px] pl-2 my-1">
                 <CheckboxRotondo
                     checked={chiamato}
                     onChange={async () => {
@@ -245,6 +245,85 @@ export const ListaAttesaRow = ({
                             onMailClick={handleMailClick}
                         />
                     </ColonnaTabella>
+                </div>
+            </div>
+
+            <div className="md:hidden bg-white rounded-2xl p-4 shadow-sm flex flex-col gap-3 mx-4">
+                {/* header card */}
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <CheckboxRotondo
+                            checked={chiamato}
+                            onChange={async () => {
+                                const nuovoStato = !chiamato;
+                                const conferma = window.confirm(
+                                    nuovoStato
+                                        ? "Segnare questo utente come chiamato?"
+                                        : "Annullare la chiamata?"
+                                );
+                                if (!conferma) return;
+
+                                try {
+                                    await segnaChiamato(data.id, nuovoStato);
+                                    setChiamato(nuovoStato);
+                                    toast.success("Utente aggiornato");
+                                    aggiornaLista();
+                                } catch (err) {
+                                    toast.error(
+                                        "Errore nel segnare come chiamato"
+                                    );
+                                }
+                            }}
+                        />
+                        <span className="text-sm text-gray-500">
+                            #{index + 1}
+                        </span>
+                    </div>
+                    <span className="text-sm text-gray-400">
+                        {dayjs(data.data).format("DD/MM/YYYY")}
+                    </span>
+                </div>
+
+                {/* nome */}
+                <div>
+                    <p className="text-xs text-gray-400">Nome</p>
+                    <p className="text-base font-medium">
+                        {data.nome} {data.cognome}
+                    </p>
+                </div>
+
+                {/* terapia */}
+                <div>
+                    <p className="text-xs text-gray-400">Terapia</p>
+                    <Select
+                        options={professioniOptions}
+                        value={terapiaSelezionata}
+                        onChange={(selected) => {
+                            setTerapiaSelezionata(selected);
+                            aggiornaTerapiaDB(selected.value);
+                        }}
+                        className="text-sm"
+                    />
+                </div>
+
+                {/* richiesta terapista */}
+                <label className="flex items-center gap-2 text-sm">
+                    <input
+                        type="checkbox"
+                        checked={richiestaTerapista}
+                        onChange={(e) =>
+                            setRichiestaTerapista(e.target.checked)
+                        }
+                    />
+                    Richiesta terapista specifico
+                </label>
+
+                {/* contatti */}
+                <div className="flex justify-end gap-3 pt-2">
+                    <IconInfoButtons
+                        onPhoneClick={handlePhoneClick}
+                        onMailClick={handleMailClick}
+                    />
                 </div>
             </div>
 

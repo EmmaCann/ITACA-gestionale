@@ -68,10 +68,11 @@ export const ListaAttesaTable = ({
                 </span>
             </div>
 
-            
-            <ListaAttesaHeader />
+            <div className="hidden md:block">
+                <ListaAttesaHeader />
+            </div>
 
-            <div className="overflow-y-auto flex flex-col max-h-[60%] mb-8 ">
+            <div className="flex flex-col gap-3 mb-8 md:overflow-y-auto md:max-h-[60%]">
                 {lista.length > 0 ? (
                     filtraLista(lista).map((item, index) => (
                         <ListaAttesaRow
