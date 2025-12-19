@@ -283,7 +283,7 @@ const Utenti = () => {
                 {/* Header */}
                 <div className="mx-auto max-w-7xl px-6 pt-8">
                     <div className="rounded-2xl bg-white px-6 py-6 shadow-sm ring-1 ring-slate-100">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                             <div>
                                 <h1 className="text-3xl font-bold text-slate-900">
                                     Gestione Utenti
@@ -292,10 +292,40 @@ const Utenti = () => {
                                     Gestisci pazienti e staff del centro medico
                                 </p>
                             </div>
+
+                            {/* MOBILE: CTA FULL WIDTH */}
                             {ruolo === "admin" && (
                                 <button
                                     onClick={openAddModal}
-                                    className="inline-flex items-center gap-2 rounded-xl bg-bluPrimary px-4 py-2 text-white hover:bg-bluSecondary"
+                                    className="
+                md:hidden
+                w-full
+                inline-flex items-center justify-center gap-2
+                rounded-xl
+                bg-bluPrimary
+                px-4 py-3
+                text-white
+                hover:bg-bluSecondary
+            "
+                                >
+                                    <FaPlus />
+                                    Aggiungi Utente
+                                </button>
+                            )}
+
+                            {/* DESKTOP: CTA A DESTRA */}
+                            {ruolo === "admin" && (
+                                <button
+                                    onClick={openAddModal}
+                                    className="
+                hidden md:inline-flex
+                items-center gap-2
+                rounded-xl
+                bg-bluPrimary
+                px-4 py-2
+                text-white
+                hover:bg-bluSecondary
+            "
                                 >
                                     <FaPlus />
                                     Aggiungi Utente
@@ -724,7 +754,7 @@ function PazientiView({ registerRefetch, ruolo }) {
                                         {ruolo === "staff" ? (
                                             <Link
                                                 href={`/cartella-clinica/${p.id}`}
-                                               className="rounded-[12px] bg-bluSecondary text-white flex text-center justify-center text-[12px] p-2"
+                                                className="rounded-[12px] bg-bluSecondary text-white flex text-center justify-center text-[12px] p-2"
                                             >
                                                 Cartella clinica
                                             </Link>

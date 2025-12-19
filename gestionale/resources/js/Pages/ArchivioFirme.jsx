@@ -84,13 +84,13 @@ const ArchivioFirme = () => {
     });
 
     // const Layout = ruolo === "paziente" ? HomePaziente : Home;
-    const Layout=Home;
+    const Layout = Home;
 
     return (
         <Layout>
             <div className="p-8">
                 {/* Barra superiore */}
-                <div className="flex justify-between items-center mb-6">
+                <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div>
                         <h1 className="text-3xl text-gray-700 font-marcellusSC">
                             ARCHIVIO FIRME
@@ -99,17 +99,43 @@ const ArchivioFirme = () => {
                             Storico firme pazienti
                         </p>
                     </div>
-                    <div className="flex gap-3">
-                        {canEdit && (
-                            <button
-                                onClick={() => setModalOpen(true)}
-                                className="bg-pinkSecondary hover:bg-pinkPrimary text-white font-semibold py-3 px-6 rounded-[18px] flex items-center gap-2"
-                            >
-                                <FiPlus />
-                                Aggiungi Firma
-                            </button>
-                        )}
-                    </div>
+
+                    {/* MOBILE: CTA FULL WIDTH */}
+                    {canEdit && (
+                        <button
+                            onClick={() => setModalOpen(true)}
+                            className="
+                md:hidden
+                w-full
+                flex items-center justify-center gap-2
+                bg-pinkSecondary hover:bg-pinkPrimary
+                text-white font-semibold
+                py-3 px-6
+                rounded-[18px]
+            "
+                        >
+                            <FiPlus />
+                            Aggiungi Firma
+                        </button>
+                    )}
+
+                    {/* DESKTOP: CTA A DESTRA */}
+                    {canEdit && (
+                        <button
+                            onClick={() => setModalOpen(true)}
+                            className="
+                hidden md:flex
+                items-center gap-2
+                bg-pinkSecondary hover:bg-pinkPrimary
+                text-white font-semibold
+                py-3 px-6
+                rounded-[18px]
+            "
+                        >
+                            <FiPlus />
+                            Aggiungi Firma
+                        </button>
+                    )}
                 </div>
 
                 {/* Filtri */}
@@ -153,7 +179,11 @@ const ArchivioFirme = () => {
                     <h2 className="text-lg font-semibold mb-4 text-gray-800">
                         Firme Registrate
                     </h2>
-                    <ArchivioFirmeTable dati={firme} onDelete={handleDelete} canEdit={canEdit} />
+                    <ArchivioFirmeTable
+                        dati={firme}
+                        onDelete={handleDelete}
+                        canEdit={canEdit}
+                    />
                 </div>
 
                 {/* Bottone export discreto (solo per utenti con permessi di editing) */}
@@ -184,7 +214,7 @@ const ArchivioFirme = () => {
                     </CustomModal>
                 )}
             </div>
-    </Layout>
+        </Layout>
     );
 };
 
