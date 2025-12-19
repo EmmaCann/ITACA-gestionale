@@ -53,7 +53,7 @@ export const LoginForm = () => {
     }, [showError]);
 
     return (
-        <div className="flex flex-col items-center justify-center w-[380px] h-fit ">
+        <div className="flex flex-col items-center justify-center w-full max-w-[380px] h-fit ">
             <form onSubmit={handleSubmit} className="flex flex-col items-center w-full gap-4">
                 <LoginInputAndLabel
                     label="USERNAME"

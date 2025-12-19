@@ -4,7 +4,7 @@ import { LogoItaca } from "../components/molecules/atoms/logo-ITACA";
 
 export default function Login({ errors }) {
     return (
-        <div className="relative h-screen w-screen bg-background flex flex-col md:flex-row overflow-hidden">
+       <div className="relative min-h-screen w-screen bg-background flex flex-col md:flex-row overflow-x-hidden">
 
             {/* LINEE DI SFONDO */}
             <div className="absolute inset-0 pointer-events-none z-0 opacity-30">
