@@ -123,7 +123,7 @@ class CartellaClinicaController extends Controller
         }
 
         $fullPath = Storage::disk('private')->path($file->file_path);
-      
+
 
         return response()->download(
             $fullPath,
@@ -184,6 +184,32 @@ class CartellaClinicaController extends Controller
         return response()->json([
             'success' => true,
             'cartella' => $cartella,
+        ]);
+    }
+
+
+    public function patientView()
+    {
+        $sessionUser = session('logged_user');
+
+        if (!$sessionUser || $sessionUser['ruolo'] !== 'paziente') {
+            abort(403);
+        }
+
+        $paziente = Utente::with([
+            'terapisti',
+            'cartellaClinica',
+        ])->findOrFail($sessionUser['id_utente']);
+
+        return response()->json([
+            'paziente' => [
+                'nome' => $paziente->nome,
+                'cognome' => $paziente->cognome,
+                'nascita' => $paziente->nascita,
+                'created_at' => $paziente->created_at,
+            ],
+            'terapisti' => $paziente->terapisti,
+            'cartella' => $paziente->cartellaClinica,
         ]);
     }
 }
