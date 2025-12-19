@@ -108,22 +108,44 @@ const PazienteInfo = () => {
                 </section>
 
                 {/* =======================
-                    DATI CLINICI
-                ======================== */}
+    DATI CLINICI
+======================== */}
                 <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
-                    <Header
-                        icon={CiMedicalClipboard}
-                        title="Informazioni cliniche"
-                    />
+                    <div className="mb-4 flex items-center gap-3">
+                        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600">
+                            <CiMedicalClipboard className="text-xl" />
+                        </span>
+                        <h2 className="text-xl font-semibold">
+                            Informazioni cliniche
+                        </h2>
+                    </div>
 
                     {!cartella ? (
-                        <p className="text-slate-500 text-sm">
-                            Nessuna informazione clinica disponibile.
+                        <p className="text-sm text-slate-500">
+                            Le informazioni cliniche non sono ancora
+                            disponibili.
                         </p>
                     ) : (
-                        <div className="space-y-4 text-sm text-slate-700">
-                            <Info label="Diagnosi" value={cartella.diagnosi} />
-                            <Info label="Terapia" value={cartella.terapia} />
+                        <div className="grid gap-4 md:grid-cols-2">
+                            {/* DIAGNOSI */}
+                            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                                <p className="mb-1 text-sm font-semibold text-slate-600">
+                                    Diagnosi
+                                </p>
+                                <p className="whitespace-pre-line text-sm text-slate-800">
+                                    {cartella.diagnosi || "—"}
+                                </p>
+                            </div>
+
+                            {/* TERAPIA */}
+                            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                                <p className="mb-1 text-sm font-semibold text-slate-600">
+                                    Terapia
+                                </p>
+                                <p className="whitespace-pre-line text-sm text-slate-800">
+                                    {cartella.terapia || "—"}
+                                </p>
+                            </div>
                         </div>
                     )}
                 </section>
