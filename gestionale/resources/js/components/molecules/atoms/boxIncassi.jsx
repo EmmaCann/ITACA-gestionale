@@ -4,7 +4,7 @@ import { IncassiItemContainer } from "../incassiItemContainer.jsx";
 import { Link } from "@inertiajs/react";
 import { getDettagliStats } from "../../../data/api/pagamenti.js";
 
-export const BoxIncassi = ({ text, money, bgColor, ruolo, terapistaId  }) => {
+export const BoxIncassi = ({ text, money, bgColor, ruolo, terapistaId }) => {
     const [showDetails, setShowDetails] = useState(false);
     const [isHoveringPopup, setIsHoveringPopup] = useState(false);
     const [popupPosition, setPopupPosition] = useState("top-0 left-full ml-2");
@@ -32,7 +32,10 @@ export const BoxIncassi = ({ text, money, bgColor, ruolo, terapistaId  }) => {
         }
 
         try {
-            const data = await getDettagliStats(tipo,ruolo === "staff" ? terapistaId : null);
+            const data = await getDettagliStats(
+                tipo,
+                ruolo === "staff" ? terapistaId : null
+            );
             setPopupData(data);
         } catch (error) {
             console.error("Errore caricamento popup:", error);
@@ -48,7 +51,9 @@ export const BoxIncassi = ({ text, money, bgColor, ruolo, terapistaId  }) => {
         }, 200);
     };
 
-    const safePopupData = Array.isArray(popupData) ? popupData : Object.values(popupData || {});
+    const safePopupData = Array.isArray(popupData)
+        ? popupData
+        : Object.values(popupData || {});
     const params = {
         param1: safePopupData.map((el) => el.label),
         param2List: null,
@@ -72,7 +77,14 @@ export const BoxIncassi = ({ text, money, bgColor, ruolo, terapistaId  }) => {
             </span>
 
             <FaChevronRight
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-[20px] h-[20px] text-white cursor-pointer transition-transform duration-300 hover:translate-x-1"
+                className="
+    hidden md:block
+    absolute right-4 top-1/2 -translate-y-1/2
+    w-[20px] h-[20px]
+    text-white cursor-pointer
+    transition-transform duration-300
+    hover:translate-x-1
+"
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
             />

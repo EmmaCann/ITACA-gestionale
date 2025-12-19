@@ -99,20 +99,46 @@ const DettaglioIncasso = () => {
     return (
         <Home hideFAB={true}>
             <div className="p-6 space-y-6">
-                <div className="flex justify-between items-center">
+                {/* MOBILE: TORNA A INCASSI IN ALTO */}
+                <div className="md:hidden">
+                    <Link
+                        href="/incassi"
+                        className="
+                w-full
+                flex items-center justify-center
+                bg-gradient-to-br from-[#3DA4DD] to-[#6BB2DF]
+                text-white px-5 py-3
+                rounded-lg shadow-md
+                hover:brightness-110
+                transition-all duration-200
+            "
+                    >
+                        ← Torna a Incassi
+                    </Link>
+                </div>
+
+                {/* DESKTOP: TITOLO + BOTTONE */}
+                <div className="hidden md:flex justify-between items-center">
                     <h1 className="text-2xl font-marcellusSC">
                         RIEPILOGO INCASSI — {tipo?.toUpperCase()}
                     </h1>
+
                     <Link
                         href="/incassi"
-                        className="bg-gradient-to-br from-[#3DA4DD] to-[#6BB2DF] text-white px-5 py-2 rounded-lg shadow-md hover:brightness-110 transition-all duration-200"
+                        className="
+                bg-gradient-to-br from-[#3DA4DD] to-[#6BB2DF]
+                text-white px-5 py-2
+                rounded-lg shadow-md
+                hover:brightness-110
+                transition-all duration-200
+            "
                     >
                         Torna a Incassi
                     </Link>
                 </div>
 
+                {/* STATISTICHE */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                    {/* Totale Incassi */}
                     <div className="bg-[#F5F5F5] p-3 rounded-md shadow text-center">
                         <h2 className="text-xs text-gray-700 font-medium">
                             Totale Incassi
@@ -122,7 +148,6 @@ const DettaglioIncasso = () => {
                         </p>
                     </div>
 
-                    {/* Totale (numero) */}
                     <div className="bg-[#F5F5F5] p-3 rounded-md shadow text-center">
                         <h2 className="text-xs text-gray-700 font-medium">
                             Totale
@@ -132,7 +157,6 @@ const DettaglioIncasso = () => {
                         </p>
                     </div>
 
-                    {/* Con fattura */}
                     <div className="bg-[#F5F5F5] p-3 rounded-md shadow text-center">
                         <h2 className="text-xs text-gray-700 font-medium">
                             Con Fattura
@@ -142,7 +166,6 @@ const DettaglioIncasso = () => {
                         </p>
                     </div>
 
-                    {/* Senza fattura */}
                     <div className="bg-[#F5F5F5] p-3 rounded-md shadow text-center">
                         <h2 className="text-xs text-gray-700 font-medium">
                             Senza Fattura
@@ -207,10 +230,19 @@ const DettaglioIncasso = () => {
                             pagamenti.map((p, idx) => (
                                 <li
                                     key={idx}
-                                    className="flex justify-between items-center p-3 rounded border border-gray-200"
+                                    className="
+        bg-white
+        rounded-lg
+        border border-gray-200
+        p-4
+        shadow-sm
+        flex flex-col gap-3
+        md:flex-row md:items-center md:justify-between
+    "
                                 >
-                                    <div>
-                                        <p className="font-medium">
+                                    {/* SINISTRA: PAZIENTE + DATA */}
+                                    <div className="flex flex-col">
+                                        <p className="font-semibold text-gray-900">
                                             {p.paziente
                                                 ? `${p.paziente.nome} ${p.paziente.cognome}`
                                                 : `${p.nome} ${p.cognome}`}
@@ -225,10 +257,12 @@ const DettaglioIncasso = () => {
                                                 : "Data non valida"}
                                         </p>
                                     </div>
-                                    <div className="flex items-center gap-4">
-                                        <span className="text-sm font-medium text-gray-700">
-                                            {p.terapista?.cognome ||
-                                            p.terapista?.nome
+
+                                    {/* CENTRO: TERAPISTA + STATO */}
+                                    <div className="flex flex-wrap items-center gap-2 text-sm">
+                                        <span className="text-gray-700">
+                                            {p.terapista?.nome ||
+                                            p.terapista?.cognome
                                                 ? `Dr. ${
                                                       p.terapista?.nome ?? ""
                                                   } ${
@@ -238,7 +272,7 @@ const DettaglioIncasso = () => {
                                         </span>
 
                                         <span
-                                            className={`text-xs px-2 py-1 rounded-full ${
+                                            className={`px-2 py-1 rounded-full text-xs font-medium ${
                                                 p.paziente_id
                                                     ? "bg-blue-100 text-blue-700"
                                                     : "bg-green-100 text-green-700"
@@ -246,13 +280,17 @@ const DettaglioIncasso = () => {
                                         >
                                             {p.paziente_id
                                                 ? "Registrato"
-                                                : "Non Registrato"}
+                                                : "Non registrato"}
                                         </span>
+                                    </div>
+
+                                    {/* DESTRA: IMPORTO */}
+                                    <div className="text-right">
                                         <span
-                                            className={`font-semibold ${
+                                            className={`text-lg font-bold ${
                                                 p.fattura == 1
-                                                    ? "text-green-600" // fattura = sì
-                                                    : "text-yellow-500" // fattura = no
+                                                    ? "text-green-600"
+                                                    : "text-yellow-500"
                                             }`}
                                         >
                                             €{parseFloat(p.importo).toFixed(2)}

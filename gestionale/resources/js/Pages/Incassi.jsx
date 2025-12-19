@@ -55,6 +55,15 @@ const Incassi = () => {
             >
                 {/* WRAPPER INTERNO PER LIMITARE LA LARGHEZZA E MIGLIORARE IL LAYOUT */}
                 <div className="w-full max-w-[1500px] flex flex-col md:flex-row flex-wrap gap-6 md:gap-12 justify-center">
+                    {/* MOBILE: AGGIUNGI PAGAMENTO IN ALTO */}
+                    {isAdmin && (
+                        <div className="w-full flex justify-center md:hidden mb-8">
+                            <AggiungiPagamentoButton
+                                onPagamentoAggiunto={handleNuovoPagamento}
+                            />
+                        </div>
+                    )}
+
                     {/* COLONNA SINISTRA */}
                     <div className="w-full md:w-auto flex justify-center md:justify-start">
                         <BoxIncassiContainer
@@ -67,7 +76,7 @@ const Incassi = () => {
                     {/* COLONNA DESTRA */}
                     <div className="flex-1 w-full flex flex-col items-center gap-6">
                         {isAdmin && (
-                            <div className="w-full flex justify-center md:justify-end">
+                            <div className="w-full justify-end hidden md:flex">
                                 <AggiungiPagamentoButton
                                     onPagamentoAggiunto={handleNuovoPagamento}
                                 />
