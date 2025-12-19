@@ -12,6 +12,8 @@ use App\Models\Tariffa;
 use App\Models\Notifica;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
+use App\Models\CartellaClinicaFile;
 
 
 class SystemMaintenanceController extends Controller
@@ -74,47 +76,64 @@ class SystemMaintenanceController extends Controller
     /** Cartelle Cliniche */
     public function purgeMedicalCharts(Request $request)
     {
-        $count = CartellaClinica::query()->delete();
+        DB::transaction(function () {
+
+            // 1. Recupera tutti i file clinici
+            $files = CartellaClinicaFile::all();
+
+            // 2. Elimina i file fisici dallo storage private
+            foreach ($files as $file) {
+                if ($file->file_path && Storage::disk('private')->exists($file->file_path)) {
+                    Storage::disk('private')->delete($file->file_path);
+                }
+            }
+
+            // 3. Elimina l'intera directory (opzionale ma consigliato)
+            Storage::disk('private')->deleteDirectory('cartelle_cliniche');
+
+            // 4. Elimina i record DB
+            CartellaClinicaFile::query()->delete();
+            CartellaClinica::query()->delete();
+        });
+
         return response()->json([
             'status' => 'success',
-            'message' => "Eliminate {$count} cartelle cliniche",
-            'deleted' => $count,
+            'message' => 'Tutte le cartelle cliniche e i relativi file sono stati eliminati definitivamente',
         ]);
     }
-
     /** Notifiche di Sistema */
-// public function purgeNotifications(Request $request)
-// {
-//     // puoi cambiare i giorni quando vuoi
-//     $limitDate = Carbon::now()->subDays(90);
+    // public function purgeNotifications(Request $request)
+    // {
+    //     // puoi cambiare i giorni quando vuoi
+    //     $limitDate = Carbon::now()->subDays(90);
 
-//     // 1. recupera ID notifiche vecchie
-//     $notificaIds = Notifica::where('created_at', '<', $limitDate)
-//         ->pluck('id');
+    //     // 1. recupera ID notifiche vecchie
+    //     $notificaIds = Notifica::where('created_at', '<', $limitDate)
+    //         ->pluck('id');
 
-//     if ($notificaIds->isEmpty()) {
-//         return response()->json([
-//             'status' => 'success',
-//             'message' => 'Nessuna notifica da eliminare',
-//             'deleted' => 0,
-//         ]);
-//     }
+    //     if ($notificaIds->isEmpty()) {
+    //         return response()->json([
+    //             'status' => 'success',
+    //             'message' => 'Nessuna notifica da eliminare',
+    //             'deleted' => 0,
+    //         ]);
+    //     }
 
-//     // 2. elimina pivot notifica_utente
-//     $deletedPivot = DB::table('notifica_utente')
-//         ->whereIn('notifica_id', $notificaIds)
-//         ->delete();
+    //     // 2. elimina pivot notifica_utente
+    //     $deletedPivot = DB::table('notifica_utente')
+    //         ->whereIn('notifica_id', $notificaIds)
+    //         ->delete();
 
-//     // 3. elimina notifiche
-//     $deletedNotifiche = Notifica::whereIn('id', $notificaIds)
-//         ->delete();
+    //     // 3. elimina notifiche
+    //     $deletedNotifiche = Notifica::whereIn('id', $notificaIds)
+    //         ->delete();
 
-//     return response()->json([
-//         'status' => 'success',
-//         'message' => "Eliminate {$deletedNotifiche} notifiche (più vecchie di 90 giorni)",
-//         'deleted_notifiche' => $deletedNotifiche,
-//         'deleted_relazioni' => $deletedPivot,
-//     ]);
-// }
+    //     return response()->json([
+    //         'status' => 'success',
+    //         'message' => "Eliminate {$deletedNotifiche} notifiche (più vecchie di 90 giorni)",
+    //         'deleted_notifiche' => $deletedNotifiche,
+    //         'deleted_relazioni' => $deletedPivot,
+    //     ]);
+    // }
 
 }

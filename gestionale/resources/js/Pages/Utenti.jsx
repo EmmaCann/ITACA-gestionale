@@ -23,7 +23,6 @@ import ModalContentAggiungiUtente from "../components/molecules/ModalContentAggi
 import CustomModal from "../components/customModal.jsx";
 import ModalContentModificaUtente from "../components/molecules/modalContentModificaUtente.jsx";
 
-
 /* --------- helpers --------- */
 const calcEta = (dateStr) => {
     if (!dateStr) return null;
@@ -388,7 +387,7 @@ export default Utenti;
 
 /* -------------------- Views -------------------- */
 
-function PazientiView({ registerRefetch,ruolo }) {
+function PazientiView({ registerRefetch, ruolo }) {
     const [loading, setLoading] = useState(true);
     const [pazienti, setPazienti] = useState([]);
 
@@ -565,31 +564,30 @@ function PazientiView({ registerRefetch,ruolo }) {
                     </div>
 
                     {/* Terapista  */}
-                    
-                        <div className="col-span-12 md:col-span-4 xl:col-span-3">
-                            <label className={fieldLabel}>Terapista</label>
-                            <div className="relative">
-                                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-                                    <FaUserMd className="h-4 w-4" />
-                                </div>
-                                <Select
-                                    styles={makeSelectStyles(true)}
-                                    placeholder="Seleziona terapista"
-                                    options={terapistiOptions}
-                                    value={terapistaOpt}
-                                    onChange={setTerapistaOpt}
-                                    isClearable
-                                />
+
+                    <div className="col-span-12 md:col-span-4 xl:col-span-3">
+                        <label className={fieldLabel}>Terapista</label>
+                        <div className="relative">
+                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                                <FaUserMd className="h-4 w-4" />
                             </div>
+                            <Select
+                                styles={makeSelectStyles(true)}
+                                placeholder="Seleziona terapista"
+                                options={terapistiOptions}
+                                value={terapistaOpt}
+                                onChange={setTerapistaOpt}
+                                isClearable
+                            />
                         </div>
-                
+                    </div>
 
                     {/* Collaborazione */}
-                
-                        <div className="col-span-12 xl:col-span-6">
-                            <Toggle checked={multi} onChange={setMulti} />
-                        </div>
-                   
+
+                    <div className="col-span-12 xl:col-span-6">
+                        <Toggle checked={multi} onChange={setMulti} />
+                    </div>
+
                     {/* Reset */}
                     <div className="col-span-12 xl:col-span-3 xl:col-start-10">
                         <button
@@ -724,9 +722,12 @@ function PazientiView({ registerRefetch,ruolo }) {
 
                                     <td className="px-4 py-4">
                                         {ruolo === "staff" ? (
-                                            <button className="rounded-[12px] bg-bluSecondary text-white flex text-center text-[12px] p-2">
+                                            <Link
+                                                href={`/cartella-clinica/${p.id}`}
+                                               className="rounded-[12px] bg-bluSecondary text-white flex text-center justify-center text-[12px] p-2"
+                                            >
                                                 Cartella clinica
-                                            </button>
+                                            </Link>
                                         ) : (
                                             <div className="flex items-center gap-4">
                                                 <button
@@ -782,7 +783,7 @@ function PazientiView({ registerRefetch,ruolo }) {
     );
 }
 
-function StaffView({ registerRefetch,ruolo }) {
+function StaffView({ registerRefetch, ruolo }) {
     const [loading, setLoading] = useState(true);
     const [staff, setStaff] = useState([]);
 
@@ -1022,26 +1023,20 @@ function StaffView({ registerRefetch,ruolo }) {
                                     </td>
 
                                     <td className="px-4 py-4">
-                                     
-                                            <div className="flex items-center gap-4">
-                                                <button
-                                                    onClick={() =>
-                                                        apriModifica(p)
-                                                    }
-                                                    className="text-sky-700 hover:text-sky-900"
-                                                >
-                                                    <FaEdit />
-                                                </button>
-                                                <button
-                                                    onClick={() =>
-                                                        confirmDelete(p)
-                                                    }
-                                                    className="text-red-600 hover:text-red-700"
-                                                >
-                                                    <FaTrash />
-                                                </button>
-                                            </div>
-                                        
+                                        <div className="flex items-center gap-4">
+                                            <button
+                                                onClick={() => apriModifica(p)}
+                                                className="text-sky-700 hover:text-sky-900"
+                                            >
+                                                <FaEdit />
+                                            </button>
+                                            <button
+                                                onClick={() => confirmDelete(p)}
+                                                className="text-red-600 hover:text-red-700"
+                                            >
+                                                <FaTrash />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             );

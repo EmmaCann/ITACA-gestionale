@@ -80,9 +80,9 @@ export const NavbarPaziente = ({ menuOpen, setMenuOpen }) => {
                         </Link>
 
                         <Link
-                            href="/appuntamenti"
+                            href="/paziente-info"
                             className={`${commonClass} ${isActive(
-                                "/appuntamenti"
+                                "/paziente-info"
                             )}`}
                         >
                             <IconTextNavbar
@@ -212,9 +212,9 @@ export const NavbarPaziente = ({ menuOpen, setMenuOpen }) => {
                         </Link>
 
                         <Link
-                            href="/appuntamenti"
+                            href="/paziente-info"
                             className={`w-full flex justify-center ${isActive(
-                                "/appuntamenti"
+                                "/paziente-info"
                             )}`}
                             onClick={() => setMenuOpen(false)}
                         >

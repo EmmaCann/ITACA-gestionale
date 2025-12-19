@@ -109,7 +109,7 @@ const CARDS = [
         title: "Cartelle Cliniche",
         badge: "Dati Clinici",
         description:
-            "Elimina definitivamente tutte le cartelle cliniche dei pazienti",
+            "Elimina definitivamente tutte le cartelle cliniche dei pazienti e i relativi documenti caricati.",
         icon: FaFolderOpen,
         endpoint: "/admin/utilita/purge/medical-charts",
     },

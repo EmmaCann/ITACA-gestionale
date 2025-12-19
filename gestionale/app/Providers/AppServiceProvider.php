@@ -40,5 +40,7 @@ class AppServiceProvider extends ServiceProvider
                 return Session::get('logged_user');
             },
         ]);
+
+        
     }
 }

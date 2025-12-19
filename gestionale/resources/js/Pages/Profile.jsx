@@ -77,7 +77,8 @@ const Profile = () => {
                             Dati Personali
                         </h2>
 
-                        <div className="grid grid-cols-2 gap-4 bg-white rounded-xl p-4 shadow">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-white rounded-xl p-4 shadow">
+
                             <div>
                                 <p className="text-sm text-gray-500">Nome</p>
                                 <p className="font-medium">{utente.nome}</p>
