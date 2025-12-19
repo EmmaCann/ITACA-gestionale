@@ -30,7 +30,8 @@ const Home = ({ children, hideFAB = false }) => {
     const hasChildren = React.Children.count(children) > 0;
 
     return (
-        <div className="bg-background flex w-screen h-screen overflow-x-hidden">
+        <div className="bg-background flex w-screen h-screen overflow-hidden">
+
             <NavbarToShow menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
 
