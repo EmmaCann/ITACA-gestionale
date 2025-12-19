@@ -71,7 +71,13 @@ export const TopNavBar = ({ mode = "full" }) => {
                         </div>
                     )}
 
-                    {isAdmin && <FiMessageSquare className={iconCls} />}
+                    {isAdmin && (
+                        <MdNotificationAdd
+                           className={`${iconCls} text-gray-500`}
+
+                            onClick={() => setShowNotificationModal(true)}
+                        />
+                    )}
                 </div>
 
                 {/* MOBILE DROPDOWN (FUORI) */}
@@ -83,6 +89,11 @@ export const TopNavBar = ({ mode = "full" }) => {
                         mobile
                     />
                 )}
+                {/* MODAL ADMIN */}
+                <ModalContentInviaNotifica
+                    isOpen={showNotificationModal}
+                    onRequestClose={() => setShowNotificationModal(false)}
+                />
             </>
         );
     }
