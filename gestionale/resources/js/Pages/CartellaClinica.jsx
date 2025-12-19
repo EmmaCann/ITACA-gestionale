@@ -287,50 +287,36 @@ const CartellaClinica = () => {
                 </section>
 
                 {/* =======================
-                    DOCUMENTI CLINICI
-                ======================== */}
+    DOCUMENTI CLINICI
+======================== */}
                 <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
                     {/* HEADER */}
-                    <div className="mb-4 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600">
-                                <SiGoogledocs className="text-xl" />
-                            </span>
-                            <h2 className="text-xl font-semibold">
-                                Documenti clinici
-                            </h2>
-                        </div>
-
-                        {/* UPLOAD */}
-                        <label className="cursor-pointer rounded-xl bg-bluPrimary px-4 py-2 text-sm text-white hover:bg-bluSecondary">
-                            {uploading ? "Caricamento..." : "Carica file"}
-                            <input
-                                type="file"
-                                multiple
-                                onChange={handleUploadFiles}
-                                className="hidden"
-                            />
-                        </label>
+                    <div className="mb-4 flex items-center gap-3">
+                        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600">
+                            <SiGoogledocs className="text-xl" />
+                        </span>
+                        <h2 className="text-lg font-semibold">
+                            Documenti clinici
+                        </h2>
                     </div>
 
-                    {/* LISTA FILE */}
+                    {/* CONTENUTO */}
                     {files.length === 0 ? (
-                        <p className="text-slate-500 text-sm">
+                        <div className="rounded-xl bg-slate-50 p-4 text-center text-sm text-slate-500">
                             Nessun documento caricato
-                        </p>
+                        </div>
                     ) : (
-                        <div className="divide-y rounded-xl border border-slate-200">
+                        <div className="mt-3 divide-y rounded-xl border border-slate-200">
                             {files.map((f) => (
                                 <div
                                     key={f.id}
-                                    className="flex items-center justify-between px-4 py-3"
+                                    className="flex items-center justify-between gap-3 px-4 py-3"
                                 >
-                                    <div>
-                                        <p className="font-medium text-slate-800">
+                                    <div className="min-w-0">
+                                        <p className="truncate font-medium text-slate-800">
                                             {f.original_name}
                                         </p>
                                         <p className="text-xs text-slate-500">
-                                            Caricato da {f.uploader} ·{" "}
                                             {f.created_at}
                                         </p>
                                     </div>
@@ -338,14 +324,14 @@ const CartellaClinica = () => {
                                     <div className="flex items-center gap-3">
                                         <button
                                             onClick={() => handleDownload(f.id)}
-                                            className="text-sky-600 hover:text-sky-800 text-sm"
+                                            className="text-sky-600 text-sm hover:underline"
                                         >
-                                            Download
+                                            Apri
                                         </button>
 
                                         <button
                                             onClick={() => handleDelete(f.id)}
-                                            className="text-red-600 hover:text-red-800 text-sm"
+                                            className="text-red-600 text-sm hover:underline"
                                         >
                                             Elimina
                                         </button>
@@ -354,6 +340,42 @@ const CartellaClinica = () => {
                             ))}
                         </div>
                     )}
+
+                    {/* CTA UPLOAD (SOTTO, MOBILE-FIRST) */}
+                    <label
+                        className="
+            mt-4
+            flex items-center justify-center gap-2
+            w-full
+            rounded-xl
+            border border-sky-200
+            bg-white
+            px-4 py-3
+            text-sm font-medium text-sky-700
+            shadow-sm
+            hover:bg-sky-50
+            active:scale-[0.98]
+            transition
+            cursor-pointer
+        "
+                    >
+                        <SiGoogledocs className="text-lg" />
+                        {uploading
+                            ? "Caricamento in corso…"
+                            : "Aggiungi documento "}
+
+                        <input
+                            type="file"
+                            multiple
+                            onChange={handleUploadFiles}
+                            className="hidden"
+                        />
+                    </label>
+
+                    {/* HINT */}
+                    <p className="mt-2 text-center text-xs text-slate-400">
+                        PDF, Word o immagini
+                    </p>
                 </section>
             </div>
         </Home>
