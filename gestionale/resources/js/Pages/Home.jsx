@@ -41,7 +41,9 @@ const Home = ({ children, hideFAB = false }) => {
         }
         console.log(onboarding);
     }, []);
-    const mustShowLegalModal = onboarding?.needs_privacy === true;
+    const mustBlock =
+        onboarding?.needs_privacy === true ||
+        onboarding?.needs_password_change === true;
 
     return (
         <div className="bg-background flex w-screen h-screen overflow-hidden">
@@ -73,7 +75,7 @@ const Home = ({ children, hideFAB = false }) => {
 
             <ToastContainer position="top-right" autoClose={2000} />
             <ModalOnboarding
-                isOpen={!!mustShowLegalModal}
+                isOpen={!!mustBlock}
                 onboarding={onboarding}
                 onAccepted={(updated) => setOnboarding(updated)}
             />

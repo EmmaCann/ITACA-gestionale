@@ -196,6 +196,7 @@ class UtenteController extends Controller
 
         // 6. aggiorna password (Hash automatico dal mutator)
         $utente->password = $request->nuova_password;
+        $utente->password_changed_at = now(); 
         $utente->save();
 
         // 7. aggiorniamo sessione (facoltativo)
