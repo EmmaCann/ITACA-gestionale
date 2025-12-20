@@ -10,7 +10,7 @@ import { CalendarBoard } from "../components/CalendarBoard";
 
 const Home = ({ children, hideFAB = false }) => {
     const [menuOpen, setMenuOpen] = useState(false);
-
+    const [onboarding, setOnboarding] = useState(null);
     const { props } = usePage();
     const ruolo = props?.ruolo || null;
 
@@ -24,16 +24,27 @@ const Home = ({ children, hideFAB = false }) => {
     }
 
     // const effectiveHideFAB = hideFAB || ruolo === "paziente";
-    const effectiveHideFAB = hideFAB || ruolo === "paziente" || ruolo === "staff";
-
+    const effectiveHideFAB =
+        hideFAB || ruolo === "paziente" || ruolo === "staff";
 
     const hasChildren = React.Children.count(children) > 0;
 
+    useEffect(() => {
+        const stored = sessionStorage.getItem("onboarding");
+        if (stored) {
+            try {
+                setOnboarding(JSON.parse(stored));
+            } catch {
+                sessionStorage.removeItem("onboarding");
+            }
+        }
+        console.log(onboarding);
+
+    }, []);
+
     return (
         <div className="bg-background flex w-screen h-screen overflow-hidden">
-
             <NavbarToShow menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
-
 
             <div
                 className="
@@ -47,7 +58,6 @@ const Home = ({ children, hideFAB = false }) => {
                 </div>
 
                 <div className="flex-1 overflow-y-auto overflow-x-hidden px-2 md:px-4 mt-[10px] md:mt-[20px] pb-24">
-
                     {hasChildren ? (
                         children
                     ) : (

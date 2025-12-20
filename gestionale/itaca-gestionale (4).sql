@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Dic 20, 2025 alle 18:18
+-- Creato il: Dic 20, 2025 alle 18:36
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -275,7 +275,8 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (21, '2025_12_10_202458_create_notifica_utente_table', 13),
 (22, '2025_12_16_104311_create_system_flags_table', 14),
 (23, '2025_12_16_114203_create_cartella_clinica_files_table', 15),
-(24, '2025_12_20_181409_add_privacy_terms_to_utente_table', 16);
+(24, '2025_12_20_181409_add_privacy_terms_to_utente_table', 16),
+(25, '2025_12_20_183356_add_password_changed_at_to_utente_table', 17);
 
 -- --------------------------------------------------------
 
@@ -492,6 +493,7 @@ CREATE TABLE `utente` (
   `privacy_version` varchar(20) DEFAULT NULL,
   `terms_accepted_at` timestamp NULL DEFAULT NULL,
   `terms_version` varchar(20) DEFAULT NULL,
+  `password_changed_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -500,18 +502,18 @@ CREATE TABLE `utente` (
 -- Dump dei dati per la tabella `utente`
 --
 
-INSERT INTO `utente` (`id`, `nome`, `cognome`, `username`, `password`, `email`, `telefono`, `nascita`, `sesso`, `ruolo`, `privacy_accepted_at`, `privacy_version`, `terms_accepted_at`, `terms_version`, `created_at`, `updated_at`) VALUES
-(2, 'Carlo', 'De Maria', 'carlo.demaria', '$2y$12$BjGpfQDWCNt26Vkvm1cHbeNn1v/NBQ.j2DC1HFkiRXE5Ok9EBy1rG', 'demaria@gmail.com', '324354545', '1997-05-01', 'M', 'staff', NULL, NULL, NULL, NULL, '2025-07-19 14:01:17', '2025-09-05 19:16:55'),
-(3, 'Virginia', 'Lorenzi', 'virginia.lorenzi', '$2y$12$87UDsS5GXg.SRMxxYm50A.7Mfpv3kQ1bcEMo9utapN.ufmHZRRz2G', 'casalorenzi@gmail.com', '44354353453', '2019-05-13', 'F', 'paziente', NULL, NULL, NULL, NULL, '2025-07-19 14:02:05', '2025-09-05 19:11:51'),
-(4, 'Marco', 'Verdoni', 'marco.verdoni', '$2y$12$Z9c3Mp2xSp3t0xi2Vo9u/.bmvzolnpyZRy1um1Vi6lUusonzSBS7q', 'verdoni@outlook.it', '3454534534', '2021-09-03', NULL, 'paziente', NULL, NULL, NULL, NULL, '2025-07-19 14:03:02', '2025-07-19 14:03:02'),
-(5, 'Gabriele', 'Spina', 'gabriele.spina', '$2y$12$yKALrZLci/1kOCGXwPASxuApL141AL8mwcGwqH.anLinDJwRKmLKG', 'spinag@gmail.com', '432545345435', '1994-04-12', NULL, 'staff', NULL, NULL, NULL, NULL, '2025-07-20 07:47:53', '2025-07-20 07:47:53'),
-(6, 'Veronica', 'Giustolisi', 'veronica.giustolisi', '$2y$12$/cMiFzT3xDt5uitaVV0yXOh37sfGlaBkhQmOv.Jm4MB9N65zdl7M.', 'giustolisidoc@gmail.com', '423423432', '1997-11-08', NULL, 'staff', NULL, NULL, NULL, NULL, '2025-07-20 07:48:34', '2025-07-20 07:48:34'),
-(7, 'Fabrizio', 'Veronesi', 'fabrizio.veronesi', '$2y$12$MgsABjeRn2C9.F0CkDXPpeqmC/2ImUpBi2F4jCBot2s4Zg3KDPI4O', 'veronesi@outlook.com', '234324324324', '1995-05-23', NULL, 'staff', NULL, NULL, NULL, NULL, '2025-07-20 07:49:58', '2025-07-20 07:49:58'),
-(8, 'Amministratore', 'Sistema', 'admin', '$2y$12$Y2pbP62AvYTfgiIAsnF62e7GswlT0ovtAL6s5y4rX89xIMfEx8JHi', 'admin@example.com', '0000000000', '1990-01-01', NULL, 'admin', NULL, NULL, NULL, NULL, '2025-08-11 15:43:41', '2025-08-11 15:43:41'),
-(9, 'Domenico', 'Messina', 'domenico.messina', '$2y$12$3vZty2IMPeB1nxgCzZWlQ./GSWfANXhut9PqQ0t9/mcUGh2qJsSzm', 'domenicomess@gmail.com', '39283453113', '1995-04-01', NULL, 'staff', NULL, NULL, NULL, NULL, '2025-08-24 15:53:36', '2025-08-24 15:53:36'),
-(19, 'Cecilia', 'Grasso', 'cecilia.grasso', '$2y$12$08Pi3u0cSSuYAUUd9UUA5.5XZeYPGJDNLTVO7dWbdVBQBv37207Am', 'grassoceci@gmail.com', '46457567567', '2025-08-24', 'F', 'paziente', NULL, NULL, NULL, NULL, '2025-08-24 16:35:42', '2025-08-24 16:35:42'),
-(20, 'paziente', 'di test', 'pazienteTest', '$2y$12$A53zXmnxQzg7MxmxXk4/OuSMjGSxBIkGixjCiXocopRPB1Dcl/nJu', 'pazientetest@gmail.com', '3641247964', '2018-12-11', 'F', 'paziente', NULL, NULL, NULL, NULL, '2025-12-09 09:37:50', '2025-12-02 22:34:55'),
-(21, 'staff', 'di test', 'staffTest', '$2y$12$A53zXmnxQzg7MxmxXk4/OuSMjGSxBIkGixjCiXocopRPB1Dcl/nJu', 'staffditest@gmail.com', '3659842124', '2015-12-02', 'F', 'staff', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `utente` (`id`, `nome`, `cognome`, `username`, `password`, `email`, `telefono`, `nascita`, `sesso`, `ruolo`, `privacy_accepted_at`, `privacy_version`, `terms_accepted_at`, `terms_version`, `password_changed_at`, `created_at`, `updated_at`) VALUES
+(2, 'Carlo', 'De Maria', 'carlo.demaria', '$2y$12$BjGpfQDWCNt26Vkvm1cHbeNn1v/NBQ.j2DC1HFkiRXE5Ok9EBy1rG', 'demaria@gmail.com', '324354545', '1997-05-01', 'M', 'staff', NULL, NULL, NULL, NULL, NULL, '2025-07-19 14:01:17', '2025-09-05 19:16:55'),
+(3, 'Virginia', 'Lorenzi', 'virginia.lorenzi', '$2y$12$87UDsS5GXg.SRMxxYm50A.7Mfpv3kQ1bcEMo9utapN.ufmHZRRz2G', 'casalorenzi@gmail.com', '44354353453', '2019-05-13', 'F', 'paziente', NULL, NULL, NULL, NULL, NULL, '2025-07-19 14:02:05', '2025-09-05 19:11:51'),
+(4, 'Marco', 'Verdoni', 'marco.verdoni', '$2y$12$Z9c3Mp2xSp3t0xi2Vo9u/.bmvzolnpyZRy1um1Vi6lUusonzSBS7q', 'verdoni@outlook.it', '3454534534', '2021-09-03', NULL, 'paziente', NULL, NULL, NULL, NULL, NULL, '2025-07-19 14:03:02', '2025-07-19 14:03:02'),
+(5, 'Gabriele', 'Spina', 'gabriele.spina', '$2y$12$yKALrZLci/1kOCGXwPASxuApL141AL8mwcGwqH.anLinDJwRKmLKG', 'spinag@gmail.com', '432545345435', '1994-04-12', NULL, 'staff', NULL, NULL, NULL, NULL, NULL, '2025-07-20 07:47:53', '2025-07-20 07:47:53'),
+(6, 'Veronica', 'Giustolisi', 'veronica.giustolisi', '$2y$12$/cMiFzT3xDt5uitaVV0yXOh37sfGlaBkhQmOv.Jm4MB9N65zdl7M.', 'giustolisidoc@gmail.com', '423423432', '1997-11-08', NULL, 'staff', NULL, NULL, NULL, NULL, NULL, '2025-07-20 07:48:34', '2025-07-20 07:48:34'),
+(7, 'Fabrizio', 'Veronesi', 'fabrizio.veronesi', '$2y$12$MgsABjeRn2C9.F0CkDXPpeqmC/2ImUpBi2F4jCBot2s4Zg3KDPI4O', 'veronesi@outlook.com', '234324324324', '1995-05-23', NULL, 'staff', NULL, NULL, NULL, NULL, NULL, '2025-07-20 07:49:58', '2025-07-20 07:49:58'),
+(8, 'Amministratore', 'Sistema', 'admin', '$2y$12$Y2pbP62AvYTfgiIAsnF62e7GswlT0ovtAL6s5y4rX89xIMfEx8JHi', 'admin@example.com', '0000000000', '1990-01-01', NULL, 'admin', NULL, NULL, NULL, NULL, NULL, '2025-08-11 15:43:41', '2025-08-11 15:43:41'),
+(9, 'Domenico', 'Messina', 'domenico.messina', '$2y$12$3vZty2IMPeB1nxgCzZWlQ./GSWfANXhut9PqQ0t9/mcUGh2qJsSzm', 'domenicomess@gmail.com', '39283453113', '1995-04-01', NULL, 'staff', NULL, NULL, NULL, NULL, NULL, '2025-08-24 15:53:36', '2025-08-24 15:53:36'),
+(19, 'Cecilia', 'Grasso', 'cecilia.grasso', '$2y$12$08Pi3u0cSSuYAUUd9UUA5.5XZeYPGJDNLTVO7dWbdVBQBv37207Am', 'grassoceci@gmail.com', '46457567567', '2025-08-24', 'F', 'paziente', NULL, NULL, NULL, NULL, NULL, '2025-08-24 16:35:42', '2025-08-24 16:35:42'),
+(20, 'paziente', 'di test', 'pazienteTest', '$2y$12$A53zXmnxQzg7MxmxXk4/OuSMjGSxBIkGixjCiXocopRPB1Dcl/nJu', 'pazientetest@gmail.com', '3641247964', '2018-12-11', 'F', 'paziente', NULL, NULL, NULL, NULL, NULL, '2025-12-09 09:37:50', '2025-12-02 22:34:55'),
+(21, 'staff', 'di test', 'staffTest', '$2y$12$A53zXmnxQzg7MxmxXk4/OuSMjGSxBIkGixjCiXocopRPB1Dcl/nJu', 'staffditest@gmail.com', '3659842124', '2015-12-02', 'F', 'staff', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 --
 -- Indici per le tabelle scaricate
@@ -721,7 +723,7 @@ ALTER TABLE `lista_attesa`
 -- AUTO_INCREMENT per la tabella `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT per la tabella `notifica_utente`

@@ -29,12 +29,14 @@ class Utente extends Authenticatable
         'privacy_version',
         'terms_accepted_at',
         'terms_version',
+        'password_changed_at',
     ];
 
 
     protected $casts = [
-        'privacy_accepted_at' => 'datetime',
-        'terms_accepted_at'   => 'datetime',
+        'privacy_accepted_at'   => 'datetime',
+        'terms_accepted_at'     => 'datetime',
+        'password_changed_at'   => 'datetime',
     ];
 
 

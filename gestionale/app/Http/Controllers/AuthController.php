@@ -57,9 +57,23 @@ class AuthController extends Controller
         //     'paziente' => route('home_paziente'),
         //     default   => route('login_form'),
         // };
-        $redirectUrl =route('home');
+        $redirectUrl = route('home');
 
-        return response()->json(['success' => true, 'redirect_url' => $redirectUrl]);
+        $needsPrivacyAcceptance =
+            !$user->privacy_accepted_at || !$user->terms_accepted_at;
+
+        $needsPasswordChange =
+            is_null($user->password_changed_at);
+
+
+        return response()->json([
+            'success' => true,
+            'redirect_url' => $redirectUrl,
+            'onboarding' => [
+                'needs_privacy' => $needsPrivacyAcceptance,
+                'needs_password_change' => $needsPasswordChange,
+            ],
+        ]);
     }
 
 
@@ -69,6 +83,4 @@ class AuthController extends Controller
         Session::flush();
         return redirect()->route('login_form');
     }
-
-   
 }

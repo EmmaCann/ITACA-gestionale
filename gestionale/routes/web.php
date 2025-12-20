@@ -189,6 +189,6 @@ Route::middleware([AuthSession::class])->group(function () {
     Route::get(
         '/termini-e-condizioni',
         fn() =>
-        Inertia::render('Termini-e-condizioni')
+        Inertia::render('TerminiECondizioni')
     )->name('termini');
 });
