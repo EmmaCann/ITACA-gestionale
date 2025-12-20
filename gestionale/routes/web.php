@@ -191,4 +191,8 @@ Route::middleware([AuthSession::class])->group(function () {
         fn() =>
         Inertia::render('TerminiECondizioni')
     )->name('termini');
+
+    Route::post('/onboarding/accept-legal', [AuthController::class, 'acceptLegal'])
+    ->name('onboarding.acceptLegal');
+
 });

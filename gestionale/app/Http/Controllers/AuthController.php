@@ -83,4 +83,37 @@ class AuthController extends Controller
         Session::flush();
         return redirect()->route('login_form');
     }
+
+    public function acceptLegal(Request $request)
+    {
+        $userId = Session::get('logged_user.id_utente');
+
+        if (!$userId) {
+            return response()->json(['errore' => 'Non autenticato'], 401);
+        }
+
+        $user = Utente::find($userId);
+        if (!$user) {
+            return response()->json(['errore' => 'Utente non trovato'], 404);
+        }
+
+        // versioni hardcoded per ora
+        $privacyVersion = 'v1.0';
+        $termsVersion   = 'v1.0';
+
+        $user->update([
+            'privacy_accepted_at' => now(),
+            'privacy_version'     => $privacyVersion,
+            'terms_accepted_at'   => now(),
+            'terms_version'       => $termsVersion,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'privacy_accepted_at' => $user->privacy_accepted_at,
+            'terms_accepted_at' => $user->terms_accepted_at,
+            'privacy_version' => $user->privacy_version,
+            'terms_version' => $user->terms_version,
+        ]);
+    }
 }

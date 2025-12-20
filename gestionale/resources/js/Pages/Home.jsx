@@ -7,6 +7,7 @@ import { TopBar } from "../components/topBar";
 import { FAB } from "../components/molecules/FAB.jsx";
 import { ToastContainer } from "react-toastify";
 import { CalendarBoard } from "../components/CalendarBoard";
+import ModalOnboarding from "../components/molecules/ModalOnboarding.jsx";
 
 const Home = ({ children, hideFAB = false }) => {
     const [menuOpen, setMenuOpen] = useState(false);
@@ -39,8 +40,8 @@ const Home = ({ children, hideFAB = false }) => {
             }
         }
         console.log(onboarding);
-
     }, []);
+    const mustShowLegalModal = onboarding?.needs_privacy === true;
 
     return (
         <div className="bg-background flex w-screen h-screen overflow-hidden">
@@ -71,6 +72,11 @@ const Home = ({ children, hideFAB = false }) => {
             </div>
 
             <ToastContainer position="top-right" autoClose={2000} />
+            <ModalOnboarding
+                isOpen={!!mustShowLegalModal}
+                onboarding={onboarding}
+                onAccepted={(updated) => setOnboarding(updated)}
+            />
         </div>
     );
 };
