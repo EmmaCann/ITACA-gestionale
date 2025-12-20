@@ -23,8 +23,19 @@ class Utente extends Authenticatable
         'nascita',
         'ruolo',
         'sesso',
+
+        // Privacy & Termini
+        'privacy_accepted_at',
+        'privacy_version',
+        'terms_accepted_at',
+        'terms_version',
     ];
 
+
+    protected $casts = [
+        'privacy_accepted_at' => 'datetime',
+        'terms_accepted_at'   => 'datetime',
+    ];
 
 
     protected $hidden = [

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Dic 14, 2025 alle 16:14
+-- Creato il: Dic 20, 2025 alle 18:18
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -54,7 +54,9 @@ INSERT INTO `appuntamenti` (`id`, `paziente_id`, `nome`, `cognome`, `terapista_i
 (11, 4, NULL, NULL, 19, '2025-12-07', '16:45:24', 30, NULL, '2025-07-19 15:54:29'),
 (12, NULL, 'utente', 'di prova', 21, '2025-12-07', '17:46:24', 50, NULL, '2025-07-19 15:54:29'),
 (13, 3, NULL, NULL, 21, '2025-12-07', '17:00:00', 28, 'dxvsdfsd', '2025-07-19 15:54:29'),
-(14, NULL, 'ciccio', 'ciccio', 2, '2025-12-07', '12:00:00', 30, NULL, '2025-07-19 15:54:29');
+(14, NULL, 'ciccio', 'ciccio', 2, '2025-12-07', '12:00:00', 30, NULL, '2025-07-19 15:54:29'),
+(15, 20, NULL, NULL, 2, '2025-12-19', '10:40:00', 30, NULL, '2025-07-19 15:54:29'),
+(16, 20, NULL, NULL, 21, '2025-12-19', '15:40:00', 50, NULL, '2025-07-19 15:54:29');
 
 -- --------------------------------------------------------
 
@@ -73,7 +75,7 @@ CREATE TABLE `cache` (
 --
 
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
-('ultima_pulizia', 's:10:\"2025-12-07\";', 1765187932);
+('ultima_pulizia', 's:10:\"2025-12-19\";', 1766228460);
 
 -- --------------------------------------------------------
 
@@ -85,6 +87,24 @@ CREATE TABLE `cache_locks` (
   `key` varchar(255) NOT NULL,
   `owner` varchar(255) NOT NULL,
   `expiration` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `cartella_clinica_files`
+--
+
+CREATE TABLE `cartella_clinica_files` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `paziente_id` bigint(20) UNSIGNED NOT NULL,
+  `uploaded_by` bigint(20) UNSIGNED NOT NULL,
+  `original_name` varchar(255) NOT NULL,
+  `file_path` varchar(255) NOT NULL,
+  `mime_type` varchar(255) DEFAULT NULL,
+  `file_size` bigint(20) UNSIGNED DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -109,7 +129,7 @@ CREATE TABLE `cartelle_cliniche` (
 --
 
 INSERT INTO `cartelle_cliniche` (`id`, `paziente_id`, `anamnesi`, `diagnosi`, `terapia`, `note`, `created_at`, `updated_at`) VALUES
-(12, 19, '', '', '', '', '2025-08-24 16:35:42', '2025-08-24 16:35:42');
+(14, 20, 'non so cosa sia', 'purtroppo è malato', 'prendere tanti farmaci', 'bla bla bla', '2025-12-19 09:41:26', '2025-12-19 09:41:26');
 
 -- --------------------------------------------------------
 
@@ -212,7 +232,8 @@ CREATE TABLE `lista_attesa` (
 --
 
 INSERT INTO `lista_attesa` (`id`, `nome`, `cognome`, `telefono`, `email`, `data`, `terapia`, `terapista_id`, `chiamato`, `utente_id`, `created_at`) VALUES
-(3, 'Virginia', 'Lorenzi', '44354353453', 'casalorenzi@gmail.com', '2025-08-26', 'fisioterapista', NULL, 0, 3, '2025-07-19 15:54:29');
+(3, 'Virginia', 'Lorenzi', '44354353453', 'casalorenzi@gmail.com', '2025-08-26', 'fisioterapista', NULL, 1, 3, '2025-07-19 15:54:29'),
+(4, 'Cecilia', 'Grasso', '46457567567', 'grassoceci@gmail.com', '2025-12-19', 'logopedista', 9, 0, 19, '2025-07-19 15:54:29');
 
 -- --------------------------------------------------------
 
@@ -251,7 +272,10 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (18, '2025_08_24_183027_change_sesso_column_in_utente_table', 10),
 (19, '2025_11_27_183607_add_fattura_to_pagamenti_table', 11),
 (20, '2025_12_10_202411_create_notifiche_table', 12),
-(21, '2025_12_10_202458_create_notifica_utente_table', 13);
+(21, '2025_12_10_202458_create_notifica_utente_table', 13),
+(22, '2025_12_16_104311_create_system_flags_table', 14),
+(23, '2025_12_16_114203_create_cartella_clinica_files_table', 15),
+(24, '2025_12_20_181409_add_privacy_terms_to_utente_table', 16);
 
 -- --------------------------------------------------------
 
@@ -352,7 +376,9 @@ INSERT INTO `pazienti_terapisti` (`id`, `paziente_id`, `terapista_id`, `data`, `
 (4, 3, 5, '2025-09-05', '2025-09-05 19:11:51', '2025-09-05 19:11:51'),
 (5, 19, 5, '2025-09-05', '2025-09-05 19:18:02', '2025-09-05 19:18:02'),
 (6, 19, 7, '2025-09-05', '2025-09-05 19:21:30', '2025-09-05 19:21:30'),
-(7, 3, 21, '2025-12-07', '2025-12-07 10:49:22', '2025-12-07 10:49:22');
+(7, 3, 21, '2025-12-07', '2025-12-07 10:49:22', '2025-12-07 10:49:22'),
+(8, 20, 2, '2025-12-19', '2025-12-19 09:39:28', '2025-12-19 09:39:28'),
+(9, 20, 21, '2025-12-19', '2025-12-19 09:40:08', '2025-12-19 09:40:08');
 
 -- --------------------------------------------------------
 
@@ -391,6 +417,26 @@ INSERT INTO `staff_dati` (`id`, `utente_id`, `professione`) VALUES
 (4, 6, 'logopedista'),
 (5, 7, 'fisioterapista'),
 (6, 9, 'Oculista');
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `system_flags`
+--
+
+CREATE TABLE `system_flags` (
+  `key` varchar(255) NOT NULL,
+  `value` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dump dei dati per la tabella `system_flags`
+--
+
+INSERT INTO `system_flags` (`key`, `value`, `created_at`, `updated_at`) VALUES
+('notifications_last_purge_at', '2025-12-16 11:00:57', '2025-12-16 09:59:08', '2025-12-16 10:00:57');
 
 -- --------------------------------------------------------
 
@@ -442,6 +488,10 @@ CREATE TABLE `utente` (
   `nascita` date DEFAULT NULL,
   `sesso` enum('M','F') DEFAULT NULL,
   `ruolo` varchar(255) NOT NULL,
+  `privacy_accepted_at` timestamp NULL DEFAULT NULL,
+  `privacy_version` varchar(20) DEFAULT NULL,
+  `terms_accepted_at` timestamp NULL DEFAULT NULL,
+  `terms_version` varchar(20) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -450,18 +500,18 @@ CREATE TABLE `utente` (
 -- Dump dei dati per la tabella `utente`
 --
 
-INSERT INTO `utente` (`id`, `nome`, `cognome`, `username`, `password`, `email`, `telefono`, `nascita`, `sesso`, `ruolo`, `created_at`, `updated_at`) VALUES
-(2, 'Carlo', 'De Maria', 'carlo.demaria', '$2y$12$BjGpfQDWCNt26Vkvm1cHbeNn1v/NBQ.j2DC1HFkiRXE5Ok9EBy1rG', 'demaria@gmail.com', '324354545', '1997-05-01', 'M', 'staff', '2025-07-19 14:01:17', '2025-09-05 19:16:55'),
-(3, 'Virginia', 'Lorenzi', 'virginia.lorenzi', '$2y$12$87UDsS5GXg.SRMxxYm50A.7Mfpv3kQ1bcEMo9utapN.ufmHZRRz2G', 'casalorenzi@gmail.com', '44354353453', '2019-05-13', 'F', 'paziente', '2025-07-19 14:02:05', '2025-09-05 19:11:51'),
-(4, 'Marco', 'Verdoni', 'marco.verdoni', '$2y$12$Z9c3Mp2xSp3t0xi2Vo9u/.bmvzolnpyZRy1um1Vi6lUusonzSBS7q', 'verdoni@outlook.it', '3454534534', '2021-09-03', NULL, 'paziente', '2025-07-19 14:03:02', '2025-07-19 14:03:02'),
-(5, 'Gabriele', 'Spina', 'gabriele.spina', '$2y$12$yKALrZLci/1kOCGXwPASxuApL141AL8mwcGwqH.anLinDJwRKmLKG', 'spinag@gmail.com', '432545345435', '1994-04-12', NULL, 'staff', '2025-07-20 07:47:53', '2025-07-20 07:47:53'),
-(6, 'Veronica', 'Giustolisi', 'veronica.giustolisi', '$2y$12$/cMiFzT3xDt5uitaVV0yXOh37sfGlaBkhQmOv.Jm4MB9N65zdl7M.', 'giustolisidoc@gmail.com', '423423432', '1997-11-08', NULL, 'staff', '2025-07-20 07:48:34', '2025-07-20 07:48:34'),
-(7, 'Fabrizio', 'Veronesi', 'fabrizio.veronesi', '$2y$12$MgsABjeRn2C9.F0CkDXPpeqmC/2ImUpBi2F4jCBot2s4Zg3KDPI4O', 'veronesi@outlook.com', '234324324324', '1995-05-23', NULL, 'staff', '2025-07-20 07:49:58', '2025-07-20 07:49:58'),
-(8, 'Amministratore', 'Sistema', 'admin', '$2y$12$Y2pbP62AvYTfgiIAsnF62e7GswlT0ovtAL6s5y4rX89xIMfEx8JHi', 'admin@example.com', '0000000000', '1990-01-01', NULL, 'admin', '2025-08-11 15:43:41', '2025-08-11 15:43:41'),
-(9, 'Domenico', 'Messina', 'domenico.messina', '$2y$12$3vZty2IMPeB1nxgCzZWlQ./GSWfANXhut9PqQ0t9/mcUGh2qJsSzm', 'domenicomess@gmail.com', '39283453113', '1995-04-01', NULL, 'staff', '2025-08-24 15:53:36', '2025-08-24 15:53:36'),
-(19, 'Cecilia', 'Grasso', 'cecilia.grasso', '$2y$12$08Pi3u0cSSuYAUUd9UUA5.5XZeYPGJDNLTVO7dWbdVBQBv37207Am', 'grassoceci@gmail.com', '46457567567', '2025-08-24', 'F', 'paziente', '2025-08-24 16:35:42', '2025-08-24 16:35:42'),
-(20, 'paziente', 'di test', 'pazienteTest', '$2y$12$A53zXmnxQzg7MxmxXk4/OuSMjGSxBIkGixjCiXocopRPB1Dcl/nJu', 'pazientetest@gmail.com', '3641247964', NULL, 'F', 'paziente', NULL, '2025-12-02 22:34:55'),
-(21, 'staff', 'di test', 'staffTest', '$2y$12$A53zXmnxQzg7MxmxXk4/OuSMjGSxBIkGixjCiXocopRPB1Dcl/nJu', 'staffditest@gmail.com', '3659842124', '2015-12-02', 'F', 'staff', NULL, NULL);
+INSERT INTO `utente` (`id`, `nome`, `cognome`, `username`, `password`, `email`, `telefono`, `nascita`, `sesso`, `ruolo`, `privacy_accepted_at`, `privacy_version`, `terms_accepted_at`, `terms_version`, `created_at`, `updated_at`) VALUES
+(2, 'Carlo', 'De Maria', 'carlo.demaria', '$2y$12$BjGpfQDWCNt26Vkvm1cHbeNn1v/NBQ.j2DC1HFkiRXE5Ok9EBy1rG', 'demaria@gmail.com', '324354545', '1997-05-01', 'M', 'staff', NULL, NULL, NULL, NULL, '2025-07-19 14:01:17', '2025-09-05 19:16:55'),
+(3, 'Virginia', 'Lorenzi', 'virginia.lorenzi', '$2y$12$87UDsS5GXg.SRMxxYm50A.7Mfpv3kQ1bcEMo9utapN.ufmHZRRz2G', 'casalorenzi@gmail.com', '44354353453', '2019-05-13', 'F', 'paziente', NULL, NULL, NULL, NULL, '2025-07-19 14:02:05', '2025-09-05 19:11:51'),
+(4, 'Marco', 'Verdoni', 'marco.verdoni', '$2y$12$Z9c3Mp2xSp3t0xi2Vo9u/.bmvzolnpyZRy1um1Vi6lUusonzSBS7q', 'verdoni@outlook.it', '3454534534', '2021-09-03', NULL, 'paziente', NULL, NULL, NULL, NULL, '2025-07-19 14:03:02', '2025-07-19 14:03:02'),
+(5, 'Gabriele', 'Spina', 'gabriele.spina', '$2y$12$yKALrZLci/1kOCGXwPASxuApL141AL8mwcGwqH.anLinDJwRKmLKG', 'spinag@gmail.com', '432545345435', '1994-04-12', NULL, 'staff', NULL, NULL, NULL, NULL, '2025-07-20 07:47:53', '2025-07-20 07:47:53'),
+(6, 'Veronica', 'Giustolisi', 'veronica.giustolisi', '$2y$12$/cMiFzT3xDt5uitaVV0yXOh37sfGlaBkhQmOv.Jm4MB9N65zdl7M.', 'giustolisidoc@gmail.com', '423423432', '1997-11-08', NULL, 'staff', NULL, NULL, NULL, NULL, '2025-07-20 07:48:34', '2025-07-20 07:48:34'),
+(7, 'Fabrizio', 'Veronesi', 'fabrizio.veronesi', '$2y$12$MgsABjeRn2C9.F0CkDXPpeqmC/2ImUpBi2F4jCBot2s4Zg3KDPI4O', 'veronesi@outlook.com', '234324324324', '1995-05-23', NULL, 'staff', NULL, NULL, NULL, NULL, '2025-07-20 07:49:58', '2025-07-20 07:49:58'),
+(8, 'Amministratore', 'Sistema', 'admin', '$2y$12$Y2pbP62AvYTfgiIAsnF62e7GswlT0ovtAL6s5y4rX89xIMfEx8JHi', 'admin@example.com', '0000000000', '1990-01-01', NULL, 'admin', NULL, NULL, NULL, NULL, '2025-08-11 15:43:41', '2025-08-11 15:43:41'),
+(9, 'Domenico', 'Messina', 'domenico.messina', '$2y$12$3vZty2IMPeB1nxgCzZWlQ./GSWfANXhut9PqQ0t9/mcUGh2qJsSzm', 'domenicomess@gmail.com', '39283453113', '1995-04-01', NULL, 'staff', NULL, NULL, NULL, NULL, '2025-08-24 15:53:36', '2025-08-24 15:53:36'),
+(19, 'Cecilia', 'Grasso', 'cecilia.grasso', '$2y$12$08Pi3u0cSSuYAUUd9UUA5.5XZeYPGJDNLTVO7dWbdVBQBv37207Am', 'grassoceci@gmail.com', '46457567567', '2025-08-24', 'F', 'paziente', NULL, NULL, NULL, NULL, '2025-08-24 16:35:42', '2025-08-24 16:35:42'),
+(20, 'paziente', 'di test', 'pazienteTest', '$2y$12$A53zXmnxQzg7MxmxXk4/OuSMjGSxBIkGixjCiXocopRPB1Dcl/nJu', 'pazientetest@gmail.com', '3641247964', '2018-12-11', 'F', 'paziente', NULL, NULL, NULL, NULL, '2025-12-09 09:37:50', '2025-12-02 22:34:55'),
+(21, 'staff', 'di test', 'staffTest', '$2y$12$A53zXmnxQzg7MxmxXk4/OuSMjGSxBIkGixjCiXocopRPB1Dcl/nJu', 'staffditest@gmail.com', '3659842124', '2015-12-02', 'F', 'staff', NULL, NULL, NULL, NULL, NULL, NULL);
 
 --
 -- Indici per le tabelle scaricate
@@ -486,6 +536,14 @@ ALTER TABLE `cache`
 --
 ALTER TABLE `cache_locks`
   ADD PRIMARY KEY (`key`);
+
+--
+-- Indici per le tabelle `cartella_clinica_files`
+--
+ALTER TABLE `cartella_clinica_files`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `cartella_clinica_files_paziente_id_foreign` (`paziente_id`),
+  ADD KEY `cartella_clinica_files_uploaded_by_foreign` (`uploaded_by`);
 
 --
 -- Indici per le tabelle `cartelle_cliniche`
@@ -586,6 +644,12 @@ ALTER TABLE `staff_dati`
   ADD UNIQUE KEY `staff_dati_utente_id_unique` (`utente_id`);
 
 --
+-- Indici per le tabelle `system_flags`
+--
+ALTER TABLE `system_flags`
+  ADD PRIMARY KEY (`key`);
+
+--
 -- Indici per le tabelle `tariffe`
 --
 ALTER TABLE `tariffe`
@@ -615,13 +679,19 @@ ALTER TABLE `utente`
 -- AUTO_INCREMENT per la tabella `appuntamenti`
 --
 ALTER TABLE `appuntamenti`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+
+--
+-- AUTO_INCREMENT per la tabella `cartella_clinica_files`
+--
+ALTER TABLE `cartella_clinica_files`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT per la tabella `cartelle_cliniche`
 --
 ALTER TABLE `cartelle_cliniche`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT per la tabella `failed_jobs`
@@ -645,25 +715,25 @@ ALTER TABLE `jobs`
 -- AUTO_INCREMENT per la tabella `lista_attesa`
 --
 ALTER TABLE `lista_attesa`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT per la tabella `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT per la tabella `notifica_utente`
 --
 ALTER TABLE `notifica_utente`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT per la tabella `notifiche`
 --
 ALTER TABLE `notifiche`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT per la tabella `pagamenti`
@@ -675,7 +745,7 @@ ALTER TABLE `pagamenti`
 -- AUTO_INCREMENT per la tabella `pazienti_terapisti`
 --
 ALTER TABLE `pazienti_terapisti`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT per la tabella `staff_dati`
@@ -711,6 +781,13 @@ ALTER TABLE `utente`
 ALTER TABLE `appuntamenti`
   ADD CONSTRAINT `appuntamenti_paziente_id_foreign` FOREIGN KEY (`paziente_id`) REFERENCES `utente` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `appuntamenti_terapista_id_foreign` FOREIGN KEY (`terapista_id`) REFERENCES `utente` (`id`) ON DELETE CASCADE;
+
+--
+-- Limiti per la tabella `cartella_clinica_files`
+--
+ALTER TABLE `cartella_clinica_files`
+  ADD CONSTRAINT `cartella_clinica_files_paziente_id_foreign` FOREIGN KEY (`paziente_id`) REFERENCES `utente` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `cartella_clinica_files_uploaded_by_foreign` FOREIGN KEY (`uploaded_by`) REFERENCES `utente` (`id`) ON DELETE CASCADE;
 
 --
 -- Limiti per la tabella `cartelle_cliniche`
