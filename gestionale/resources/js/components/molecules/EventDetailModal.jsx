@@ -12,8 +12,30 @@ export default function EventDetailsModal({ id, onClose, onChanged, canEdit }) {
         axios
             .get(`/appuntamenti/${id}`)
             .then((res) => {
-                if (alive) setData(res.data);
+                if (!alive) return;
+
+                const a = res.data;
+
+                setData({
+                    id: a.id,
+                    data: a.data,
+                    ora: a.ora,
+                    durata_minuti: a.durata_minuti,
+                    note: a.note ?? "",
+
+                    // PAZIENTE
+                    paziente_id: a.paziente?.id ?? null,
+                    paziente_nome: a.paziente?.nome ?? a.paziente?.nome ?? "",
+                    paziente_cognome:
+                        a.paziente?.cognome ?? a.paziente?.cognome ?? "",
+
+                    // TERAPISTA
+                    terapista_id: a.terapista?.id ?? null,
+                    terapista_nome: a.terapista?.nome ?? "",
+                    terapista_cognome: a.terapista?.cognome ?? "",
+                });
             })
+
             .catch(() => {
                 alert("Errore nel caricamento dettagli");
                 onClose?.();
@@ -150,7 +172,7 @@ export default function EventDetailsModal({ id, onClose, onChanged, canEdit }) {
                     <div className="col-span-2">
                         <span className="text-gray-500">Terapista</span>
                         <input
-                            disabled 
+                            disabled
                             value={`${data.terapista_nome ?? ""} ${
                                 data.terapista_cognome ?? ""
                             }`}

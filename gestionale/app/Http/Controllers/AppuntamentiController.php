@@ -298,4 +298,76 @@ class AppuntamentiController extends Controller
                 : null,
         ]);
     }
+
+
+    public function giornalieri(Request $request)
+    {
+        $ruolo = session('logged_user.ruolo');
+        if ($ruolo !== 'admin') {
+            return response()->json(['message' => 'Non autorizzato'], 403);
+        }
+
+        $data = $request->query('data', now()->toDateString());
+        $now  = now();
+
+        $appuntamenti = Appuntamento::with([
+            'paziente:id,nome,cognome',
+            'terapista:id,nome,cognome',
+        ])
+            ->whereDate('data', $data)
+            ->orderBy('ora')
+            ->get();
+
+        $result = [
+            'mattina'   => [],
+            'pomeriggio' => [],
+        ];
+
+        foreach ($appuntamenti as $a) {
+            // ---- dati base
+            $ora = substr($a->ora, 0, 5);
+
+            $pazienteNome = $a->paziente
+                ? "{$a->paziente->nome} {$a->paziente->cognome}"
+                : trim("{$a->nome} {$a->cognome}");
+
+            $terapistaNome = $a->terapista
+                ? "Dr.ssa {$a->terapista->nome} {$a->terapista->cognome}"
+                : "Terapista";
+
+            // ---- calcolo orari
+            $start = Carbon::createFromFormat('Y-m-d H:i', "{$data} {$ora}");
+            $durata = $a->durata_minuti ?? 30;
+            $end = (clone $start)->addMinutes($durata);
+            $endPlus2h = (clone $end)->addHours(2);
+
+            // ---- firma?
+            $firmaExists = \App\Models\Firma::whereDate('data', $data)
+                ->where('terapista_id', $a->terapista_id)
+                ->whereRaw('LOWER(nome) = ?', [mb_strtolower($a->paziente->nome ?? $a->nome)])
+                ->whereRaw('LOWER(cognome) = ?', [mb_strtolower($a->paziente->cognome ?? $a->cognome)])
+                ->exists();
+
+            // ---- status
+            if ($firmaExists) {
+                $status = 'present';
+            } elseif ($now->lessThan($endPlus2h)) {
+                $status = 'pending';
+            } else {
+                $status = 'absent';
+            }
+
+            // ---- fascia oraria
+            $fascia = ((int)substr($ora, 0, 2) < 14) ? 'mattina' : 'pomeriggio';
+
+            $result[$fascia][$ora][] = [
+                'id'        => $a->id,
+                'paziente'  => $pazienteNome,
+                'terapista' => $terapistaNome,
+                'status'    => $status,
+            ];
+        }
+
+        return response()->json($result);
+    }
 }

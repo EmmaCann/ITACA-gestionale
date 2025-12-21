@@ -46,7 +46,7 @@ export const TopNavBar = ({ mode = "full" }) => {
 
     /* MOBILE: SOLO DATE PICKER */
     if (mode === "date") {
-        return <DatePicker />;
+        return <DatePicker isAdmin={isAdmin} />;
     }
 
     /* MOBILE: WELCOME + ICONE */
@@ -112,7 +112,7 @@ export const TopNavBar = ({ mode = "full" }) => {
                 <WelcomeMessage />
 
                 <div className="flex items-center">
-                    <DatePicker />
+                    <DatePicker isAdmin={isAdmin} />
                 </div>
 
                 <div className="flex-1" />
