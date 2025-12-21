@@ -20,7 +20,7 @@ const parseYMD = (ymd) => {
     return new Date(y, (m || 1) - 1, d || 1);
 };
 
-export const DatePicker = () => {
+export const DatePicker = ({ isAdmin }) => {
     const today = formatLocalYMD(new Date()); // YYYY-MM-DD in locale
     const [date, setDate] = useState(today);
     const dateInputRef = useRef(null);
@@ -74,6 +74,12 @@ export const DatePicker = () => {
     const [openDaily, setOpenDaily] = useState(false);
     const chevronRef = useRef(null);
 
+    useEffect(() => {
+        if (!isAdmin) {
+            setOpenDaily(false);
+        }
+    }, [isAdmin]);
+
     return (
         <div className=" relative flex items-center justify-between bg-bluSecondary text-white rounded-full px-2 py-1 w-[240px] h-[35px] shadow-lg space-x-1">
             {/* freccia sinistra */}
@@ -102,20 +108,23 @@ export const DatePicker = () => {
                 onChange={handleDateChange}
                 className="bg-transparent outline-none text-[14px] text-white text-center font-marcellusSC w-24 cursor-pointer date-input"
             />
+            {isAdmin && (
+                <>
+                    <span
+                        ref={chevronRef}
+                        className="p-1 cursor-pointer"
+                        onClick={() => setOpenDaily((v) => !v)}
+                    >
+                        <FaChevronDown size={12} />
+                    </span>
 
-            <span
-                ref={chevronRef}
-                className="p-1 cursor-pointer"
-                onClick={() => setOpenDaily((v) => !v)}
-            >
-                <FaChevronDown size={12} />
-            </span>
-
-            <DailyAppointmentsDropdown
-                open={openDaily}
-                onClose={() => setOpenDaily(false)}
-                anchorRef={chevronRef}
-            />
+                    <DailyAppointmentsDropdown
+                        open={openDaily}
+                        onClose={() => setOpenDaily(false)}
+                        anchorRef={chevronRef}
+                    />
+                </>
+            )}
 
             {/* freccia destra */}
             <button
@@ -125,8 +134,6 @@ export const DatePicker = () => {
             >
                 <FaChevronRight size={12} />
             </button>
-
-           
         </div>
     );
 };
