@@ -26,6 +26,12 @@ const Profile = () => {
     const [message, setMessage] = useState(null);
     const [error, setError] = useState(null);
 
+    // MOCK – da sostituire con dati DB
+    const privacyMock = {
+        privacyAcceptedAt: "12/03/2025",
+        termsAcceptedAt: "12/03/2025",
+    };
+
     const handlePasswordChange = async () => {
         setMessage(null);
         setError(null);
@@ -78,7 +84,6 @@ const Profile = () => {
                         </h2>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-white rounded-xl p-4 shadow">
-
                             <div>
                                 <p className="text-sm text-gray-500">Nome</p>
                                 <p className="font-medium">{utente.nome}</p>
@@ -188,12 +193,64 @@ const Profile = () => {
                             </button>
                         </div>
                     </section>
+
+                    {/* PRIVACY E TERMINI */}
+                    <section className="mb-8">
+                        <h2 className="text-xl font-semibold mb-3 text-gray-700">
+                            Privacy e condizioni legali
+                        </h2>
+
+                        <div className="bg-white rounded-xl p-4 shadow flex flex-col gap-4">
+                            {/* Privacy */}
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="font-medium text-gray-700">
+                                        Privacy Policy
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                        Accettata il:{" "}
+                                        {privacyMock.privacyAcceptedAt}
+                                    </p>
+                                </div>
+
+                                <Link
+                                    href="/privacy"
+                                    className="text-bluPrimary font-medium hover:underline"
+                                >
+                                    Visualizza
+                                </Link>
+                            </div>
+
+                            <hr />
+
+                            {/* Termini */}
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="font-medium text-gray-700">
+                                        Termini e condizioni
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                        Accettati il:{" "}
+                                        {privacyMock.termsAcceptedAt}
+                                    </p>
+                                </div>
+
+                                <Link
+                                    href="/termini-e-condizioni"
+                                    className="text-bluPrimary font-medium hover:underline"
+                                >
+                                    Visualizza
+                                </Link>
+                            </div>
+                        </div>
+                    </section>
+
                     <Link
                         href="/logout"
                         method="post"
                         as="button"
                         className="w-full bg-pinkSecondary text-white py-3 rounded-xl font-semibold shadow hover:bg-pinkPrimary transition"
-
+                        onClick={() => sessionStorage.removeItem('onboarding')}
                     >
                         Logout
                     </Link>

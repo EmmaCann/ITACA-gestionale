@@ -57,9 +57,23 @@ class AuthController extends Controller
         //     'paziente' => route('home_paziente'),
         //     default   => route('login_form'),
         // };
-        $redirectUrl =route('home');
+        $redirectUrl = route('home');
 
-        return response()->json(['success' => true, 'redirect_url' => $redirectUrl]);
+        $needsPrivacyAcceptance =
+            !$user->privacy_accepted_at || !$user->terms_accepted_at;
+
+        $needsPasswordChange =
+            is_null($user->password_changed_at);
+
+
+        return response()->json([
+            'success' => true,
+            'redirect_url' => $redirectUrl,
+            'onboarding' => [
+                'needs_privacy' => $needsPrivacyAcceptance,
+                'needs_password_change' => $needsPasswordChange,
+            ],
+        ]);
     }
 
 
@@ -70,5 +84,36 @@ class AuthController extends Controller
         return redirect()->route('login_form');
     }
 
-   
+    public function acceptLegal(Request $request)
+    {
+        $userId = Session::get('logged_user.id_utente');
+
+        if (!$userId) {
+            return response()->json(['errore' => 'Non autenticato'], 401);
+        }
+
+        $user = Utente::find($userId);
+        if (!$user) {
+            return response()->json(['errore' => 'Utente non trovato'], 404);
+        }
+
+        // versioni hardcoded per ora
+        $privacyVersion = 'v1.0';
+        $termsVersion   = 'v1.0';
+
+        $user->update([
+            'privacy_accepted_at' => now(),
+            'privacy_version'     => $privacyVersion,
+            'terms_accepted_at'   => now(),
+            'terms_version'       => $termsVersion,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'privacy_accepted_at' => $user->privacy_accepted_at,
+            'terms_accepted_at' => $user->terms_accepted_at,
+            'privacy_version' => $user->privacy_version,
+            'terms_version' => $user->terms_version,
+        ]);
+    }
 }

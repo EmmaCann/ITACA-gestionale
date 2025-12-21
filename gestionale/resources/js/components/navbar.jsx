@@ -79,7 +79,7 @@ export const Navbar = ({ menuOpen, setMenuOpen }) => {
                         <IconTextNavbar icon={IoSettingsSharp} text="UTILITA'" iconSize={19} />
                     </Link>
 
-                    <Link href="/logout" method="post" className={commonClass}>
+                    <Link href="/logout" method="post" className={commonClass}  onClick={() => sessionStorage.removeItem('onboarding')}>
                         <IconTextNavbar icon={MdOutlineLogout} text="LOGOUT" iconSize={19} />
                     </Link>
                 </div>
@@ -189,7 +189,10 @@ export const Navbar = ({ menuOpen, setMenuOpen }) => {
                         href="/logout"
                         method="post"
                         className="w-full flex justify-center mt-4"
-                        onClick={() => setMenuOpen(false)}
+                        onClick={() => {
+                            sessionStorage.removeItem("onboarding");
+                            setMenuOpen(false);
+                        }}
                     >
                         <IconTextNavbar icon={MdOutlineLogout} text="LOGOUT" iconSize={19} />
                     </Link>

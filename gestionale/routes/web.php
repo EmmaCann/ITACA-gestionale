@@ -145,7 +145,7 @@ Route::middleware([AuthSession::class])->group(function () {
 
     /*
     |---------------------------
-    | Cartella Clinica (CORRETTO)
+    | Cartella Clinica 
     |---------------------------
     */
 
@@ -178,4 +178,21 @@ Route::middleware([AuthSession::class])->group(function () {
         '/paziente/cartella-clinica',
         [CartellaClinicaController::class, 'patientView']
     );
+
+    // Privacy e Termini
+    Route::get(
+        '/privacy',
+        fn() =>
+        Inertia::render('Privacy')
+    )->name('privacy');
+
+    Route::get(
+        '/termini-e-condizioni',
+        fn() =>
+        Inertia::render('TerminiECondizioni')
+    )->name('termini');
+
+    Route::post('/onboarding/accept-legal', [AuthController::class, 'acceptLegal'])
+    ->name('onboarding.acceptLegal');
+
 });

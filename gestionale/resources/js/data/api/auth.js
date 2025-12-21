@@ -21,3 +21,23 @@ export const loginUser = async (data) => {
         throw new Error("Si è verificato un errore. Riprova.");
     }
 };
+
+/** Chiamata API per accettare privacy e termini */
+export const acceptLegal = async () => {
+    try {
+        const response = await baseCall({
+            endpoint: "/onboarding/accept-legal",
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        return response.data;
+    } catch (error) {
+        if (error.response && error.response.data && error.response.data.errore) {
+            throw new Error(error.response.data.errore);
+        }
+        throw new Error("Errore durante l'accettazione dei termini.");
+    }
+};
