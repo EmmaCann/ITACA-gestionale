@@ -11,3 +11,18 @@ export const creaAppuntamento = async (datiAppuntamento) => {
         }
     });
 };
+
+/**
+ * Recupera gli appuntamenti del giorno (solo admin)
+ * @param {string} data YYYY-MM-DD
+ */
+export const getAppuntamentiGiorno = async (data) => {
+    return baseCall({
+        endpoint: "/appuntamenti/giorno",
+        method: "GET",
+        params: { data },
+        headers: {
+            "Accept": "application/json",
+        },
+    });
+};

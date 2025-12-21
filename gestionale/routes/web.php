@@ -57,9 +57,12 @@ Route::middleware([AuthSession::class])->group(function () {
 
     Route::post('/appuntamenti', [AppuntamentiController::class, 'store']);
     Route::get('/appuntamenti-get', [AppuntamentiController::class, 'index']);
+    Route::get('/appuntamenti/giorno', [AppuntamentiController::class, 'giornalieri']);
     Route::patch('/appuntamenti/{id}', [AppuntamentiController::class, 'update']);
     Route::get('/appuntamenti/{id}', [AppuntamentiController::class, 'show']);
     Route::delete('/appuntamenti/{id}', [AppuntamentiController::class, 'destroy']);
+    
+
 
 
     Route::get('/incassi-per-anno', [PagamentoController::class, 'incassiPerAnno']);

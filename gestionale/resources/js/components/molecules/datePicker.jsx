@@ -122,6 +122,7 @@ export const DatePicker = ({ isAdmin }) => {
                         open={openDaily}
                         onClose={() => setOpenDaily(false)}
                         anchorRef={chevronRef}
+                        date={date}
                     />
                 </>
             )}

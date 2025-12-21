@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { getAppuntamentiGiorno } from "../data/api/appuntamenti.js";
 import { FaCheck, FaTimes, FaPen } from "react-icons/fa";
 
 const STATUS_ICON = {
@@ -8,9 +9,62 @@ const STATUS_ICON = {
     absent: <FaTimes className="text-red-500" />,
 };
 
-export const DailyAppointmentsDropdown = ({ open, onClose, anchorRef }) => {
-    const [pos, setPos] = useState(null);
+/* ✅ COMPONENTE SECTION – FUORI */
+const Section = ({ title, grouped }) => {
+    if (!grouped || Object.keys(grouped).length === 0) return null;
 
+    return (
+        <div className="mb-4">
+            <div className="text-xs font-semibold text-gray-600 mb-2">
+                {title}
+            </div>
+
+            <div className="space-y-2">
+                {Object.entries(grouped).map(([time, items]) => (
+                    <div key={time} className="space-y-1">
+                        <div className="text-xs font-bold text-gray-700">
+                            {time}
+                        </div>
+
+                        {items.map((a) => (
+                            <div
+                                key={a.id}
+                                className="
+                                    flex items-center justify-between
+                                    bg-gray-50
+                                    rounded-lg px-3 py-2
+                                    text-xs
+                                    hover:bg-gray-100
+                                "
+                            >
+                                <div className="flex flex-col">
+                                    <span>{a.paziente}</span>
+                                    <span className="italic text-gray-400">
+                                        {a.terapista}
+                                    </span>
+                                </div>
+
+                                {STATUS_ICON[a.status]}
+                            </div>
+                        ))}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+export const DailyAppointmentsDropdown = ({
+    open,
+    onClose,
+    anchorRef,
+    date,
+}) => {
+    const [pos, setPos] = useState(null);
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(false);
+
+    /* posizione */
     useEffect(() => {
         if (open && anchorRef?.current) {
             const r = anchorRef.current.getBoundingClientRect();
@@ -21,6 +75,20 @@ export const DailyAppointmentsDropdown = ({ open, onClose, anchorRef }) => {
         }
     }, [open]);
 
+    /* fetch dati */
+    useEffect(() => {
+        if (!open || !date) return;
+
+        setLoading(true);
+        getAppuntamentiGiorno(date)
+            .then((res) => setData(res.data))
+            .catch((err) =>
+                console.error("Errore appuntamenti giorno:", err)
+            )
+            .finally(() => setLoading(false));
+    }, [open, date]);
+
+    /* click outside */
     useEffect(() => {
         const handler = (e) => {
             if (!anchorRef?.current?.contains(e.target)) {
@@ -28,7 +96,8 @@ export const DailyAppointmentsDropdown = ({ open, onClose, anchorRef }) => {
             }
         };
         if (open) document.addEventListener("mousedown", handler);
-        return () => document.removeEventListener("mousedown", handler);
+        return () =>
+            document.removeEventListener("mousedown", handler);
     }, [open]);
 
     if (!open || !pos) return null;
@@ -51,115 +120,29 @@ export const DailyAppointmentsDropdown = ({ open, onClose, anchorRef }) => {
                 overflow-y-auto
             "
         >
-            {/* TITOLO GLOBALE */}
-            <h1 className="mb-3 font-marcellus text-base font-semibold">
-                Appuntamenti del giorno:
+            <h1 className="mb-3 font-marcellus text-base font-bold">
+                Appuntamenti del giorno
             </h1>
-            <Section
-                title="Mattina (08–14)"
-                items={[
-                    {
-                        id: 1,
-                        time: "08:30",
-                        patient: "Giulio Conti",
-                        therapist: "Dr.ssa Crisafulli",
-                        status: "present",
-                    },
-                    {
-                        id: 4,
-                        time: "10:45",
-                        patient: "Giovanni Curti",
-                        therapist: "Dr.ssa VErdi",
-                        status: "present",
-                    },
-                ]}
-            />
 
-            <Section
-                title="Pomeriggio (14–20)"
-                items={[
-                    {
-                        id: 2,
-                        time: "15:00",
-                        patient: "Alessia Bianchi",
-                        therapist: "Dr.ssa Fichera",
-                        status: "absent",
-                    },
-                    {
-                        id: 3,
-                        time: "15:00",
-                        patient: "Veronica Gallo",
-                        therapist: "Dr.ssa Motta",
-                        status: "pending",
-                    },
-                ]}
-            />
+            {loading && (
+                <div className="text-sm text-gray-500">
+                    Caricamento…
+                </div>
+            )}
+
+            {!loading && data && (
+                <>
+                    <Section
+                        title="Mattina (08–14)"
+                        grouped={data.mattina}
+                    />
+                    <Section
+                        title="Pomeriggio (14–20)"
+                        grouped={data.pomeriggio}
+                    />
+                </>
+            )}
         </div>,
         document.body
-    );
-};
-
-const groupByTime = (items) => {
-    return items.reduce((acc, item) => {
-        if (!acc[item.time]) acc[item.time] = [];
-        acc[item.time].push(item);
-        return acc;
-    }, {});
-};
-
-const Section = ({ title, items }) => {
-    const grouped = groupByTime(items);
-
-    return (
-        <div className="mb-4">
-            <div className="text-xs font-semibold text-gray-600 mb-2">
-                {title}
-            </div>
-
-            <div className="space-y-2">
-                {Object.entries(grouped).map(([time, records]) => (
-                    <div
-                        key={time}
-                        className="
-                            flex
-                            bg-gray-50
-                            rounded-xl
-                            px-3 py-2
-                            text-xs
-                        "
-                    >
-                        {/* ORARIO */}
-                        <div className="w-[45px] font-bold text-gray-700 pt-1">
-                            {time}
-                        </div>
-
-                        {/* LISTA RECORD */}
-                        <div className="flex-1 space-y-1">
-                            {records.map((a) => (
-                                <div
-                                    key={a.id}
-                                    className="
-                                        flex items-center justify-between
-                                        bg-white
-                                        rounded-lg
-                                        px-2 py-1
-                                        hover:bg-gray-100
-                                    "
-                                >
-                                    <div className="flex gap-1">
-                                        <span>{a.patient}</span>
-                                        <span className="text-gray-400">–</span>
-                                        <span className="italic">
-                                            {a.therapist}
-                                        </span>
-                                    </div>
-                                    {STATUS_ICON[a.status]}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
     );
 };
