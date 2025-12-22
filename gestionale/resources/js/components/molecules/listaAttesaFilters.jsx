@@ -1,19 +1,27 @@
 import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import { FilterItem } from "../molecules/atoms/fiterItem.jsx";
-import { baseCall } from "@/data/api/baseCall"; // Assicurati che questo path sia corretto
+import { baseCall } from "@/data/api/baseCall";
 import { toast } from "react-toastify";
 
-export const ListaAttesaFilters = () => {
+export const ListaAttesaFilters = ({onFilterChange}) => {
     const [professioniOptions, setProfessioniOptions] = useState([]);
     const [professioneSelezionata, setProfessioneSelezionata] = useState(null);
-
-    const [richiestaTerapistaSpecifico, setRichiestaTerapistaSpecifico] =
-        useState(false);
+    const [richiestaTerapistaSpecifico, setRichiestaTerapistaSpecifico] = useState(false);
+    const [tipoUtente, setTipoUtente] = useState(null); 
 
     useEffect(() => {
         fetchProfessioni();
     }, []);
+
+    useEffect(() => {
+    onFilterChange({
+        tipoUtente: tipoUtente, // registrato / nuovo / null
+        terapia: professioneSelezionata?.value || null,
+        richiestaTerapista: richiestaTerapistaSpecifico,
+    });
+}, [professioneSelezionata, richiestaTerapistaSpecifico, tipoUtente]);
+
 
     const fetchProfessioni = async () => {
 
@@ -36,13 +44,26 @@ export const ListaAttesaFilters = () => {
     };
     
 
-    return (
-        <div className="flex flex-row w-full gap-4  items-center flex-wrap">
-            <FilterItem text="PAZIENTI REGISTRATI" bgColor="blu" />
-            <FilterItem text="NUOVI PAZIENTI" bgColor="rosa" />
+      return (
+        <div className="flex flex-row w-full gap-4 items-center flex-wrap">
+            <FilterItem
+                text="PAZIENTI REGISTRATI"
+                bgColor="blu"
+                isActive={tipoUtente === "registrato"}
+                onClick={() =>
+                    setTipoUtente((prev) => (prev === "registrato" ? null : "registrato"))
+                }
+            />
+            <FilterItem
+                text="NUOVI PAZIENTI"
+                bgColor="rosa"
+                isActive={tipoUtente === "nuovo"}
+                onClick={() =>
+                    setTipoUtente((prev) => (prev === "nuovo" ? null : "nuovo"))
+                }
+            />
 
-            {/* tipologia terapista */}
-            <div className="w-40 min-w-[200px] ">
+            <div className="w-40 min-w-[200px]">
                 <Select
                     options={professioniOptions}
                     value={professioneSelezionata}
@@ -51,17 +72,20 @@ export const ListaAttesaFilters = () => {
                     className="text-[12px]"
                     isSearchable
                     isClearable
+                    styles={{
+                        control: (provided) => ({
+                            ...provided,
+                            borderRadius: "12px",
+                        }),
+                    }}
                 />
             </div>
 
-            {/* Checkbox richiesta terapista */}
             <label className="flex items-center gap-2 text-sm font-marcellus">
                 <input
                     type="checkbox"
                     checked={richiestaTerapistaSpecifico}
-                    onChange={(e) =>
-                        setRichiestaTerapistaSpecifico(e.target.checked)
-                    }
+                    onChange={(e) => setRichiestaTerapistaSpecifico(e.target.checked)}
                 />
                 Richiesta terapista specifico
             </label>

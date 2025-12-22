@@ -13,6 +13,7 @@ export default {
     theme: {
         extend: {
             fontFamily: {
+               
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
                 marcellus: ['Marcellus', 'serif'],
                 marcellusSC: ['Marcellus SC', 'serif'],
@@ -27,6 +28,7 @@ export default {
                 navbar: "#C8C8C8",
                 navbarActive: "#ECEFF2",
                 bgContainer:"#DFE0E0",
+
                 
             }
         },

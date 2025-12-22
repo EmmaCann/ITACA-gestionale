@@ -14,7 +14,6 @@ export const FAB = () => {
     const [modalType, setModalType] = useState("paziente");
     const [modalTipoAppuntamento, setModalTipoAppuntamento] = useState(false);
 
-
     const toggleFAB = () => {
         setIsOpen((prev) => !prev);
     };
@@ -22,7 +21,7 @@ export const FAB = () => {
     const handleOpenModal = (type) => {
         setModalType(type);
         setModalOpen(true);
-        setIsOpen(false); 
+        setIsOpen(false);
     };
 
     useEffect(() => {
@@ -43,7 +42,14 @@ export const FAB = () => {
 
     return (
         <>
-            <div className="fixed bottom-6 right-2 flex flex-col items-center fab-container z-50">
+            <div
+                className="
+    fixed bottom-6 
+    right-1 md:right-8 
+    flex flex-col items-center 
+    fab-container z-50
+"
+            >
                 <div
                     className={`flex flex-col items-end transition-all duration-300 ${
                         isOpen ? "mb-4 opacity-100" : "h-0 overflow-hidden"
@@ -66,7 +72,7 @@ export const FAB = () => {
                 </div>
 
                 <div onClick={toggleFAB}>
-                    <FABicon isOpen={isOpen}  />
+                    <FABicon isOpen={isOpen} />
                 </div>
             </div>
 

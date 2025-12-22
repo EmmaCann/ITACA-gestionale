@@ -15,6 +15,7 @@ const ModalContentAggiungiPagamento = ({ onClose, onSubmit }) => {
     const [pazienteSelezionato, setPazienteSelezionato] = useState(null);
     const [utenteNonRegistrato, setUtenteNonRegistrato] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [fattura, setFattura] = useState(false);
 
     useEffect(() => {
         fetchTerapisti();
@@ -27,7 +28,7 @@ const ModalContentAggiungiPagamento = ({ onClose, onSubmit }) => {
                 endpoint: "/terapisti",
                 method: "GET",
             });
-           
+
             setTerapistiOptions(Object.values(response.data));
         } catch (error) {
             toast.error("Errore nel recupero dei terapisti");
@@ -66,9 +67,11 @@ const ModalContentAggiungiPagamento = ({ onClose, onSubmit }) => {
         }
 
         const data = {
-            terapista_id: terapistaSelezionato?.value || terapistaSelezionato?.id,
+            terapista_id:
+                terapistaSelezionato?.value || terapistaSelezionato?.id,
             data: formData.data,
             importo: formData.importo,
+            fattura: fattura ? 1 : 0,
             ...(utenteNonRegistrato
                 ? {
                       nome: formData.nome,
@@ -78,7 +81,6 @@ const ModalContentAggiungiPagamento = ({ onClose, onSubmit }) => {
                       paziente_id: pazienteSelezionato.id,
                   }),
         };
-
 
         setIsSubmitting(true);
         try {
@@ -159,26 +161,42 @@ const ModalContentAggiungiPagamento = ({ onClose, onSubmit }) => {
                 )}
 
                 {/* Data */}
-                <IconInputWrapperModal icon={FaCalendarAlt}>
-                    <input
-                        type="date"
-                        name="data"
-                        className={inputStyle}
-                        onChange={handleChange}
-                        value={formData.data || ""}
-                    />
-                </IconInputWrapperModal>
+                <div>
+                    <label className="text-sm text-gray-600 mb-1 font-marcellus">
+                        Data della prestazione
+                    </label>
+                    <IconInputWrapperModal icon={FaCalendarAlt}>
+                        <input
+                            type="date"
+                            name="data"
+                            className={inputStyle}
+                            onChange={handleChange}
+                            value={formData.data || ""}
+                        />
+                    </IconInputWrapperModal>
+                </div>
 
                 {/* Importo */}
-                <IconInputWrapperModal icon={MdEuro}>
-                    <input
-                        type="number"
-                        name="importo"
-                        placeholder="Importo (€)"
-                        className={inputStyle}
-                        onChange={handleChange}
-                    />
-                </IconInputWrapperModal>
+                <div className="flex flex-row gap-4  w-full">
+                    <IconInputWrapperModal icon={MdEuro}>
+                        <input
+                            type="number"
+                            name="importo"
+                            placeholder="Importo (€)"
+                            className={inputStyle}
+                            onChange={handleChange}
+                        />
+                    </IconInputWrapperModal>
+
+                    <label className="flex items-center gap-2 font-marcellus">
+                        <input
+                            type="checkbox"
+                            checked={fattura}
+                            onChange={(e) => setFattura(e.target.checked)}
+                        />
+                        Fattura
+                    </label>
+                </div>
 
                 {/* Terapista */}
                 <div>
@@ -186,14 +204,18 @@ const ModalContentAggiungiPagamento = ({ onClose, onSubmit }) => {
                         Terapista
                     </label>
                     <Select
-                            options={Array.isArray(terapistiOptions) ? terapistiOptions : []}
-                            value={terapistaSelezionato}
-                            onChange={setTerapistaSelezionato}
-                            placeholder="Seleziona un terapista"
-                            className="text-[14px]"
-                            menuPlacement="auto"
-                            maxMenuHeight={100}
-                        />
+                        options={
+                            Array.isArray(terapistiOptions)
+                                ? terapistiOptions
+                                : []
+                        }
+                        value={terapistaSelezionato}
+                        onChange={setTerapistaSelezionato}
+                        placeholder="Seleziona un terapista"
+                        className="text-[14px]"
+                        menuPlacement="auto"
+                        maxMenuHeight={100}
+                    />
                 </div>
             </div>
 

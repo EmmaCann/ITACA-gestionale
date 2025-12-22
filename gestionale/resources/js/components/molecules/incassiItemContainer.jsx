@@ -1,19 +1,3 @@
-// import React from "react";
-// import { ItemIncassi } from "./atoms/itemIncasi";
-
-// export const IncassiItemContainer=({})=>{
-//     return(
-//         <div className="bg-[#D9D9D9] opacity-[50%] rounded-[20px] w-[200px] h-[300px] justify-center items-center flex flex-col gap-4" >
-//             <ItemIncassi param1="LUN " param2="1.02.25:" money="500€" />
-//             <ItemIncassi param1="MAR" param2="2.02.25:" money="500€" />
-//             <ItemIncassi param1="MER" param2="3.02.25:" money="500€" />
-//             <ItemIncassi param1="GIOV" param2="4.02.25:" money="500€" />
-//             <ItemIncassi param1="VEN" param2="5.02.25:" money="500€" />
-//             <ItemIncassi param1="SAB" param2="6.02.25:" money="/" />
-//         </div>
-//     );
-// }
-
 import React from "react";
 import { ItemIncassi } from "./atoms/itemIncassi.jsx";
 
@@ -33,9 +17,9 @@ export const IncassiItemContainer = ({ bgColor, params }) => {
                     param1={item}
                     param2={param2Array[index] || "-"}
                     money={moneyArray[index] || "-"}
+                    fattura={moneyArray[index] && moneyArray[index] !== "0€"}
                 />
             ))}
         </div>
     );
 };
-  

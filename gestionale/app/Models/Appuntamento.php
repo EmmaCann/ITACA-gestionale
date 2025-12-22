@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -15,14 +16,16 @@ class Appuntamento extends Model
         'note',
         'nome',
         'cognome',
+        'durata_minuti', // Nuovo campo per la durata in minuti
     ];
-    
+
 
     protected $casts = [
         'data' => 'date',
-        'ora' => 'datetime:H:i:s',
+        'ora' => 'string', 
         'created_at' => 'datetime',
     ];
+
 
     public $timestamps = false;
 

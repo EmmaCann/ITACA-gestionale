@@ -10,7 +10,8 @@ import { MdOutlineEmail } from "react-icons/md";
 import { toast } from "react-toastify";
 import { creaUtente } from "@/data/api/utenti";
 import { baseCall } from "../../data/api/baseCall";
-import { IconInputWrapperModal } from "../molecules/atoms/iconInputWrapperModal.jsx"; 
+import { IconInputWrapperModal } from "../molecules/atoms/iconInputWrapperModal.jsx";
+
 
 const ModalContentAggiungiUtente = ({
     tipoIniziale = "paziente",
@@ -88,14 +89,18 @@ const ModalContentAggiungiUtente = ({
                     messages.forEach((msg) => toast.error(msg))
                 );
             } else {
-                toast.error("Errore nella creazione: " + (error.message || "Errore sconosciuto"));
+                toast.error(
+                    "Errore nella creazione: " +
+                        (error.message || "Errore sconosciuto")
+                );
             }
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    const inputStyle = "flex-1 border-none outline-none text-[14px] placeholder-gray-400 font-marcellus";
+    const inputStyle =
+        "flex-1 border-none outline-none text-[14px] placeholder-gray-400 font-marcellus";
 
     return (
         <div className="flex flex-col h-full overflow-hidden">
@@ -107,7 +112,9 @@ const ModalContentAggiungiUtente = ({
                 <div className="w-[40%]">
                     <Select
                         options={tipoOptions}
-                        value={tipoOptions.find((opt) => opt.value === tipoUtente)}
+                        value={tipoOptions.find(
+                            (opt) => opt.value === tipoUtente
+                        )}
                         onChange={handleTipoChange}
                         className="text-[14px]"
                     />
@@ -149,19 +156,52 @@ const ModalContentAggiungiUtente = ({
                             />
                         </IconInputWrapperModal>
                     </div>
-                    <div className="flex flex-col flex-1">
-                        <label className="text-sm text-gray-600 mb-1 ml-2 invisible">
-                            Telefono
+                    {/* Sesso */}
+                    <div className="flex flex-col">
+                        <label className="text-sm text-gray-600 mb-1 font-marcellus">
+                            Sesso
                         </label>
-                        <IconInputWrapperModal icon={FaPhoneAlt}>
-                            <input
-                                name="telefono"
-                                placeholder="Telefono"
-                                className={inputStyle}
-                                onChange={handleChange}
-                            />
-                        </IconInputWrapperModal>
+                        <Select
+                            name="sesso"
+                            options={[
+                                { value: "M", label: "Maschio (M)" },
+                                { value: "F", label: "Femmina (F)" },
+                            ]}
+                            value={
+                                formData.sesso
+                                    ? {
+                                          value: formData.sesso,
+                                          label:
+                                              formData.sesso === "M"
+                                                  ? "Maschio (M)"
+                                                  : "Femmina (F)",
+                                      }
+                                    : null
+                            }
+                            onChange={(option) =>
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    sesso: option ? option.value : null,
+                                }))
+                            }
+                            placeholder="Seleziona sesso"
+                            className="text-[14px] w-[200px]"
+                            menuPlacement="auto"
+                        />
                     </div>
+                </div>
+                <div className="flex flex-col flex-1">
+                    <label className="text-sm text-gray-600 mb-1 ml-2 invisible">
+                        Telefono
+                    </label>
+                    <IconInputWrapperModal icon={FaPhoneAlt}>
+                        <input
+                            name="telefono"
+                            placeholder="Telefono"
+                            className={inputStyle}
+                            onChange={handleChange}
+                        />
+                    </IconInputWrapperModal>
                 </div>
 
                 {/* Email */}
@@ -181,7 +221,11 @@ const ModalContentAggiungiUtente = ({
                             Terapista
                         </label>
                         <Select
-                            options={Array.isArray(terapistiOptions) ? terapistiOptions : []}
+                            options={
+                                Array.isArray(terapistiOptions)
+                                    ? terapistiOptions
+                                    : []
+                            }
                             value={terapistaSelezionato}
                             onChange={setTerapistaSelezionato}
                             placeholder="Seleziona un terapista"
@@ -235,7 +279,11 @@ const ModalContentAggiungiUtente = ({
                     disabled={isSubmitting}
                 >
                     {isSubmitting ? "Aggiungendo..." : "Aggiungi utente!"}
-                    <FaRegThumbsUp className="text-gray-700 text-sm" size={16} color="green" />
+                    <FaRegThumbsUp
+                        className="text-gray-700 text-sm"
+                        size={16}
+                        color="green"
+                    />
                 </button>
             </div>
         </div>

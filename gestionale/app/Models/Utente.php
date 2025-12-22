@@ -22,23 +22,41 @@ class Utente extends Authenticatable
         'telefono',
         'nascita',
         'ruolo',
+        'sesso',
+
+        // Privacy & Termini
+        'privacy_accepted_at',
+        'privacy_version',
+        'terms_accepted_at',
+        'terms_version',
+        'password_changed_at',
     ];
 
-    protected $hidden = [
-        'password',
-    ];
 
     protected $casts = [
-        'nascita' => 'date',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+        'privacy_accepted_at'   => 'datetime',
+        'terms_accepted_at'     => 'datetime',
+        'password_changed_at'   => 'datetime',
     ];
 
-    // Cripta la password automaticamente
+
+    protected $hidden = [
+        'password', // Nasconde la password nelle risposte JSON
+    ];
+
+    // Mutator per criptare la password automaticamente
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = Hash::make($value);
     }
+
+    public function getSessoLetteraAttribute()
+    {
+        if ($this->sesso === null) return null;
+        return $this->sesso ? 'F' : 'M';
+    }
+
+
 
     // Relazioni
     public function staffDati()
@@ -74,5 +92,42 @@ class Utente extends Authenticatable
     public function listaAttesa()
     {
         return $this->hasMany(ListaAttesa::class, 'utente_id');
+    }
+
+    public function tariffe()
+    {
+        return $this->hasMany(Tariffa::class, 'utente_id');
+    }
+
+    // Paziente -> Terapisti
+    public function terapisti()
+    {
+        return $this->belongsToMany(
+            Utente::class,
+            'pazienti_terapisti',
+            'paziente_id',
+            'terapista_id'
+        )->select('utente.id', 'nome', 'cognome');
+    }
+
+    // Terapista -> Pazienti (utile in futuro)
+    public function pazienti()
+    {
+        return $this->belongsToMany(
+            Utente::class,
+            'pazienti_terapisti',
+            'terapista_id',
+            'paziente_id'
+        )->select('utente.id', 'nome', 'cognome');
+    }
+
+    public function notifiche()
+    {
+        return $this->belongsToMany(
+            Notifica::class,
+            'notifica_utente',
+            'utente_id',
+            'notifica_id'
+        )->withPivot('letta', 'letta_il')->withTimestamps();
     }
 }

@@ -8,7 +8,6 @@ export const LogoItaca = ({width,height}) => {
         <div className="box-logo">
          <img src={logoItaca} alt="Logo Itaca" className={`${width} ${height}`} />
 
-
         </div>
     );
 

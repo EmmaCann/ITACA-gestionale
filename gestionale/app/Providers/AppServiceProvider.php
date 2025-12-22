@@ -7,6 +7,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Date;
+use Inertia\Inertia;
+use Illuminate\Support\Facades\Session;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,5 +30,17 @@ class AppServiceProvider extends ServiceProvider
 
         // Se vuoi forzare anche la lingua di sistema
         App::setLocale('it');
+
+        // Condividi il ruolo e i dati dell'utente loggato con tutte le pagine Inertia
+        Inertia::share([
+            'ruolo' => function () {
+                return Session::get('logged_user.ruolo');
+            },
+            'logged_user' => function () {
+                return Session::get('logged_user');
+            },
+        ]);
+
+        
     }
 }

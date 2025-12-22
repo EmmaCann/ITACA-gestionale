@@ -26,3 +26,18 @@ export const creaUtente = async (utente) => {
         throw error;
     }
 };
+
+
+/**
+ * Cambia la password dell'utente loggato.
+ *
+ * @param {object} dati - contiene password_attuale, nuova_password, conferma_password
+ * @returns {Promise<object>}
+ */
+export const cambiaPassword = async (dati) => {
+    return baseCall({
+        endpoint: "/profilo/cambio-password",
+        method: "POST",
+        data: dati,
+    });
+};

@@ -21,12 +21,16 @@ export const creaPagamento = async (data) => {
 
 
 
+/* ============================================================
+    INCASSI - VERSIONE CHE SUPPORTA ADMIN E STAFF
+   ============================================================ */
 
-export const getStatsIncassi = async () => {
+export const getStatsIncassi = async (terapistaId = null) => {
     try {
         const response = await baseCall({
             endpoint: "/pagamenti/stats",
             method: "GET",
+            params: terapistaId ? { terapista_id: terapistaId } : {},
         });
         return response.data;
     } catch (error) {
@@ -35,12 +39,13 @@ export const getStatsIncassi = async () => {
     }
 };
 
-export const getDettagliStats = async (tipo) => {
+
+export const getDettagliStats = async (tipo, terapistaId = null) => {
     try {
         const response = await baseCall({
             endpoint: "/pagamenti/dettagli-stats",
             method: "GET",
-            params: { tipo },
+            params: terapistaId ? { tipo, terapista_id: terapistaId } : { tipo },
         });
         return response.data;
     } catch (error) {
@@ -49,3 +54,32 @@ export const getDettagliStats = async (tipo) => {
     }
 };
 
+
+export const getIncassiAnnui = async (terapistaId = null) => {
+    try {
+        const response = await baseCall({
+            endpoint: "/incassi-per-anno",
+            method: "GET",
+            params: terapistaId ? { terapista_id: terapistaId } : {},
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Errore durante il recupero delle statistiche degli incassi:", error.message);
+        throw error;
+    }
+};
+
+
+/* ============================================================
+    PAGAMENTI FILTRATI 
+   ============================================================ */
+
+export const getPagamentiFiltrati = async (params) => {
+    const response = await baseCall({
+        endpoint: "/pagamenti/filtrati",
+        method: "GET",
+        params: params,
+    });
+
+    return response.data;
+};
