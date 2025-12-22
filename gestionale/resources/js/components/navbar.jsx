@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, usePage } from "@inertiajs/react";
 import { LogoItaca } from "./molecules/atoms/logo-ITACA.jsx";
-
+import axios from "axios";
 // Icone
 import BrainIcon from "../../../public/icons/brain.png";
 import { IoMdHome } from "react-icons/io";
@@ -27,7 +27,6 @@ export const Navbar = ({ menuOpen, setMenuOpen }) => {
         <>
             {/* ================= DESKTOP SIDEBAR ================= */}
             <div className="bg-navbar w-[200px] h-[98%] m-2 rounded-[20px] opacity-[60%] drop-shadow hidden md:flex flex-col z-40">
-                
                 {/* LOGO */}
                 <div className={`${commonClass} pr-2 pt-2`}>
                     <LogoItaca width="w-[180px]" height="h-[85px]" />
@@ -35,53 +34,126 @@ export const Navbar = ({ menuOpen, setMenuOpen }) => {
 
                 {/* CONTENUTO */}
                 <div className="flex flex-col flex-grow justify-between mt-2">
-                    
                     {/* HOME */}
                     <div className={commonClass}>
                         <Link
                             href="/home"
-                            className={`${commonClass} mt-6 ${isActive("/home")}`}
+                            className={`${commonClass} mt-6 ${isActive(
+                                "/home"
+                            )}`}
                         >
-                            <IconTextNavbar icon={IoMdHome} text="HOME" iconSize={22} />
+                            <IconTextNavbar
+                                icon={IoMdHome}
+                                text="HOME"
+                                iconSize={22}
+                            />
                         </Link>
                     </div>
 
                     {/* SEZIONI CENTRALI */}
                     <div className="flex flex-col gap-4 mt-6">
-                        <Link href="/incassi" className={`${commonClass} ${isActive("/incassi")}`}>
-                            <IconTextNavbar icon={FaRegCreditCard} text="INCASSI" iconSize={18} />
+                        <Link
+                            href="/incassi"
+                            className={`${commonClass} ${isActive("/incassi")}`}
+                        >
+                            <IconTextNavbar
+                                icon={FaRegCreditCard}
+                                text="INCASSI"
+                                iconSize={18}
+                            />
                         </Link>
 
-                        <Link href="/utenti" className={`${commonClass} ${isActive("/utenti")}`}>
+                        <Link
+                            href="/utenti"
+                            className={`${commonClass} ${isActive("/utenti")}`}
+                        >
                             <IconTextNavbar image={BrainIcon} text="UTENTI" />
                         </Link>
 
-                        <Link href="/archivio-firme" className={`${commonClass} ${isActive("/archivio-firme")}`}>
-                            <IconTextNavbar icon={FaPencilAlt} text="ARCHIVIO FIRME" iconSize={16} />
+                        <Link
+                            href="/archivio-firme"
+                            className={`${commonClass} ${isActive(
+                                "/archivio-firme"
+                            )}`}
+                        >
+                            <IconTextNavbar
+                                icon={FaPencilAlt}
+                                text="ARCHIVIO FIRME"
+                                iconSize={16}
+                            />
                         </Link>
 
-                        <Link href="/lista-attesa" className={`${commonClass} ${isActive("/lista-attesa")}`}>
-                            <IconTextNavbar icon={FaList} text="LISTA D'ATTESA" iconSize={16} />
+                        <Link
+                            href="/lista-attesa"
+                            className={`${commonClass} ${isActive(
+                                "/lista-attesa"
+                            )}`}
+                        >
+                            <IconTextNavbar
+                                icon={FaList}
+                                text="LISTA D'ATTESA"
+                                iconSize={16}
+                            />
                         </Link>
                     </div>
 
                     {/* TARIFFARIO */}
                     <div className="mt-6">
-                        <Link href="/tariffario" className={`${commonClass} ${isActive("/tariffario")}`}>
-                            <IconTextNavbar icon={FaEuroSign} text="TARIFFARIO" iconSize={18} />
+                        <Link
+                            href="/tariffario"
+                            className={`${commonClass} ${isActive(
+                                "/tariffario"
+                            )}`}
+                        >
+                            <IconTextNavbar
+                                icon={FaEuroSign}
+                                text="TARIFFARIO"
+                                iconSize={18}
+                            />
                         </Link>
                     </div>
                 </div>
 
                 {/* FOOTER */}
                 <div className="flex flex-col mt-8 mb-4">
-                    <Link href="/utilita" className={`${commonClass} ${isActive("/utilita")}`}>
-                        <IconTextNavbar icon={IoSettingsSharp} text="UTILITA'" iconSize={19} />
+                    <Link
+                        href="/utilita"
+                        className={`${commonClass} ${isActive("/utilita")}`}
+                    >
+                        <IconTextNavbar
+                            icon={IoSettingsSharp}
+                            text="UTILITA'"
+                            iconSize={19}
+                        />
                     </Link>
 
-                    <Link href="/logout" method="post" className={commonClass}  onClick={() => sessionStorage.removeItem('onboarding')}>
-                        <IconTextNavbar icon={MdOutlineLogout} text="LOGOUT" iconSize={19} />
-                    </Link>
+                    {/* <Link
+                        href="/logout"
+                        method="post"
+                        className={commonClass}
+                        onClick={() => sessionStorage.removeItem("onboarding")}
+                    >
+                        <IconTextNavbar
+                            icon={MdOutlineLogout}
+                            text="LOGOUT"
+                            iconSize={19}
+                        />
+                    </Link> */}
+
+                    <button
+                        className={commonClass}
+                        onClick={async () => {
+                            await axios.post("/logout");
+                            sessionStorage.removeItem("onboarding");
+                            window.location.href = "/login";
+                        }}
+                    >
+                        <IconTextNavbar
+                            icon={MdOutlineLogout}
+                            text="LOGOUT"
+                            iconSize={19}
+                        />
+                    </button>
                 </div>
             </div>
 
@@ -118,29 +190,42 @@ export const Navbar = ({ menuOpen, setMenuOpen }) => {
 
                 {/* CONTENUTO */}
                 <div className="flex flex-col flex-grow justify-between mt-2">
-                    
                     {/* HOME */}
                     <Link
                         href="/home"
-                        className={`w-full flex justify-center mt-4 ${isActive("/home")}`}
+                        className={`w-full flex justify-center mt-4 ${isActive(
+                            "/home"
+                        )}`}
                         onClick={() => setMenuOpen(false)}
                     >
-                        <IconTextNavbar icon={IoMdHome} text="HOME" iconSize={22} />
+                        <IconTextNavbar
+                            icon={IoMdHome}
+                            text="HOME"
+                            iconSize={22}
+                        />
                     </Link>
 
                     {/* SEZIONI CENTRALI */}
                     <div className="flex flex-col gap-4 mt-6">
                         <Link
                             href="/incassi"
-                            className={`w-full flex justify-center ${isActive("/incassi")}`}
+                            className={`w-full flex justify-center ${isActive(
+                                "/incassi"
+                            )}`}
                             onClick={() => setMenuOpen(false)}
                         >
-                            <IconTextNavbar icon={FaRegCreditCard} text="INCASSI" iconSize={18} />
+                            <IconTextNavbar
+                                icon={FaRegCreditCard}
+                                text="INCASSI"
+                                iconSize={18}
+                            />
                         </Link>
 
                         <Link
                             href="/utenti"
-                            className={`w-full flex justify-center ${isActive("/utenti")}`}
+                            className={`w-full flex justify-center ${isActive(
+                                "/utenti"
+                            )}`}
                             onClick={() => setMenuOpen(false)}
                         >
                             <IconTextNavbar image={BrainIcon} text="UTENTI" />
@@ -148,18 +233,30 @@ export const Navbar = ({ menuOpen, setMenuOpen }) => {
 
                         <Link
                             href="/archivio-firme"
-                            className={`w-full flex justify-center ${isActive("/archivio-firme")}`}
+                            className={`w-full flex justify-center ${isActive(
+                                "/archivio-firme"
+                            )}`}
                             onClick={() => setMenuOpen(false)}
                         >
-                            <IconTextNavbar icon={FaPencilAlt} text="ARCHIVIO FIRME" iconSize={16} />
+                            <IconTextNavbar
+                                icon={FaPencilAlt}
+                                text="ARCHIVIO FIRME"
+                                iconSize={16}
+                            />
                         </Link>
 
                         <Link
                             href="/lista-attesa"
-                            className={`w-full flex justify-center ${isActive("/lista-attesa")}`}
+                            className={`w-full flex justify-center ${isActive(
+                                "/lista-attesa"
+                            )}`}
                             onClick={() => setMenuOpen(false)}
                         >
-                            <IconTextNavbar icon={FaList} text="LISTA D'ATTESA" iconSize={16} />
+                            <IconTextNavbar
+                                icon={FaList}
+                                text="LISTA D'ATTESA"
+                                iconSize={16}
+                            />
                         </Link>
                     </div>
 
@@ -167,10 +264,16 @@ export const Navbar = ({ menuOpen, setMenuOpen }) => {
                     <div className="mt-6">
                         <Link
                             href="/tariffario"
-                            className={`w-full flex justify-center ${isActive("/tariffario")}`}
+                            className={`w-full flex justify-center ${isActive(
+                                "/tariffario"
+                            )}`}
                             onClick={() => setMenuOpen(false)}
                         >
-                            <IconTextNavbar icon={FaEuroSign} text="TARIFFARIO" iconSize={18} />
+                            <IconTextNavbar
+                                icon={FaEuroSign}
+                                text="TARIFFARIO"
+                                iconSize={18}
+                            />
                         </Link>
                     </div>
                 </div>
@@ -179,13 +282,19 @@ export const Navbar = ({ menuOpen, setMenuOpen }) => {
                 <div className="flex flex-col mt-8 mb-4">
                     <Link
                         href="/utilita"
-                        className={`w-full flex justify-center ${isActive("/utilita")}`}
+                        className={`w-full flex justify-center ${isActive(
+                            "/utilita"
+                        )}`}
                         onClick={() => setMenuOpen(false)}
                     >
-                        <IconTextNavbar icon={IoSettingsSharp} text="UTILITA'" iconSize={19} />
+                        <IconTextNavbar
+                            icon={IoSettingsSharp}
+                            text="UTILITA'"
+                            iconSize={19}
+                        />
                     </Link>
 
-                    <Link
+                    {/* <Link
                         href="/logout"
                         method="post"
                         className="w-full flex justify-center mt-4"
@@ -195,7 +304,22 @@ export const Navbar = ({ menuOpen, setMenuOpen }) => {
                         }}
                     >
                         <IconTextNavbar icon={MdOutlineLogout} text="LOGOUT" iconSize={19} />
-                    </Link>
+                    </Link> */}
+
+                    <button
+                        className="w-full flex justify-center mt-4"
+                        onClick={async () => {
+                            await axios.post("/logout");
+                            sessionStorage.removeItem("onboarding");
+                            window.location.href = "/login";
+                        }}
+                    >
+                        <IconTextNavbar
+                            icon={MdOutlineLogout}
+                            text="LOGOUT"
+                            iconSize={19}
+                        />
+                    </button>
                 </div>
             </div>
         </>

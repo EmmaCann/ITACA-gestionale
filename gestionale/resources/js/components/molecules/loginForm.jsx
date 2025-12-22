@@ -3,17 +3,18 @@ import { loginUser } from "../../data/api/auth.js";
 import { LoginInputAndLabel } from "./loginInputAndLabel";
 import { LoginButton } from "./atoms/loginButton";
 import { ErrorBox } from "./atoms/errorBox.jsx";
+import axios from "axios";
 
 export const LoginForm = () => {
-    const csrfToken =
-        document
-            .querySelector('meta[name="csrf-token"]')
-            ?.getAttribute("content") || "";
+    // const csrfToken =
+    //     document
+    //         .querySelector('meta[name="csrf-token"]')
+    //         ?.getAttribute("content") || "";
 
     const [data, setData] = useState({
         username: "",
         password: "",
-        _token: csrfToken,
+        // _token: csrfToken,
     });
 
     const [showError, setShowError] = useState(false);
@@ -29,11 +30,13 @@ export const LoginForm = () => {
     };
 
     const handleSubmit = async (e) => {
+        
         e.preventDefault();
         setLoading(true);
         setShowError(false);
 
         try {
+             await axios.get('/');
             const response = await loginUser(data);
             // if (response.redirect_url) {
             //     window.location.href = response.redirect_url;

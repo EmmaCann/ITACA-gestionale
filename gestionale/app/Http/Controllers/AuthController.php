@@ -9,6 +9,7 @@ use App\Models\Firma;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 
 class AuthController extends Controller
@@ -78,11 +79,14 @@ class AuthController extends Controller
 
 
 
-    public function logout()
+    public function logout(Request $request)
     {
-        Session::flush();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
         return redirect()->route('login_form');
     }
+
 
     public function acceptLegal(Request $request)
     {

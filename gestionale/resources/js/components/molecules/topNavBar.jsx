@@ -121,7 +121,7 @@ export const TopNavBar = ({ mode = "full" }) => {
                     {!isAdmin && (
                         <div className="relative">
                             <IoMdNotificationsOutline
-                                ref={notifRef}
+                                // ref={notifRef}
                                 className={iconCls}
                                 onClick={() => setOpenDropdown(!openDropdown)}
                             />

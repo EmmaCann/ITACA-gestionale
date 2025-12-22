@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, usePage } from "@inertiajs/react";
 import { LogoItaca } from "./molecules/atoms/logo-ITACA.jsx";
-
+import axios from "axios";
 // Icone navbar
 import { IoMdHome } from "react-icons/io";
 import { IconTextNavbar } from "./molecules/atoms/iconTextNavbar.jsx";
@@ -120,19 +120,20 @@ export const NavbarPaziente = ({ menuOpen, setMenuOpen }) => {
                             iconSize={19}
                         />
                     </Link>
-
-                    <Link
-                        href="/logout"
-                        method="post"
+                    <button
                         className={commonClass}
-                        onClick={() => sessionStorage.removeItem('onboarding')}
+                        onClick={async () => {
+                            await axios.post("/logout");
+                            sessionStorage.removeItem("onboarding");
+                            window.location.href = "/login";
+                        }}
                     >
                         <IconTextNavbar
                             icon={MdOutlineLogout}
                             text="LOGOUT"
                             iconSize={19}
                         />
-                    </Link>
+                    </button>
                 </div>
             </div>
 
@@ -265,13 +266,12 @@ export const NavbarPaziente = ({ menuOpen, setMenuOpen }) => {
                         />
                     </Link>
 
-                    <Link
-                        href="/logout"
-                        method="post"
+                    <button
                         className="w-full flex justify-center mt-4"
-                        onClick={() => {
+                        onClick={async () => {
+                            await axios.post("/logout");
                             sessionStorage.removeItem("onboarding");
-                            setMenuOpen(false);
+                            window.location.href = "/login";
                         }}
                     >
                         <IconTextNavbar
@@ -279,7 +279,7 @@ export const NavbarPaziente = ({ menuOpen, setMenuOpen }) => {
                             text="LOGOUT"
                             iconSize={19}
                         />
-                    </Link>
+                    </button>
                 </div>
             </div>
         </>

@@ -45,6 +45,7 @@ const NotificationDropdown = ({
                     shadow-xl
                     border border-gray-200
                     flex flex-col
+                    box-border
                 `}
             >
                 {/* HEADER */}
@@ -67,7 +68,7 @@ const NotificationDropdown = ({
                 </div>
 
                 {/* LISTA */}
-                <div className="flex-1 overflow-y-auto">
+                <div className="flex-1 overflow-y-auto overflow-x-hidden max-h-[360px]">
                     {notifiche.length === 0 && (
                         <div className="text-center text-gray-400 text-sm py-6">
                             Nessuna notifica
@@ -78,14 +79,12 @@ const NotificationDropdown = ({
                         <div
                             key={n.id}
                             className={`
-                                px-4 py-3 border-b cursor-pointer
-                                hover:bg-gray-50
-                                ${n.letta ? "opacity-60" : "bg-gray-50"}
-                            `}
+                px-4 py-3 border-b cursor-pointer
+                hover:bg-gray-50
+                ${n.letta ? "opacity-60" : "bg-gray-50"}
+            `}
                             onClick={() => {
-                                if (!n.letta) {
-                                    onRead(n.id);
-                                }
+                                if (!n.letta) onRead(n.id);
                             }}
                         >
                             <div className="flex justify-between items-start gap-2">
@@ -93,7 +92,8 @@ const NotificationDropdown = ({
                                     <p className="text-sm font-medium">
                                         {n.tipologia ?? "Notifica"}
                                     </p>
-                                    <p className="text-sm text-gray-600 break-words">
+                                   <p className="text-sm text-gray-600 [overflow-wrap:anywhere]">
+
                                         {n.messaggio}
                                     </p>
                                     <p className="text-xs text-gray-400 mt-1">
