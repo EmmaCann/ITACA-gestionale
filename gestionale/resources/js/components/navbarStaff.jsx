@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, usePage } from "@inertiajs/react";
 import { LogoItaca } from "./molecules/atoms/logo-ITACA.jsx";
-
+import axios from "axios";
 // Icone navbar
 import BrainIcon from "../../../public/icons/brain.png";
 import { IoMdHome } from "react-icons/io";
@@ -114,13 +114,28 @@ export const NavbarStaff = ({ menuOpen, setMenuOpen }) => {
                         />
                     </Link>
 
-                    <Link href="/logout" method="post" className={commonClass} onClick={() => sessionStorage.removeItem('onboarding')}>
+                    {/* <Link href="/logout" method="post" className={commonClass} onClick={() => sessionStorage.removeItem('onboarding')}>
                         <IconTextNavbar
                             icon={MdOutlineLogout}
                             text="LOGOUT"
                             iconSize={19}
                         />
-                    </Link>
+                    </Link> */}
+
+                    <button
+                        className={commonClass}
+                        onClick={async () => {
+                            await axios.post("/logout");
+                            sessionStorage.removeItem("onboarding");
+                            window.location.href = "/login";
+                        }}
+                    >
+                        <IconTextNavbar
+                            icon={MdOutlineLogout}
+                            text="LOGOUT"
+                            iconSize={19}
+                        />
+                    </button>
                 </div>
             </div>
 
@@ -233,7 +248,7 @@ export const NavbarStaff = ({ menuOpen, setMenuOpen }) => {
                             iconSize={19}
                         />
                     </Link>
-
+                    {/* 
                     <Link
                         href="/logout"
                         method="post"
@@ -248,7 +263,22 @@ export const NavbarStaff = ({ menuOpen, setMenuOpen }) => {
                             text="LOGOUT"
                             iconSize={19}
                         />
-                    </Link>
+                    </Link> */}
+
+                    <button
+                        className="w-full flex justify-center mt-4"
+                        onClick={async () => {
+                            await axios.post("/logout");
+                            sessionStorage.removeItem("onboarding");
+                            window.location.href = "/login";
+                        }}
+                    >
+                        <IconTextNavbar
+                            icon={MdOutlineLogout}
+                            text="LOGOUT"
+                            iconSize={19}
+                        />
+                    </button>
                 </div>
             </div>
         </>
