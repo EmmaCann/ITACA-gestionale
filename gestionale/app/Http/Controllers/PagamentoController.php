@@ -118,20 +118,42 @@ class PagamentoController extends Controller
                 });
                 break;
 
+            // case 'mese':
+            //     $inizioMese = Carbon::now()->startOfMonth();
+            //     $incassi = $query->where('data', '>=', $inizioMese)
+            //         ->select(DB::raw("WEEK(data, 1) as settimana"), DB::raw("SUM(importo) as totale"))
+            //         ->groupBy(DB::raw("WEEK(data, 1)"))
+            //         ->pluck('totale', 'settimana');
+
+            //     $dati = collect(range(1, 4))->map(function ($settimana) use ($incassi) {
+            //         return [
+            //             'label' => 'Settimana ' . $settimana,
+            //             'valore' => number_format($incassi[$settimana] ?? 0, 2) . '€'
+            //         ];
+            //     });
+            //     break;
+
             case 'mese':
                 $inizioMese = Carbon::now()->startOfMonth();
-                $incassi = $query->where('data', '>=', $inizioMese)
-                    ->select(DB::raw("WEEK(data, 1) as settimana"), DB::raw("SUM(importo) as totale"))
-                    ->groupBy(DB::raw("WEEK(data, 1)"))
-                    ->pluck('totale', 'settimana');
+                $fineMese = Carbon::now()->endOfMonth();
 
-                $dati = collect(range(1, 4))->map(function ($settimana) use ($incassi) {
+                $incassi = $query
+                    ->whereBetween('data', [$inizioMese, $fineMese])
+                    ->select(
+                        DB::raw("WEEK(data, 1) - WEEK('$inizioMese', 1) + 1 as settimana_mese"),
+                        DB::raw("SUM(importo) as totale")
+                    )
+                    ->groupBy('settimana_mese')
+                    ->pluck('totale', 'settimana_mese');
+
+                $dati = collect(range(1, 5))->map(function ($settimana) use ($incassi) {
                     return [
                         'label' => 'Settimana ' . $settimana,
                         'valore' => number_format($incassi[$settimana] ?? 0, 2) . '€'
                     ];
                 });
                 break;
+
 
             case 'anno':
                 $inizioAnno = Carbon::now()->startOfYear();
@@ -180,7 +202,7 @@ class PagamentoController extends Controller
         $tipo = $request->input('tipo');
         $tipoUtente = $request->input('tipoUtente');
         $terapia = $request->input('terapia');
-       $terapistaId = $request->query('terapista') ?? $request->input('terapista');
+        $terapistaId = $request->query('terapista') ?? $request->input('terapista');
 
 
         $oggi = Carbon::today();
