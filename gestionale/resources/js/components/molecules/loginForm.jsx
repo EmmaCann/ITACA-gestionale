@@ -3,7 +3,7 @@ import { loginUser } from "../../data/api/auth.js";
 import { LoginInputAndLabel } from "./loginInputAndLabel";
 import { LoginButton } from "./atoms/loginButton";
 import { ErrorBox } from "./atoms/errorBox.jsx";
-import axios from "axios";
+// import axios from "axios";
 
 export const LoginForm = () => {
     // const csrfToken =
@@ -36,7 +36,7 @@ export const LoginForm = () => {
         setShowError(false);
 
         try {
-             await axios.get('/');
+            //  await axios.get('/');
             const response = await loginUser(data);
             // if (response.redirect_url) {
             //     window.location.href = response.redirect_url;
