@@ -17,9 +17,10 @@ use App\Http\Controllers\PagamentiPazientiController;
 use App\Http\Controllers\NotificaController;
 use App\Http\Controllers\CartellaClinicaController;
 
-Route::get('/', function () {
-    return redirect()->route('login_form');
-});
+// Route::get('/', function () {
+//     return redirect()->route('login_form');
+// });
+Route::redirect('/', '/login');
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login_form');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
@@ -69,12 +70,12 @@ Route::middleware([AuthSession::class])->group(function () {
     Route::get('/pagamenti/filtrati', [PagamentoController::class, 'filtraPagamenti']);
 
 
-    Route::get('/', function () {
-        return Inertia::render('Home', [
-            'ruolo' => session('logged_user.ruolo'),
-            'canEdit' => session('logged_user.ruolo') === 'admin'
-        ]);
-    })->name('home');
+    // Route::get('/', function () {
+    //     return Inertia::render('Home', [
+    //         'ruolo' => session('logged_user.ruolo'),
+    //         'canEdit' => session('logged_user.ruolo') === 'admin'
+    //     ]);
+    // })->name('home');
 
     Route::get('/home', function () {
         return Inertia::render('Home', [
