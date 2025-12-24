@@ -131,8 +131,13 @@ const ChiSiamo = () => {
                             {images.map((src, idx) => (
                                 <div
                                     key={idx}
-                                    className="flex-shrink-0 min-w-[70%] sm:min-w-[240px] md:min-w-[280px]
-             h-56 sm:h-64 md:h-72 rounded-lg overflow-hidden"
+                                    className="
+  flex-shrink-0
+  w-[85vw] sm:w-[240px] md:w-[280px]
+  aspect-[4/3]
+  rounded-lg
+  overflow-hidden
+"
                                 >
                                     <img
                                         src={src}
