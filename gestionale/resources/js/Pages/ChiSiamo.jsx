@@ -142,7 +142,7 @@ const ChiSiamo = () => {
                                     <img
                                         src={src}
                                         alt={`chi siamo ${idx + 1}`}
-                                        className="w-full h-full object-cover"
+                                        className="w-full h-full object-contain"
                                     />
                                 </div>
                             ))}
