@@ -103,13 +103,14 @@ const ModalContentAggiungiUtente = ({
         "flex-1 border-none outline-none text-[14px] placeholder-gray-400 font-marcellus";
 
     return (
-        <div className="flex flex-col h-full overflow-hidden">
-            <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-4">
+        <div className="flex flex-col h-full">
+            <div className="flex-1 overflow-y-auto pr-2 flex flex-col gap-4">
                 <h2 className="font-marcellusSC font-bold text-center text-[22px]">
                     AGGIUNGI NUOVO {tipoUtente.toUpperCase()}
                 </h2>
 
-                <div className="w-[40%]">
+               <div className="w-full sm:w-[40%]">
+
                     <Select
                         options={tipoOptions}
                         value={tipoOptions.find(
@@ -121,7 +122,8 @@ const ModalContentAggiungiUtente = ({
                 </div>
 
                 {/* Nome + Cognome */}
-                <div className="flex flex-row gap-4">
+               <div className="flex flex-col sm:flex-row gap-4">
+
                     <IconInputWrapperModal icon={FaUser} className="flex-1">
                         <input
                             name="nome"
@@ -185,7 +187,7 @@ const ModalContentAggiungiUtente = ({
                                 }))
                             }
                             placeholder="Seleziona sesso"
-                            className="text-[14px] w-[200px]"
+                            className="text-[14px] w-full sm:w-[200px]"
                             menuPlacement="auto"
                         />
                     </div>

@@ -33,7 +33,6 @@ const ChiSiamo = () => {
     return (
         <Home>
             <div className="w-full mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
-
                 {/* --- HEADER + TESTO --- */}
                 <div className="p-8 md:flex md:gap-8 items-start">
                     <div className="md:w-1/3 flex flex-col items-center md:items-start">
@@ -127,13 +126,13 @@ const ChiSiamo = () => {
                             ref={stripRef}
                             className="no-scrollbar flex gap-4 py-4 overflow-x-auto"
                             onWheel={(e) => e.preventDefault()}
-                            onTouchMove={(e) => e.preventDefault()}
+                            // onTouchMove={(e) => e.preventDefault()}
                         >
                             {images.map((src, idx) => (
                                 <div
                                     key={idx}
                                     className="flex-shrink-0 min-w-[70%] sm:min-w-[240px] md:min-w-[280px]
- h-56 sm:h-64 md:h-72 rounded-lg overflow-hidden"
+             h-56 sm:h-64 md:h-72 rounded-lg overflow-hidden"
                                 >
                                     <img
                                         src={src}

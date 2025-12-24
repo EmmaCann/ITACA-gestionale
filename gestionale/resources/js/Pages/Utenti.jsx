@@ -90,25 +90,25 @@ const InputWithIcon = ({ icon: Icon, ...props }) => (
 const Toggle = ({
     checked,
     onChange,
-    labelLeft = "Collaborazione",
-    labelRight = "Più terapisti",
+    label = "Collaborazione terapisti",
 }) => (
     <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 h-12">
-        <span className="text-sm text-slate-700">{labelLeft}</span>
+        <span className="text-sm text-slate-700">
+            {label}
+        </span>
+
         <button
             type="button"
             onClick={() => onChange(!checked)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-                checked ? "bg-bluPrimary" : "bg-slate-300"
-            }`}
+            aria-pressed={checked}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors
+                ${checked ? "bg-bluPrimary" : "bg-slate-300"}`}
         >
             <span
-                className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${
-                    checked ? "translate-x-5" : "translate-x-1"
-                }`}
+                className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform
+                    ${checked ? "translate-x-5" : "translate-x-1"}`}
             />
         </button>
-        <span className="ml-3 text-sm text-slate-700">{labelRight}</span>
     </div>
 );
 
@@ -398,7 +398,7 @@ const Utenti = () => {
                 isOpen={openModal}
                 onRequestClose={() => setOpenModal(false)}
                 title="Aggiungi utente"
-                className="w-[60%] max-h-[90%] overflow-hidden rounded-[20px] shadow-lg"
+                className="w-[95vw] sm:w-[90vw] md:w-[60%] max-h-[90vh]  overflow-hidden rounded-[20px] shadow-lg"
             >
                 <ModalContentAggiungiUtente
                     tipoIniziale={modalTipo}
@@ -614,7 +614,7 @@ function PazientiView({ registerRefetch, ruolo }) {
 
                     {/* Collaborazione */}
 
-                    <div className="col-span-12 xl:col-span-6">
+                     <div className="col-span-12 md:col-span-6 xl:col-span-4">
                         <Toggle checked={multi} onChange={setMulti} />
                     </div>
 
@@ -798,7 +798,7 @@ function PazientiView({ registerRefetch, ruolo }) {
                 isOpen={openEditModal}
                 onRequestClose={() => setOpenEditModal(false)}
                 title="Modifica utente"
-                className="w-[60%] max-h-[90%] overflow-hidden rounded-[20px] shadow-lg"
+                 className="w-[95vw] sm:w-[90vw] md:w-[60%] max-h-[90vh]  overflow-hidden rounded-[20px] shadow-lg"
             >
                 <ModalContentModificaUtente
                     utente={utenteSelezionato}
@@ -1007,7 +1007,7 @@ function StaffView({ registerRefetch, ruolo }) {
                         "Età",
                         "Sesso",
                         "Contatti",
-                        "Aziioni",
+                        "Azioni",
                     ]}
                 >
                     {loading ? (
@@ -1055,13 +1055,13 @@ function StaffView({ registerRefetch, ruolo }) {
                                     <td className="px-4 py-4">
                                         <div className="flex items-center gap-4">
                                             <button
-                                                onClick={() => apriModifica(p)}
+                                                onClick={() => apriModifica(u)} 
                                                 className="text-sky-700 hover:text-sky-900"
                                             >
                                                 <FaEdit />
                                             </button>
                                             <button
-                                                onClick={() => confirmDelete(p)}
+                                                onClick={() => confirmDelete(u)}
                                                 className="text-red-600 hover:text-red-700"
                                             >
                                                 <FaTrash />
@@ -1086,7 +1086,7 @@ function StaffView({ registerRefetch, ruolo }) {
                 isOpen={openEditModal}
                 onRequestClose={() => setOpenEditModal(false)}
                 title="Modifica utente"
-                className="w-[60%] max-h-[90%] overflow-hidden rounded-[20px] shadow-lg"
+               className="w-[95vw] sm:w-[90vw] md:w-[60%] max-h-[90vh] overflow-hidden rounded-[20px] shadow-lg"
             >
                 <ModalContentModificaUtente
                     utente={utenteSelezionato}
