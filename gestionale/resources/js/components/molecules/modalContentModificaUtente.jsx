@@ -108,14 +108,15 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
         "flex-1 border-none outline-none text-[14px] placeholder-gray-400 font-marcellus";
 
     return (
-        <div className="flex flex-col h-full overflow-hidden">
-            <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-4">
+        <div className="flex flex-col h-full ">
+            <div className="flex-1 overflow-y-auto pr-2 flex flex-col gap-4">
                 <h2 className="font-marcellusSC font-bold text-center text-[22px]">
                     MODIFICA {tipoUtente.toUpperCase()}
                 </h2>
 
                 {/* Nome + Cognome */}
-                <div className="flex flex-row gap-4">
+               <div className="flex flex-col sm:flex-row gap-4">
+
                     <IconInputWrapperModal icon={FaUser} className="flex-1">
                         <input
                             name="nome"
@@ -137,7 +138,8 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
                 </div>
 
                 {/* Data di nascita + sesso */}
-                <div className="flex flex-row gap-4">
+                <div className="flex flex-col sm:flex-row gap-4">
+
                     <div className="flex flex-col flex-1">
                         <label className="text-sm text-gray-600 mb-1 font-marcellus">
                             Data di nascita
@@ -180,7 +182,7 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
                                 }))
                             }
                             placeholder="Seleziona sesso"
-                            className="text-[14px] w-[200px]"
+                           className="text-[14px] w-full sm:w-[200px]"
                         />
                     </div>
                 </div>
