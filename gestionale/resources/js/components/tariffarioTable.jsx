@@ -11,6 +11,7 @@ const TariffarioTable = ({ dati,onUpdated }) => {
                         <th className="px-6 py-3">Terapia</th>
                         <th className="px-6 py-3">Prezzo</th>
                         <th className="px-6 py-3">Durata</th>
+                        <th className="px-6 py-3 ">Note</th>
                         <th className="px-6 py-3">Ultimo Aggiornamento</th>
                         <th className="px-6 py-3 text-center">Azioni</th>
                     </tr>
@@ -27,7 +28,7 @@ const TariffarioTable = ({ dati,onUpdated }) => {
                     ) : (
                         <tr>
                             <td
-                                colSpan={6}
+                                colSpan={7}
                                 className="text-center py-4 text-gray-400"
                             >
                                 Nessuna tariffa disponibile

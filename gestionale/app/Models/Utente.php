@@ -19,7 +19,8 @@ class Utente extends Authenticatable
         'username',
         'password',
         'email',
-        'telefono',
+        'telefono_1',
+        'telefono_2',
         'nascita',
         'ruolo',
         'sesso',
@@ -61,8 +62,9 @@ class Utente extends Authenticatable
     // Relazioni
     public function staffDati()
     {
-        return $this->hasOne(StaffDati::class);
+        return $this->hasMany(StaffDati::class);
     }
+
 
     public function cartellaClinica()
     {

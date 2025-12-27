@@ -24,6 +24,7 @@ class TariffaController extends Controller
             'terapia'   => 'required|string|max:255',
             'prezzo'    => 'required|numeric|min:0',
             'durata'    => 'required|integer|min:1',
+            'note'      => 'nullable|string',
         ]);
 
         $tariffa = Tariffa::create($validated);
@@ -47,6 +48,7 @@ class TariffaController extends Controller
             'terapia'   => 'required|string|max:255',
             'prezzo'    => 'required|numeric|min:0',
             'durata'    => 'required|integer|min:1',
+            'note'      => 'nullable|string',
         ]);
 
         $tariffa = Tariffa::findOrFail($id);

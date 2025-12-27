@@ -12,6 +12,7 @@ class Tariffa extends Model
         'terapia',
         'prezzo',
         'durata',
+        'note',
     ];
 
     public function terapista()
