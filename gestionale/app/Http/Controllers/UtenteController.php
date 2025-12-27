@@ -221,9 +221,13 @@ class UtenteController extends Controller
             'telefono_2' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
             'dataNascita' => 'nullable|date',
-            'professione' => 'nullable|string|max:255',
+            'professioni'   => 'nullable|array',
+            'professioni.*' => 'string|max:255',
             'diagnosi' => 'nullable|string',
             'sesso' => 'nullable|in:M,F',
+            'terapisti'   => 'nullable|array',
+            'terapisti.*' => 'integer|exists:utente,id',
+
         ]);
 
         // Genera username univoco
@@ -255,19 +259,38 @@ class UtenteController extends Controller
 
 
         if ($validated['tipoUtente'] === 'staff') {
-            $utente->staffDati()->create([
-                'professione' => $validated['professione'] ?? 'Non specificata',
-            ]);
+            if (!empty($validated['professioni'])) {
+                foreach ($validated['professioni'] as $professione) {
+                    StaffDati::create([
+                        'utente_id'   => $utente->id,
+                        'professione' => $professione,
+                    ]);
+                }
+            }
         }
 
         if ($validated['tipoUtente'] === 'paziente') {
+
+            // cartella clinica
             $utente->cartellaClinica()->create([
                 'anamnesi' => '',
                 'diagnosi' => $validated['diagnosi'] ?? '',
                 'terapia' => '',
                 'note' => '',
             ]);
+
+            //  associazione terapisti (1:N)
+            if (!empty($validated['terapisti'])) {
+                foreach ($validated['terapisti'] as $terapistaId) {
+                    PazienteTerapista::create([
+                        'paziente_id'  => $utente->id,
+                        'terapista_id' => $terapistaId,
+                        'data'         => now(),
+                    ]);
+                }
+            }
         }
+
 
         return response()->json([
             'message' => 'Utente creato con successo',
@@ -356,7 +379,11 @@ class UtenteController extends Controller
                 'telefono_2' => 'nullable|string|max:20',
                 'email' => 'nullable|email|max:255',
                 'password' => 'nullable|string|min:6',
-                'professione' => 'nullable|string|max:255',
+                'professioni'   => 'nullable|array',
+                'professioni.*' => 'string|max:255',
+                'terapisti'   => 'nullable|array',
+                'terapisti.*' => 'integer|exists:utente,id',
+
                 'diagnosi' => 'nullable|string',
                 'terapista_id' => 'nullable|integer|exists:utente,id',
             ]);
@@ -380,14 +407,25 @@ class UtenteController extends Controller
             $utente->save();
 
             // Se staff → aggiorna professione
-            if ($utente->ruolo === 'staff') {
-                if (!empty($validated['professione'])) {
-                    StaffDati::updateOrCreate(
-                        ['utente_id' => $utente->id],
-                        ['professione' => $validated['professione']]
-                    );
+            // if ($utente->ruolo === 'staff') {
+            //     if (!empty($validated['professione'])) {
+            //         StaffDati::updateOrCreate(
+            //             ['utente_id' => $utente->id],
+            //             ['professione' => $validated['professione']]
+            //         );
+            //     }
+            // }
+            if ($utente->ruolo === 'staff' && isset($validated['professioni'])) {
+                StaffDati::where('utente_id', $utente->id)->delete();
+
+                foreach ($validated['professioni'] as $professione) {
+                    StaffDati::create([
+                        'utente_id'   => $utente->id,
+                        'professione' => $professione,
+                    ]);
                 }
             }
+
 
             // Se paziente → aggiorna diagnosi e terapista
             if ($utente->ruolo === 'paziente') {
@@ -397,15 +435,17 @@ class UtenteController extends Controller
                         ['diagnosi' => $validated['diagnosi']]
                     );
                 }
+                if ($utente->ruolo === 'paziente' && isset($validated['terapisti'])) {
 
-                if (!empty($validated['terapista_id'])) {
-                    // elimina relazioni esistenti e crea nuova
                     PazienteTerapista::where('paziente_id', $utente->id)->delete();
-                    PazienteTerapista::create([
-                        'paziente_id' => $utente->id,
-                        'terapista_id' => $validated['terapista_id'],
-                        'data' => now(),
-                    ]);
+
+                    foreach ($validated['terapisti'] as $terapistaId) {
+                        PazienteTerapista::create([
+                            'paziente_id'  => $utente->id,
+                            'terapista_id' => $terapistaId,
+                            'data'         => now(),
+                        ]);
+                    }
                 }
             }
 
