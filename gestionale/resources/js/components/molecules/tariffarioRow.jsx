@@ -8,22 +8,22 @@ import { toast } from "react-toastify";
 const TariffarioRow = ({ dati, onUpdated }) => {
     const [modalEditOpen, setModalEditOpen] = useState(false);
 
-   const handleDelete = async () => {
-    if (!confirm("Sei sicuro di voler eliminare questa tariffa?")) return;
+    const handleDelete = async () => {
+        if (!confirm("Sei sicuro di voler eliminare questa tariffa?")) return;
 
-    try {
-        await baseCall({
-            endpoint: `/tariffe/${dati.id}`,
-            method: "DELETE"
-        });
+        try {
+            await baseCall({
+                endpoint: `/tariffe/${dati.id}`,
+                method: "DELETE",
+            });
 
-        toast.success("Tariffa eliminata con successo.");
-        onUpdated?.(); // Ricarica i dati
-    } catch (error) {
-        console.error("Errore eliminazione:", error);
-        toast.error("Errore durante l'eliminazione.");
-    }
-};
+            toast.success("Tariffa eliminata con successo.");
+            onUpdated?.(); // Ricarica i dati
+        } catch (error) {
+            console.error("Errore eliminazione:", error);
+            toast.error("Errore durante l'eliminazione.");
+        }
+    };
 
     const formatData = (rawDate) => {
         const date = new Date(rawDate);
@@ -41,6 +41,19 @@ const TariffarioRow = ({ dati, onUpdated }) => {
                     €{parseFloat(dati.prezzo).toFixed(2)}
                 </td>
                 <td className="px-6 py-4">{dati.durata}</td>
+                {/*  NOTE (opzionali) */}
+                <td className="px-6 py-4 max-w-[220px]">
+                    {dati.note ? (
+                        <span
+                            className="block truncate text-gray-600"
+                            title={dati.note}
+                        >
+                            {dati.note}
+                        </span>
+                    ) : (
+                        <span className="text-gray-300">—</span>
+                    )}
+                </td>
                 <td className="px-6 py-4">
                     {dati.updated_at ? formatData(dati.updated_at) : "—"}
                 </td>

@@ -10,6 +10,7 @@ const ModalContentTariffaModifica = ({ onClose, onSubmit, tariffa }) => {
     const [terapia, setTerapia] = useState(tariffa.terapia || "");
     const [prezzo, setPrezzo] = useState(tariffa.prezzo || "");
     const [durata, setDurata] = useState(tariffa.durata || "");
+    const [note, setNote] = useState(tariffa.note || "");
 
     const handleSubmit = async () => {
         if (!terapistaSelezionato || !terapia || !prezzo || !durata) {
@@ -23,6 +24,7 @@ const ModalContentTariffaModifica = ({ onClose, onSubmit, tariffa }) => {
             terapia,
             prezzo,
             durata,
+            note: note || null,
         };
 
         try {
@@ -61,7 +63,8 @@ const ModalContentTariffaModifica = ({ onClose, onSubmit, tariffa }) => {
         fetchTerapisti();
     }, []);
 
-    const inputClass = "w-full border border-gray-300 rounded px-4 py-2 text-sm";
+    const inputClass =
+        "w-full border border-gray-300 rounded px-4 py-2 text-sm";
 
     return (
         <div className="flex flex-col gap-4 p-2 py-4 max-h-[60vh] overflow-y-auto  custom-scrollbar">
@@ -109,6 +112,16 @@ const ModalContentTariffaModifica = ({ onClose, onSubmit, tariffa }) => {
                     onChange={(e) => setDurata(e.target.value)}
                     placeholder="Durata"
                     type="number"
+                />
+            </div>
+            <div>
+                <label className="block text-sm mb-1">Note</label>
+                <textarea
+                    className="w-full border border-gray-300 rounded px-4 py-2 text-sm resize-none"
+                    rows={3}
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    placeholder="Note (opzionali)"
                 />
             </div>
 
