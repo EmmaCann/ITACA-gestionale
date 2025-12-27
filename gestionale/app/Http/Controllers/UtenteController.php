@@ -225,6 +225,9 @@ class UtenteController extends Controller
             'professioni.*' => 'string|max:255',
             'diagnosi' => 'nullable|string',
             'sesso' => 'nullable|in:M,F',
+            'terapisti'   => 'nullable|array',
+            'terapisti.*' => 'integer|exists:utente,id',
+
         ]);
 
         // Genera username univoco
@@ -267,13 +270,27 @@ class UtenteController extends Controller
         }
 
         if ($validated['tipoUtente'] === 'paziente') {
+
+            // cartella clinica
             $utente->cartellaClinica()->create([
                 'anamnesi' => '',
                 'diagnosi' => $validated['diagnosi'] ?? '',
                 'terapia' => '',
                 'note' => '',
             ]);
+
+            //  associazione terapisti (1:N)
+            if (!empty($validated['terapisti'])) {
+                foreach ($validated['terapisti'] as $terapistaId) {
+                    PazienteTerapista::create([
+                        'paziente_id'  => $utente->id,
+                        'terapista_id' => $terapistaId,
+                        'data'         => now(),
+                    ]);
+                }
+            }
         }
+
 
         return response()->json([
             'message' => 'Utente creato con successo',
@@ -364,6 +381,8 @@ class UtenteController extends Controller
                 'password' => 'nullable|string|min:6',
                 'professioni'   => 'nullable|array',
                 'professioni.*' => 'string|max:255',
+                'terapisti'   => 'nullable|array',
+                'terapisti.*' => 'integer|exists:utente,id',
 
                 'diagnosi' => 'nullable|string',
                 'terapista_id' => 'nullable|integer|exists:utente,id',
@@ -416,15 +435,17 @@ class UtenteController extends Controller
                         ['diagnosi' => $validated['diagnosi']]
                     );
                 }
+                if ($utente->ruolo === 'paziente' && isset($validated['terapisti'])) {
 
-                if (!empty($validated['terapista_id'])) {
-                    // elimina relazioni esistenti e crea nuova
                     PazienteTerapista::where('paziente_id', $utente->id)->delete();
-                    PazienteTerapista::create([
-                        'paziente_id' => $utente->id,
-                        'terapista_id' => $validated['terapista_id'],
-                        'data' => now(),
-                    ]);
+
+                    foreach ($validated['terapisti'] as $terapistaId) {
+                        PazienteTerapista::create([
+                            'paziente_id'  => $utente->id,
+                            'terapista_id' => $terapistaId,
+                            'data'         => now(),
+                        ]);
+                    }
                 }
             }
 

@@ -18,9 +18,9 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [terapistiOptions, setTerapistiOptions] = useState([]);
-    const [terapistaSelezionato, setTerapistaSelezionato] = useState(null);
+    const [terapistiSelezionati, setTerapistiSelezionati] = useState([]);
 
-    // 🔹 STAFF: professioni multiple
+    // STAFF: professioni multiple
     const [professioniOptions, setProfessioniOptions] = useState([]);
     const [professioniSelezionate, setProfessioniSelezionate] = useState([]);
 
@@ -57,11 +57,13 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
         if (tipoUtente === "paziente") {
             fetchTerapisti();
 
-            if (Array.isArray(utente.terapisti) && utente.terapisti.length) {
-                setTerapistaSelezionato({
-                    value: utente.terapisti[0].id,
-                    label: `${utente.terapisti[0].nome} ${utente.terapisti[0].cognome}`,
-                });
+            if (Array.isArray(utente.terapisti)) {
+                setTerapistiSelezionati(
+                    utente.terapisti.map((t) => ({
+                        value: t.id,
+                        label: `${t.nome} ${t.cognome}`,
+                    }))
+                );
             }
         }
 
@@ -127,7 +129,7 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
             ...formData,
 
             ...(tipoUtente === "paziente" && {
-                terapista_id: terapistaSelezionato?.value,
+                terapisti: terapistiSelezionati.map((t) => t.value),
             }),
 
             ...(tipoUtente === "staff" && {
@@ -302,9 +304,10 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
                     <div>
                         <label className="text-sm mb-1">Terapista</label>
                         <Select
+                            isMulti
                             options={terapistiOptions}
-                            value={terapistaSelezionato}
-                            onChange={setTerapistaSelezionato}
+                            value={terapistiSelezionati}
+                            onChange={setTerapistiSelezionati}
                         />
                     </div>
                 )}

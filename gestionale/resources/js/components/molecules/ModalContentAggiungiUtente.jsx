@@ -23,9 +23,9 @@ const ModalContentAggiungiUtente = ({
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [terapistiOptions, setTerapistiOptions] = useState([]);
-    const [terapistaSelezionato, setTerapistaSelezionato] = useState(null);
+    const [terapistiSelezionati, setTerapistiSelezionati] = useState([]);
 
-    // 🔹 NUOVO: professioni multiple (solo staff)
+    //  professioni multiple (solo staff)
     const [professioniOptions, setProfessioniOptions] = useState([]);
     const [professioniSelezionate, setProfessioniSelezionate] = useState([]);
 
@@ -33,7 +33,7 @@ const ModalContentAggiungiUtente = ({
     useEffect(() => {
         setTipoUtente(tipoIniziale);
         setFormData({});
-        setTerapistaSelezionato(null);
+        setTerapistiSelezionati([]);
         setProfessioniSelezionate([]);
     }, [tipoIniziale]);
 
@@ -102,7 +102,7 @@ const ModalContentAggiungiUtente = ({
             ...formData,
 
             ...(tipoUtente === "paziente" && {
-                terapista: terapistaSelezionato,
+                terapisti: terapistiSelezionati.map((t) => t.value),
             }),
 
             ...(tipoUtente === "staff" && {
@@ -276,13 +276,14 @@ const ModalContentAggiungiUtente = ({
                 {tipoUtente === "paziente" && (
                     <div>
                         <label className="text-sm text-gray-600 mb-1 font-marcellus">
-                            Terapista
+                            Terapisti
                         </label>
                         <Select
+                            isMulti
                             options={terapistiOptions}
-                            value={terapistaSelezionato}
-                            onChange={setTerapistaSelezionato}
-                            placeholder="Seleziona un terapista"
+                            value={terapistiSelezionati}
+                            onChange={setTerapistiSelezionati}
+                            placeholder="Seleziona uno o più terapisti"
                             className="text-[14px]"
                         />
                     </div>
