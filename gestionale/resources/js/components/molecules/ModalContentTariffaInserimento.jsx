@@ -9,6 +9,7 @@ const ModalContentTariffaInserimento = ({ onClose, onSubmit }) => {
     const [formData, setFormData] = useState({
         prezzo: "",
         durata: "",
+        note: "",
     });
 
     const [terapistiOptions, setTerapistiOptions] = useState([]);
@@ -23,19 +24,17 @@ const ModalContentTariffaInserimento = ({ onClose, onSubmit }) => {
     }, []);
 
     const fetchTerapisti = async () => {
-    try {
-        const response = await baseCall({
-            endpoint: "/terapisti",
-            method: "GET",
-        });
+        try {
+            const response = await baseCall({
+                endpoint: "/terapisti",
+                method: "GET",
+            });
 
-       
-        setTerapistiOptions(Object.values(response.data));
-    } catch (error) {
-        toast.error("Errore nel recupero terapisti");
-    }
-};
-
+            setTerapistiOptions(Object.values(response.data));
+        } catch (error) {
+            toast.error("Errore nel recupero terapisti");
+        }
+    };
 
     const fetchTerapie = async () => {
         try {
@@ -62,7 +61,12 @@ const ModalContentTariffaInserimento = ({ onClose, onSubmit }) => {
     };
 
     const handleSubmit = async () => {
-        if (!terapistaSelezionato || !terapiaSelezionata || !formData.prezzo || !formData.durata) {
+        if (
+            !terapistaSelezionato ||
+            !terapiaSelezionata ||
+            !formData.prezzo ||
+            !formData.durata
+        ) {
             toast.error("Compila tutti i campi");
             return;
         }
@@ -76,6 +80,7 @@ const ModalContentTariffaInserimento = ({ onClose, onSubmit }) => {
                     terapia: terapiaSelezionata.value,
                     prezzo: parseFloat(formData.prezzo),
                     durata: parseInt(formData.durata),
+                    note: formData.note || null,
                 },
             });
 
@@ -87,18 +92,21 @@ const ModalContentTariffaInserimento = ({ onClose, onSubmit }) => {
         }
     };
 
-    const inputStyle = "flex-1 border-none outline-none text-[14px] placeholder-gray-400 font-marcellus";
+    const inputStyle =
+        "flex-1 border-none outline-none text-[14px] placeholder-gray-400 font-marcellus";
 
     return (
         <div className="flex flex-col h-full overflow-hidden">
-            <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-4">
+            <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-4 mb-2">
                 <h2 className="font-marcellusSC font-bold text-center text-[22px]">
                     NUOVA TARIFFA
                 </h2>
 
                 {/* Terapista */}
                 <div>
-                    <label className="text-sm text-gray-600 mb-1 font-marcellus">Terapista</label>
+                    <label className="text-sm text-gray-600 mb-1 font-marcellus">
+                        Terapista
+                    </label>
                     <Select
                         options={terapistiOptions}
                         value={terapistaSelezionato}
@@ -110,7 +118,9 @@ const ModalContentTariffaInserimento = ({ onClose, onSubmit }) => {
 
                 {/* Terapia */}
                 <div>
-                    <label className="text-sm text-gray-600 mb-1 font-marcellus">Terapia</label>
+                    <label className="text-sm text-gray-600 mb-1 font-marcellus">
+                        Terapia
+                    </label>
                     <Select
                         options={terapiaOptions}
                         value={terapiaSelezionata}
@@ -141,6 +151,17 @@ const ModalContentTariffaInserimento = ({ onClose, onSubmit }) => {
                         onChange={handleChange}
                     />
                 </IconInputWrapperModal>
+
+                <IconInputWrapperModal>
+                    <textarea
+                        name="note"
+                        placeholder="Note (opzionali)"
+                        rows={3}
+                        className={`${inputStyle} resize-none`}
+                        onChange={handleChange}
+                        value={formData.note || ""}
+                    />
+                </IconInputWrapperModal>
             </div>
 
             {/* Footer */}
@@ -156,7 +177,10 @@ const ModalContentTariffaInserimento = ({ onClose, onSubmit }) => {
                     className="flex items-center gap-3 border border-gray-300 rounded-[12px] px-4 py-2 font-marcellus bg-white hover:bg-gray-100 text-gray-700"
                 >
                     Aggiungi tariffa
-                    <FaRegThumbsUp className="text-sm text-green-600" size={16} />
+                    <FaRegThumbsUp
+                        className="text-sm text-green-600"
+                        size={16}
+                    />
                 </button>
             </div>
         </div>
