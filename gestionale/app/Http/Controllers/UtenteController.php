@@ -221,7 +221,8 @@ class UtenteController extends Controller
             'telefono_2' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
             'dataNascita' => 'nullable|date',
-            'professione' => 'nullable|string|max:255',
+            'professioni'   => 'nullable|array',
+            'professioni.*' => 'string|max:255',
             'diagnosi' => 'nullable|string',
             'sesso' => 'nullable|in:M,F',
         ]);
@@ -255,9 +256,14 @@ class UtenteController extends Controller
 
 
         if ($validated['tipoUtente'] === 'staff') {
-            $utente->staffDati()->create([
-                'professione' => $validated['professione'] ?? 'Non specificata',
-            ]);
+            if (!empty($validated['professioni'])) {
+                foreach ($validated['professioni'] as $professione) {
+                    StaffDati::create([
+                        'utente_id'   => $utente->id,
+                        'professione' => $professione,
+                    ]);
+                }
+            }
         }
 
         if ($validated['tipoUtente'] === 'paziente') {
@@ -356,7 +362,9 @@ class UtenteController extends Controller
                 'telefono_2' => 'nullable|string|max:20',
                 'email' => 'nullable|email|max:255',
                 'password' => 'nullable|string|min:6',
-                'professione' => 'nullable|string|max:255',
+                'professioni'   => 'nullable|array',
+                'professioni.*' => 'string|max:255',
+
                 'diagnosi' => 'nullable|string',
                 'terapista_id' => 'nullable|integer|exists:utente,id',
             ]);
@@ -380,14 +388,25 @@ class UtenteController extends Controller
             $utente->save();
 
             // Se staff → aggiorna professione
-            if ($utente->ruolo === 'staff') {
-                if (!empty($validated['professione'])) {
-                    StaffDati::updateOrCreate(
-                        ['utente_id' => $utente->id],
-                        ['professione' => $validated['professione']]
-                    );
+            // if ($utente->ruolo === 'staff') {
+            //     if (!empty($validated['professione'])) {
+            //         StaffDati::updateOrCreate(
+            //             ['utente_id' => $utente->id],
+            //             ['professione' => $validated['professione']]
+            //         );
+            //     }
+            // }
+            if ($utente->ruolo === 'staff' && isset($validated['professioni'])) {
+                StaffDati::where('utente_id', $utente->id)->delete();
+
+                foreach ($validated['professioni'] as $professione) {
+                    StaffDati::create([
+                        'utente_id'   => $utente->id,
+                        'professione' => $professione,
+                    ]);
                 }
             }
+
 
             // Se paziente → aggiorna diagnosi e terapista
             if ($utente->ruolo === 'paziente') {
