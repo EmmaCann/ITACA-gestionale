@@ -27,7 +27,8 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
                 cognome: utente.cognome || "",
                 nascita: utente.nascita || "",
                 sesso: utente.sesso || null,
-                telefono: utente.telefono || "",
+                telefono_1: utente.telefono_1 || "",
+                telefono_2: utente.telefono_2 || "",
                 email: utente.email || "",
                 professione: utente.professione || "",
                 diagnosi: utente.diagnosi || "",
@@ -36,7 +37,10 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
 
             if (tipoUtente === "paziente") {
                 fetchTerapisti();
-                if (Array.isArray(utente.terapisti) && utente.terapisti.length) {
+                if (
+                    Array.isArray(utente.terapisti) &&
+                    utente.terapisti.length
+                ) {
                     setTerapistaSelezionato({
                         value: utente.terapisti[0].id,
                         label: `${utente.terapisti[0].nome} ${utente.terapisti[0].cognome}`,
@@ -115,8 +119,7 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
                 </h2>
 
                 {/* Nome + Cognome */}
-               <div className="flex flex-col sm:flex-row gap-4">
-
+                <div className="flex flex-col sm:flex-row gap-4">
                     <IconInputWrapperModal icon={FaUser} className="flex-1">
                         <input
                             name="nome"
@@ -139,7 +142,6 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
 
                 {/* Data di nascita + sesso */}
                 <div className="flex flex-col sm:flex-row gap-4">
-
                     <div className="flex flex-col flex-1">
                         <label className="text-sm text-gray-600 mb-1 font-marcellus">
                             Data di nascita
@@ -182,13 +184,13 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
                                 }))
                             }
                             placeholder="Seleziona sesso"
-                           className="text-[14px] w-full sm:w-[200px]"
+                            className="text-[14px] w-full sm:w-[200px]"
                         />
                     </div>
                 </div>
 
                 {/* Telefono */}
-                <IconInputWrapperModal icon={FaPhoneAlt}>
+                {/* <IconInputWrapperModal icon={FaPhoneAlt}>
                     <input
                         name="telefono"
                         placeholder="Telefono"
@@ -196,7 +198,28 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
                         value={formData.telefono || ""}
                         onChange={handleChange}
                     />
-                </IconInputWrapperModal>
+                </IconInputWrapperModal> */}
+                <div className="flex flex-col gap-3">
+                    <IconInputWrapperModal icon={FaPhoneAlt}>
+                        <input
+                            name="telefono_1"
+                            placeholder="Telefono principale"
+                            className={inputStyle}
+                            value={formData.telefono_1 || ""}
+                            onChange={handleChange}
+                        />
+                    </IconInputWrapperModal>
+
+                    <IconInputWrapperModal icon={FaPhoneAlt}>
+                        <input
+                            name="telefono_2"
+                            placeholder="Telefono secondario "
+                            className={inputStyle}
+                            value={formData.telefono_2 || ""}
+                            onChange={handleChange}
+                        />
+                    </IconInputWrapperModal>
+                </div>
 
                 {/* Email */}
                 <IconInputWrapperModal icon={MdOutlineEmail}>

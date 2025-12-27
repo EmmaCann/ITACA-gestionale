@@ -196,7 +196,7 @@ class UtenteController extends Controller
 
         // 6. aggiorna password (Hash automatico dal mutator)
         $utente->password = $request->nuova_password;
-        $utente->password_changed_at = now(); 
+        $utente->password_changed_at = now();
         $utente->save();
 
         // 7. aggiorniamo sessione (facoltativo)
@@ -217,7 +217,8 @@ class UtenteController extends Controller
             'tipoUtente' => ['required', Rule::in(['paziente', 'staff'])],
             'nome' => 'required|string|max:255',
             'cognome' => 'required|string|max:255',
-            'telefono' => 'nullable|string|max:20',
+            'telefono_1' => 'nullable|string|max:20',
+            'telefono_2' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
             'dataNascita' => 'nullable|date',
             'professione' => 'nullable|string|max:255',
@@ -245,11 +246,13 @@ class UtenteController extends Controller
             'username' => $username,
             'password' => 'password',
             'email' => $validated['email'] ?? null,
-            'telefono' => $validated['telefono'] ?? null,
+            'telefono_1' => $validated['telefono_1'] ?? null,
+            'telefono_2' => $validated['telefono_2'] ?? null,
             'nascita' => $validated['dataNascita'] ?? null,
             'ruolo' => $validated['tipoUtente'],
             'sesso' => $validated['sesso'] ?? null,
         ]);
+
 
         if ($validated['tipoUtente'] === 'staff') {
             $utente->staffDati()->create([
@@ -338,7 +341,6 @@ class UtenteController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
-
     }
 
     public function update(Request $request, Utente $utente)
@@ -350,7 +352,8 @@ class UtenteController extends Controller
                 'cognome' => 'nullable|string|max:255',
                 'nascita' => 'nullable|date',
                 'sesso' => 'nullable|in:M,F',
-                'telefono' => 'nullable|string|max:50',
+                'telefono_1' => 'nullable|string|max:20',
+                'telefono_2' => 'nullable|string|max:20',
                 'email' => 'nullable|email|max:255',
                 'password' => 'nullable|string|min:6',
                 'professione' => 'nullable|string|max:255',
@@ -364,7 +367,8 @@ class UtenteController extends Controller
                 'cognome' => $validated['cognome'] ?? $utente->cognome,
                 'nascita' => $validated['nascita'] ?? $utente->nascita,
                 'sesso' => $validated['sesso'] ?? $utente->sesso,
-                'telefono' => $validated['telefono'] ?? $utente->telefono,
+                'telefono_1' => $validated['telefono_1'] ?? $utente->telefono_1,
+                'telefono_2' => $validated['telefono_2'] ?? $utente->telefono_2,
                 'email' => $validated['email'] ?? $utente->email,
             ]);
 
@@ -434,5 +438,4 @@ class UtenteController extends Controller
 
         return response()->json($utenti);
     }
-
 }

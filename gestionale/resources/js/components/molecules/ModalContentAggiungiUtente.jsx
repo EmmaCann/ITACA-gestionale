@@ -12,7 +12,6 @@ import { creaUtente } from "@/data/api/utenti";
 import { baseCall } from "../../data/api/baseCall";
 import { IconInputWrapperModal } from "../molecules/atoms/iconInputWrapperModal.jsx";
 
-
 const ModalContentAggiungiUtente = ({
     tipoIniziale = "paziente",
     onSubmit,
@@ -109,8 +108,7 @@ const ModalContentAggiungiUtente = ({
                     AGGIUNGI NUOVO {tipoUtente.toUpperCase()}
                 </h2>
 
-               <div className="w-full sm:w-[40%]">
-
+                <div className="w-full sm:w-[40%]">
                     <Select
                         options={tipoOptions}
                         value={tipoOptions.find(
@@ -122,8 +120,7 @@ const ModalContentAggiungiUtente = ({
                 </div>
 
                 {/* Nome + Cognome */}
-               <div className="flex flex-col sm:flex-row gap-4">
-
+                <div className="flex flex-col sm:flex-row gap-4">
                     <IconInputWrapperModal icon={FaUser} className="flex-1">
                         <input
                             name="nome"
@@ -192,7 +189,7 @@ const ModalContentAggiungiUtente = ({
                         />
                     </div>
                 </div>
-                <div className="flex flex-col flex-1">
+                {/* <div className="flex flex-col flex-1">
                     <label className="text-sm text-gray-600 mb-1 ml-2 invisible">
                         Telefono
                     </label>
@@ -200,6 +197,25 @@ const ModalContentAggiungiUtente = ({
                         <input
                             name="telefono"
                             placeholder="Telefono"
+                            className={inputStyle}
+                            onChange={handleChange}
+                        />
+                    </IconInputWrapperModal>
+                </div> */}
+                <div className="flex flex-col gap-3">
+                    <IconInputWrapperModal icon={FaPhoneAlt}>
+                        <input
+                            name="telefono_1"
+                            placeholder="Telefono principale"
+                            className={inputStyle}
+                            onChange={handleChange}
+                        />
+                    </IconInputWrapperModal>
+
+                    <IconInputWrapperModal icon={FaPhoneAlt}>
+                        <input
+                            name="telefono_2"
+                            placeholder="Telefono secondario"
                             className={inputStyle}
                             onChange={handleChange}
                         />
