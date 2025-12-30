@@ -265,8 +265,8 @@ class AppuntamentiController extends Controller
     public function show($id)
     {
         $a = Appuntamento::with([
-            'paziente:id,nome,cognome,email,telefono',
-            'terapista:id,nome,cognome,email,telefono',
+            'paziente:id,nome,cognome,email,telefono_1,telefono_2',
+            'terapista:id,nome,cognome,email,telefono_1,telefono_2',
         ])->findOrFail($id);
 
         return response()->json([
@@ -275,25 +275,29 @@ class AppuntamentiController extends Controller
             'ora'           => $a->ora,
             'durata_minuti' => $a->durata_minuti,
             'note'          => $a->note,
+
             'paziente'      => $a->paziente
                 ? [
-                    'id'       => $a->paziente->id,
-                    'nome'     => $a->paziente->nome,
-                    'cognome'  => $a->paziente->cognome,
-                    'email'    => $a->paziente->email,
-                    'telefono' => $a->paziente->telefono,
+                    'id'         => $a->paziente->id,
+                    'nome'       => $a->paziente->nome,
+                    'cognome'    => $a->paziente->cognome,
+                    'email'      => $a->paziente->email,
+                    'telefono_1' => $a->paziente->telefono_1,
+                    'telefono_2' => $a->paziente->telefono_2,
                 ]
                 : [
                     'nome'    => $a->nome,
                     'cognome' => $a->cognome,
                 ],
+
             'terapista'     => $a->terapista
                 ? [
-                    'id'       => $a->terapista->id,
-                    'nome'     => $a->terapista->nome,
-                    'cognome'  => $a->terapista->cognome,
-                    'email'    => $a->terapista->email,
-                    'telefono' => $a->terapista->telefono,
+                    'id'         => $a->terapista->id,
+                    'nome'       => $a->terapista->nome,
+                    'cognome'    => $a->terapista->cognome,
+                    'email'      => $a->terapista->email,
+                    'telefono_1' => $a->terapista->telefono_1,
+                    'telefono_2' => $a->terapista->telefono_2,
                 ]
                 : null,
         ]);
