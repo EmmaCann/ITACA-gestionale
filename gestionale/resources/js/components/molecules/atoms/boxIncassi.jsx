@@ -19,8 +19,11 @@ export const BoxIncassi = ({ text, money, bgColor, ruolo, terapistaId }) => {
 
     const normalizedText = text.toUpperCase().trim();
     const tipo = tipoMap[normalizedText];
+    const enablePopup = tipo !== "giorno"; // disabilita SOLO incassi del giorno
 
     const handleMouseEnter = async (event) => {
+        if (!enablePopup) return;
+
         setShowDetails(true);
         const box = event.target.getBoundingClientRect();
         const windowHeight = window.innerHeight;
@@ -76,20 +79,22 @@ export const BoxIncassi = ({ text, money, bgColor, ruolo, terapistaId }) => {
                 {money}
             </span>
 
-            <FaChevronRight
-                className="
-    hidden md:block
-    absolute right-4 top-1/2 -translate-y-1/2
-    w-[20px] h-[20px]
-    text-white cursor-pointer
-    transition-transform duration-300
-    hover:translate-x-1
-"
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-            />
+            {enablePopup && (
+                <FaChevronRight
+                    className="
+      hidden md:block
+      absolute right-4 top-1/2 -translate-y-1/2
+      w-[20px] h-[20px]
+      text-white cursor-pointer
+      transition-transform duration-300
+      hover:translate-x-1
+    "
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+                />
+            )}
 
-            {(showDetails || isHoveringPopup) && (
+            {enablePopup && (showDetails || isHoveringPopup) && (
                 <div
                     className={`absolute ${popupPosition}`}
                     onMouseEnter={() => setIsHoveringPopup(true)}
