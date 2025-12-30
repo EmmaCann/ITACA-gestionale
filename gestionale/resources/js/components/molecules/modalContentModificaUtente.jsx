@@ -96,7 +96,6 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
             //     }))
             // );
             setTerapistiOptions(Object.values(response.data));
-
         } catch {
             toast.error("Errore nel recupero dei terapisti");
         }
@@ -245,7 +244,11 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
                     <IconInputWrapperModal icon={FaPhoneAlt}>
                         <input
                             name="telefono_1"
-                            placeholder="Telefono principale"
+                            placeholder={
+                                tipoUtente === "paziente"
+                                    ? "Telefono mamma"
+                                    : "Telefono principale"
+                            }
                             className={inputStyle}
                             value={formData.telefono_1}
                             onChange={handleChange}
@@ -255,7 +258,11 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
                     <IconInputWrapperModal icon={FaPhoneAlt}>
                         <input
                             name="telefono_2"
-                            placeholder="Telefono secondario"
+                            placeholder={
+                                tipoUtente === "paziente"
+                                    ? "Telefono papà"
+                                    : "Telefono secondario"
+                            }
                             className={inputStyle}
                             value={formData.telefono_2}
                             onChange={handleChange}

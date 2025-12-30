@@ -87,15 +87,9 @@ const InputWithIcon = ({ icon: Icon, ...props }) => (
     </div>
 );
 
-const Toggle = ({
-    checked,
-    onChange,
-    label = "Collaborazione terapisti",
-}) => (
+const Toggle = ({ checked, onChange, label = "Collaborazione terapisti" }) => (
     <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 h-12">
-        <span className="text-sm text-slate-700">
-            {label}
-        </span>
+        <span className="text-sm text-slate-700">{label}</span>
 
         <button
             type="button"
@@ -112,14 +106,22 @@ const Toggle = ({
     </div>
 );
 
-const ContactButtons = ({ telefono, email }) => {
+const ContactButtons = ({ telefono1, telefono2, email }) => {
     const [popupContent, setPopupContent] = useState(null);
 
     const handlePhoneClick = () => {
-        if (telefono) setPopupContent(`Telefono: ${telefono}`);
-        else toast.warning("Numero di telefono non disponibile");
-    };
+        if (!telefono1 && !telefono2) {
+            toast.warning("Numero di telefono non disponibile");
+            return;
+        }
 
+        setPopupContent(
+            <>
+                {telefono1 && <div>Telefono Mamma: {telefono1}</div>}
+                {telefono2 && <div>Telefono Papà: {telefono2}</div>}
+            </>
+        );
+    };
     const handleMailClick = () => {
         if (email) setPopupContent(`Email: ${email}`);
         else toast.warning("Email non disponibile");
@@ -614,7 +616,7 @@ function PazientiView({ registerRefetch, ruolo }) {
 
                     {/* Collaborazione */}
 
-                     <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                    <div className="col-span-12 md:col-span-6 xl:col-span-4">
                         <Toggle checked={multi} onChange={setMulti} />
                     </div>
 
@@ -690,7 +692,8 @@ function PazientiView({ registerRefetch, ruolo }) {
                                     </td>
                                     <td className="px-4 py-4">
                                         <ContactButtons
-                                            telefono={p.telefono}
+                                            telefono1={p.telefono_1}
+                                            telefono2={p.telefono_2}
                                             email={p.email}
                                         />
                                     </td>
@@ -798,7 +801,7 @@ function PazientiView({ registerRefetch, ruolo }) {
                 isOpen={openEditModal}
                 onRequestClose={() => setOpenEditModal(false)}
                 title="Modifica utente"
-                 className="w-[95vw] sm:w-[90vw] md:w-[60%] max-h-[90vh]  overflow-hidden rounded-[20px] shadow-lg"
+                className="w-[95vw] sm:w-[90vw] md:w-[60%] max-h-[90vh]  overflow-hidden rounded-[20px] shadow-lg"
             >
                 <ModalContentModificaUtente
                     utente={utenteSelezionato}
@@ -1047,7 +1050,8 @@ function StaffView({ registerRefetch, ruolo }) {
                                     </td>
                                     <td className="px-4 py-4">
                                         <ContactButtons
-                                            telefono={u.telefono}
+                                            telefono1={u.telefono_1}
+                                            telefono2={u.telefono_2}
                                             email={u.email}
                                         />
                                     </td>
@@ -1055,7 +1059,7 @@ function StaffView({ registerRefetch, ruolo }) {
                                     <td className="px-4 py-4">
                                         <div className="flex items-center gap-4">
                                             <button
-                                                onClick={() => apriModifica(u)} 
+                                                onClick={() => apriModifica(u)}
                                                 className="text-sky-700 hover:text-sky-900"
                                             >
                                                 <FaEdit />
@@ -1086,7 +1090,7 @@ function StaffView({ registerRefetch, ruolo }) {
                 isOpen={openEditModal}
                 onRequestClose={() => setOpenEditModal(false)}
                 title="Modifica utente"
-               className="w-[95vw] sm:w-[90vw] md:w-[60%] max-h-[90vh] overflow-hidden rounded-[20px] shadow-lg"
+                className="w-[95vw] sm:w-[90vw] md:w-[60%] max-h-[90vh] overflow-hidden rounded-[20px] shadow-lg"
             >
                 <ModalContentModificaUtente
                     utente={utenteSelezionato}

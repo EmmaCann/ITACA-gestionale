@@ -221,12 +221,17 @@ const ModalContentAggiungiUtente = ({
                     </div>
                 </div>
 
+              
                 {/* Telefoni */}
                 <div className="flex flex-col gap-3">
                     <IconInputWrapperModal icon={FaPhoneAlt}>
                         <input
                             name="telefono_1"
-                            placeholder="Telefono principale"
+                            placeholder={
+                                tipoUtente === "paziente"
+                                    ? "Telefono mamma"
+                                    : "Telefono principale"
+                            }
                             className={inputStyle}
                             onChange={handleChange}
                         />
@@ -235,7 +240,11 @@ const ModalContentAggiungiUtente = ({
                     <IconInputWrapperModal icon={FaPhoneAlt}>
                         <input
                             name="telefono_2"
-                            placeholder="Telefono secondario"
+                            placeholder={
+                                tipoUtente === "paziente"
+                                    ? "Telefono papà"
+                                    : "Telefono secondario"
+                            }
                             className={inputStyle}
                             onChange={handleChange}
                         />
