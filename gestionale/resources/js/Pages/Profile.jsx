@@ -13,6 +13,12 @@ const colors = {
     navbarActive: "#ECEFF2",
     bgContainer: "#DFE0E0",
 };
+const formatDate = (v) => {
+    if (!v) return "—";
+    const d = new Date(v);
+    if (Number.isNaN(d.getTime())) return "—";
+    return d.toLocaleDateString("it-IT");
+};
 
 const Profile = () => {
     const { utente } = usePage().props;
@@ -27,10 +33,10 @@ const Profile = () => {
     const [error, setError] = useState(null);
 
     // MOCK – da sostituire con dati DB
-    const privacyMock = {
-        privacyAcceptedAt: "12/03/2025",
-        termsAcceptedAt: "12/03/2025",
-    };
+    // const privacyMock = {
+    //     privacyAcceptedAt: "12/03/2025",
+    //     termsAcceptedAt: "12/03/2025",
+    // };
 
     const handlePasswordChange = async () => {
         setMessage(null);
@@ -103,9 +109,19 @@ const Profile = () => {
                                 <p className="text-sm text-gray-500">
                                     Telefono
                                 </p>
-                                <p className="font-medium">
-                                    {utente.telefono ?? "—"}
-                                </p>
+
+                                {utente.telefono_1 || utente.telefono_2 ? (
+                                    <div className="font-medium space-y-1">
+                                        {utente.telefono_1 && (
+                                            <p>{utente.telefono_1}</p>
+                                        )}
+                                        {utente.telefono_2 && (
+                                            <p>{utente.telefono_2}</p>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <p className="font-medium">—</p>
+                                )}
                             </div>
 
                             <div>
@@ -209,7 +225,7 @@ const Profile = () => {
                                     </p>
                                     <p className="text-sm text-gray-500">
                                         Accettata il:{" "}
-                                        {privacyMock.privacyAcceptedAt}
+                                        {formatDate(utente.privacy_accepted_at)}
                                     </p>
                                 </div>
 
@@ -231,7 +247,7 @@ const Profile = () => {
                                     </p>
                                     <p className="text-sm text-gray-500">
                                         Accettati il:{" "}
-                                        {privacyMock.termsAcceptedAt}
+                                        {formatDate(utente.terms_accepted_at)}
                                     </p>
                                 </div>
 
@@ -250,7 +266,7 @@ const Profile = () => {
                         method="post"
                         as="button"
                         className="w-full bg-pinkSecondary text-white py-3 rounded-xl font-semibold shadow hover:bg-pinkPrimary transition"
-                        onClick={() => sessionStorage.removeItem('onboarding')}
+                        onClick={() => sessionStorage.removeItem("onboarding")}
                     >
                         Logout
                     </Link>

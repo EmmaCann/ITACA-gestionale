@@ -147,17 +147,28 @@ class UtenteController extends Controller
     public function profilo()
     {
         $sessionUser = Session::get('logged_user');
+        if (!$sessionUser) return redirect()->route('login_form');
 
-        if (!$sessionUser) {
-            return redirect()->route('login_form');
-        }
+        $utente = Utente::query()
+            ->select(
+                'id',
+                'nome',
+                'cognome',
+                'username',
+                'email',
+                'telefono_1',
+                'telefono_2',
+                'nascita',
+                'ruolo',
+                'privacy_accepted_at',
+                'terms_accepted_at',
+                'privacy_version',
+                'terms_version',
+                'password_changed_at'
+            )
+            ->find($sessionUser['id_utente']);
 
-        // Recupero dettagli completi dal DB
-        $utente = Utente::find($sessionUser['id_utente']);
-
-        return inertia('Profile', [
-            'utente' => $utente
-        ]);
+        return inertia('Profile', ['utente' => $utente]);
     }
 
     public function cambiaPassword(Request $request)
