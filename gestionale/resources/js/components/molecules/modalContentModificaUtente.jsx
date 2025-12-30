@@ -89,12 +89,14 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
                 method: "GET",
             });
 
-            setTerapistiOptions(
-                Object.values(response.data).map((t) => ({
-                    value: t.id,
-                    label: `${t.nome} ${t.cognome}`,
-                }))
-            );
+            // setTerapistiOptions(
+            //     Object.values(response.data).map((t) => ({
+            //         value: t.id,
+            //         label: `${t.nome} ${t.cognome}`,
+            //     }))
+            // );
+            setTerapistiOptions(Object.values(response.data));
+
         } catch {
             toast.error("Errore nel recupero dei terapisti");
         }
