@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { FaUser, FaCalendarAlt, FaRegThumbsUp } from "react-icons/fa";
@@ -6,25 +6,44 @@ import Select from "react-select";
 import { IconInputWrapperModal } from "./atoms/iconInputWrapperModal";
 
 const ModalContentAggiuntaFirma = ({ onClose, onSubmit }) => {
+    const [utenteNonRegistrato, setUtenteNonRegistrato] = useState(false);
+
+    const [pazientiOptions, setPazientiOptions] = useState([]);
+    const [pazienteSelezionato, setPazienteSelezionato] = useState(null);
+
+    const [terapistiOptions, setTerapistiOptions] = useState([]);
+    const [terapistaSelezionato, setTerapistaSelezionato] = useState(null);
+
+    const [terapiaOptions, setTerapiaOptions] = useState([]);
+    const [terapiaSelezionata, setTerapiaSelezionata] = useState(null);
+
     const [formData, setFormData] = useState({
         nome: "",
         cognome: "",
         data: "",
     });
 
-    const [terapistiOptions, setTerapistiOptions] = useState([]);
-    const [terapiaOptions, setTerapiaOptions] = useState([]);
-    const [terapistaSelezionato, setTerapistaSelezionato] = useState(null);
-    const [terapiaSelezionata, setTerapiaSelezionata] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
+        fetchPazienti();
         fetchTerapisti();
         fetchTerapie();
     }, []);
+
+    const fetchPazienti = async () => {
+        try {
+            const res = await axios.get("/get-pazienti");
+            setPazientiOptions(Object.values(res.data));
+        } catch {
+            toast.error("Errore nel recupero dei pazienti");
+        }
+    };
+
     const fetchTerapisti = async () => {
         try {
             const res = await axios.get("/terapisti");
-            setTerapistiOptions(res.data);
+            setTerapistiOptions(Object.values(res.data));
         } catch {
             toast.error("Errore nel recupero terapisti");
         }
@@ -49,40 +68,49 @@ const ModalContentAggiuntaFirma = ({ onClose, onSubmit }) => {
     };
 
     const handleSubmit = async () => {
-        const { nome, cognome, data } = formData;
-        if (
-            !nome ||
-            !cognome ||
-            !data ||
-            !terapistaSelezionato ||
-            !terapiaSelezionata
-        ) {
-            toast.error("Compila tutti i campi");
+        if (!terapistaSelezionato) {
+            toast.error("Seleziona un terapista");
+            return;
+        }
+        if (!terapiaSelezionata) {
+            toast.error("Seleziona una terapia");
+            return;
+        }
+        if (!formData.data) {
+            toast.error("Seleziona la data");
             return;
         }
 
-        console.log("Dati inviati:", {
-            nome,
-            cognome,
-            data,
+        if (!utenteNonRegistrato && !pazienteSelezionato) {
+            toast.error("Seleziona un paziente o spunta 'utente non registrato'");
+            return;
+        }
+
+        if (utenteNonRegistrato && (!formData.nome || !formData.cognome)) {
+            toast.error("Inserisci nome e cognome");
+            return;
+        }
+
+        const payload = {
+            data: formData.data,
             terapia: terapiaSelezionata.value,
-            terapista_id: terapistaSelezionato.value,
-        });
+            terapista_id: terapistaSelezionato.value ?? terapistaSelezionato.id,
+            ...(utenteNonRegistrato
+                ? { nome: formData.nome, cognome: formData.cognome }
+                : { paziente_id: pazienteSelezionato.id }),
+        };
 
+        setIsSubmitting(true);
         try {
-            await axios.post("/firme", {
-                nome,
-                cognome,
-                data,
-                terapia: terapiaSelezionata.value,
-                terapista_id: terapistaSelezionato.value,
-            });
-
+            await axios.post("/firme", payload);
             toast.success("Firma aggiunta con successo");
             onSubmit?.();
             onClose();
-        } catch {
+        } catch (e) {
             toast.error("Errore durante la creazione della firma");
+            console.error(e);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -91,28 +119,62 @@ const ModalContentAggiuntaFirma = ({ onClose, onSubmit }) => {
 
     return (
         <div className="flex flex-col h-full overflow-hidden">
-            <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-4 pb-8">
-                <h2 className="font-marcellusSC text-xl text-center">
+            <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-4 pb-2">
+                <h2 className="font-marcellusSC font-bold text-center text-[22px]">
                     AGGIUNGI FIRMA
                 </h2>
 
-                <IconInputWrapperModal icon={FaUser}>
+                <label className="flex items-center gap-2 font-marcellus">
                     <input
-                        name="nome"
-                        placeholder="Nome"
-                        className={inputStyle}
-                        onChange={handleChange}
+                        type="checkbox"
+                        checked={utenteNonRegistrato}
+                        onChange={(e) => {
+                            setUtenteNonRegistrato(e.target.checked);
+                            setPazienteSelezionato(null);
+                        }}
                     />
-                </IconInputWrapperModal>
+                    Utente non registrato
+                </label>
 
-                <IconInputWrapperModal icon={FaUser}>
-                    <input
-                        name="cognome"
-                        placeholder="Cognome"
-                        className={inputStyle}
-                        onChange={handleChange}
-                    />
-                </IconInputWrapperModal>
+                {!utenteNonRegistrato ? (
+                    <div>
+                        <label className="text-sm text-gray-600 mb-1 font-marcellus">
+                            Paziente
+                        </label>
+                        <Select
+                            options={pazientiOptions}
+                            value={pazienteSelezionato}
+                            onChange={setPazienteSelezionato}
+                            placeholder="Seleziona un paziente"
+                            className="text-[14px]"
+                            getOptionLabel={(p) => `${p.nome} ${p.cognome}`}
+                            getOptionValue={(p) => p.id}
+                            isSearchable
+                        />
+                    </div>
+                ) : (
+                    <div className="flex flex-row gap-4">
+                        <IconInputWrapperModal icon={FaUser} className="flex-1">
+                            <input
+                                name="nome"
+                                placeholder="Nome"
+                                className={inputStyle}
+                                onChange={handleChange}
+                                value={formData.nome}
+                            />
+                        </IconInputWrapperModal>
+
+                        <IconInputWrapperModal icon={FaUser} className="flex-1">
+                            <input
+                                name="cognome"
+                                placeholder="Cognome"
+                                className={inputStyle}
+                                onChange={handleChange}
+                                value={formData.cognome}
+                            />
+                        </IconInputWrapperModal>
+                    </div>
+                )}
 
                 <IconInputWrapperModal icon={FaCalendarAlt}>
                     <input
@@ -120,6 +182,7 @@ const ModalContentAggiuntaFirma = ({ onClose, onSubmit }) => {
                         name="data"
                         className={inputStyle}
                         onChange={handleChange}
+                        value={formData.data}
                     />
                 </IconInputWrapperModal>
 
@@ -153,16 +216,23 @@ const ModalContentAggiuntaFirma = ({ onClose, onSubmit }) => {
             <div className="flex justify-between pt-4 border-t border-gray-200">
                 <button
                     onClick={onClose}
-                    className="bg-gray-200 hover:bg-gray-300 px-6 py-2 rounded text-sm text-gray-700 font-marcellus"
+                    className="bg-gray-200 hover:bg-gray-300 px-8 py-2 rounded-[12px] font-marcellus text-gray-700 transition-colors duration-200"
+                    disabled={isSubmitting}
                 >
                     Chiudi
                 </button>
+
                 <button
                     onClick={handleSubmit}
-                    className="bg-white hover:bg-gray-100 border border-gray-300 px-6 py-2 rounded text-sm text-gray-700 font-marcellus flex items-center gap-2"
+                    className={`flex items-center gap-3 border border-gray-300 rounded-[12px] px-4 py-2 font-marcellus transition duration-200 ${
+                        isSubmitting
+                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                            : "bg-white hover:bg-gray-100 text-gray-700"
+                    }`}
+                    disabled={isSubmitting}
                 >
-                    Aggiungi Firma
-                    <FaRegThumbsUp className="text-green-600" />
+                    {isSubmitting ? "Aggiungendo..." : "Aggiungi firma"}
+                    <FaRegThumbsUp size={16} color="green" />
                 </button>
             </div>
         </div>

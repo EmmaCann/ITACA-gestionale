@@ -7,27 +7,31 @@ use Illuminate\Http\Request;
 use Spatie\SimpleExcel\SimpleExcelWriter;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
+use App\Models\Utente;
 
 class FirmaController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Firma::with('terapista');
+        $query = Firma::with(['terapista', 'paziente']);
 
-        if ($request->filled('mese')) {
-            $query->whereMonth('data', $request->input('mese'));
+        if ($request->filled('mese')) $query->whereMonth('data', $request->input('mese'));
+        if ($request->filled('anno')) $query->whereYear('data', $request->input('anno'));
+        if ($request->boolean('oggi')) {
+            $query->whereDate('data', now()->toDateString());
         }
 
-        if ($request->filled('anno')) {
-            $query->whereYear('data', $request->input('anno'));
-        }
 
         $firme = $query->get()->map(function ($firma) {
+            $nome = $firma->paziente ? $firma->paziente->nome : $firma->nome;
+            $cognome = $firma->paziente ? $firma->paziente->cognome : $firma->cognome;
+
             return [
                 'id'        => $firma->id,
-                'nome'      => $firma->nome,
-                'cognome'   => $firma->cognome,
-                'data'      => $firma->data->format('Y-m-d'),
+                'paziente_id' => $firma->paziente_id,
+                'nome'      => $nome,
+                'cognome'   => $cognome,
+                'data'      => $firma->data?->format('Y-m-d'),
                 'terapia'   => $firma->terapia,
                 'terapista' => $firma->terapista
                     ? $firma->terapista->nome . ' ' . $firma->terapista->cognome
@@ -38,21 +42,30 @@ class FirmaController extends Controller
         return response()->json($firme);
     }
 
+
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nome'         => 'required|string|max:255',
-            'cognome'      => 'required|string|max:255',
+            'paziente_id'  => 'nullable|exists:utente,id',
+            'nome'         => 'nullable|required_without:paziente_id|string|max:255',
+            'cognome'      => 'nullable|required_without:paziente_id|string|max:255',
             'data'         => 'required|date',
             'terapia'      => 'required|string|max:255',
             'terapista_id' => 'required|exists:utente,id',
         ]);
 
+        // Se selezioni un paziente, copiamo comunque nome/cognome (snapshot)
+        if (!empty($validated['paziente_id'])) {
+            $p = Utente::select('id', 'nome', 'cognome')->find($validated['paziente_id']);
+            $validated['nome'] = $p?->nome ?? $validated['nome'] ?? '';
+            $validated['cognome'] = $p?->cognome ?? $validated['cognome'] ?? '';
+        }
+
         $firma = Firma::create($validated);
 
         return response()->json([
             'message' => 'Firma creata con successo.',
-            'firma' => $firma->load('terapista'),
+            'firma' => $firma->load(['terapista', 'paziente']),
         ], 201);
     }
 
@@ -69,55 +82,76 @@ class FirmaController extends Controller
 
 
 
-public function export(Request $request)
-{
-    $query = Firma::with('terapista');
+    public function export(Request $request)
+    {
+        $query = Firma::with('terapista');
 
-    if ($request->filled('mese')) {
-        $query->whereMonth('data', $request->input('mese'));
-    }
-
-    if ($request->filled('anno')) {
-        $query->whereYear('data', $request->input('anno'));
-    }
-
-        // Se l'utente in sessione è un paziente, limitiamo l'export solo alle sue firme
-        $logged = Session::get('logged_user');
-        if (!empty($logged) && isset($logged['ruolo']) && $logged['ruolo'] === 'paziente') {
-            $nome = isset($logged['nome']) ? $logged['nome'] : null;
-            $cognome = isset($logged['cognome']) ? $logged['cognome'] : null;
-            if ($nome && $cognome) {
-                // confronto case-insensitive
-                $query->whereRaw('LOWER(nome) = ?', [mb_strtolower($nome)])
-                      ->whereRaw('LOWER(cognome) = ?', [mb_strtolower($cognome)]);
-            }
+        // filtri mese/anno
+        if ($request->filled('mese')) {
+            $query->whereMonth('data', $request->input('mese'));
         }
 
-    $rows = $query->get()->map(function ($firma) {
-        return [
-            'ID'        => $firma->id,
-            'Nome'      => $firma->nome,
-            'Cognome'   => $firma->cognome,
-            'Data'      => $firma->data->format('Y-m-d'),
-            'Terapia'   => $firma->terapia,
-            'Terapista' => optional($firma->terapista)->nome . ' ' . optional($firma->terapista)->cognome,
-        ];
-    })->toArray();
-
-    // Percorso temporaneo per il file Excel
-    $tempPath = storage_path('app/archivio_firme.xlsx');
-
-    // Crea e salva il file Excel
-    SimpleExcelWriter::create($tempPath)
-        ->addRows($rows)
-        ->close(); // <-- importante per chiudere e salvare il file
-
-    // Ritorna il file per il download e lo elimina dopo l'invio
-    return response()->download($tempPath, 'archivio_firme.xlsx')->deleteFileAfterSend(true);
-}
+        if ($request->filled('anno')) {
+            $query->whereYear('data', $request->input('anno'));
+        }
+        if ($request->boolean('oggi')) {
+            $query->whereDate('data', now()->toDateString());
+        }
 
 
- /**
+        //  Se in sessione c'è un paziente → esporta solo le sue firme
+        $logged = Session::get('logged_user');
+        if (!empty($logged) && ($logged['ruolo'] ?? null) === 'paziente') {
+            $userId  = $logged['id_utente'] ?? null;
+            $nome    = $logged['nome'] ?? null;
+            $cognome = $logged['cognome'] ?? null;
+
+            $query->where(function ($q) use ($userId, $nome, $cognome) {
+                // nuovo: match su paziente_id
+                if (!empty($userId)) {
+                    $q->where('paziente_id', $userId);
+                }
+
+                // fallback: vecchi record senza paziente_id (match su nome/cognome)
+                if (!empty($nome) && !empty($cognome)) {
+                    $q->orWhere(function ($qq) use ($nome, $cognome) {
+                        $qq->whereNull('paziente_id')
+                            ->whereRaw('LOWER(nome) = ?', [mb_strtolower($nome)])
+                            ->whereRaw('LOWER(cognome) = ?', [mb_strtolower($cognome)]);
+                    });
+                }
+            });
+        }
+
+        // righe per excel
+        $rows = $query->get()->map(function ($firma) {
+            return [
+                'ID'        => $firma->id,
+                'Nome'      => $firma->nome,
+                'Cognome'   => $firma->cognome,
+                'Data'      => $firma->data ? $firma->data->format('Y-m-d') : null,
+                'Terapia'   => $firma->terapia,
+                'Terapista' => optional($firma->terapista)->nome . ' ' . optional($firma->terapista)->cognome,
+            ];
+        })->toArray();
+
+        // path temporaneo
+        $tempPath = storage_path('app/archivio_firme.xlsx');
+
+        // crea excel
+        SimpleExcelWriter::create($tempPath)
+            ->addRows($rows)
+            ->close();
+
+        // download + delete after send
+        return response()
+            ->download($tempPath, 'archivio_firme.xlsx')
+            ->deleteFileAfterSend(true);
+    }
+
+
+
+    /**
      * Ritorna la lista delle firme per l'utente loggato (confronto su nome e cognome
      * presi dalla sessione). Supporta filtri opzionali: mese, anno, terapista_id.
      *
@@ -127,35 +161,40 @@ public function export(Request $request)
     public function firmePazienteLoggato(Request $request)
     {
         $logged = Session::get('logged_user');
-
-        if (empty($logged) || empty($logged['nome']) || empty($logged['cognome'])) {
-            return response()->json(['errore' => 'Utente non autenticato o dati mancanti in sessione'], 401);
+        if (empty($logged) || empty($logged['id_utente'])) {
+            return response()->json(['errore' => 'Non autenticato'], 401);
         }
 
-        $nome = $logged['nome'];
-        $cognome = $logged['cognome'];
+        $userId = $logged['id_utente'];
 
-        // confronto case-insensitive su nome e cognome
         $query = Firma::with('terapista')
-            ->whereRaw('LOWER(nome) = ?', [mb_strtolower($nome)])
-            ->whereRaw('LOWER(cognome) = ?', [mb_strtolower($cognome)]);
+            ->where(function ($q) use ($userId, $logged) {
+                // nuovo modo
+                $q->where('paziente_id', $userId);
 
-        if ($request->filled('mese')) {
-            $query->whereMonth('data', $request->input('mese'));
+                // fallback vecchi record senza paziente_id
+                if (!empty($logged['nome']) && !empty($logged['cognome'])) {
+                    $q->orWhere(function ($qq) use ($logged) {
+                        $qq->whereNull('paziente_id')
+                            ->whereRaw('LOWER(nome) = ?', [mb_strtolower($logged['nome'])])
+                            ->whereRaw('LOWER(cognome) = ?', [mb_strtolower($logged['cognome'])]);
+                    });
+                }
+            });
+
+        if ($request->filled('mese')) $query->whereMonth('data', $request->input('mese'));
+        if ($request->filled('anno')) $query->whereYear('data', $request->input('anno'));
+        if ($request->boolean('oggi')) {
+            $query->whereDate('data', now()->toDateString());
         }
 
-        if ($request->filled('anno')) {
-            $query->whereYear('data', $request->input('anno'));
-        }
-
-       
 
         $firme = $query->get()->map(function ($firma) {
             return [
                 'id'        => $firma->id,
                 'nome'      => $firma->nome,
                 'cognome'   => $firma->cognome,
-                'data'      => $firma->data ? $firma->data->format('Y-m-d') : null,
+                'data'      => $firma->data?->format('Y-m-d'),
                 'terapia'   => $firma->terapia,
                 'terapista' => $firma->terapista
                     ? $firma->terapista->nome . ' ' . $firma->terapista->cognome
@@ -165,6 +204,4 @@ public function export(Request $request)
 
         return response()->json($firme);
     }
-
-
 }

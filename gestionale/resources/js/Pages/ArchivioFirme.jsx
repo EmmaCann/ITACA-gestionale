@@ -15,6 +15,8 @@ const ArchivioFirme = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const [meseFiltro, setMeseFiltro] = useState(null);
     const [annoFiltro, setAnnoFiltro] = useState(null);
+    const [oggiFiltro, setOggiFiltro] = useState(false);
+
     const [firme, setFirme] = useState([]);
     const { props } = usePage();
     const ruolo = props?.ruolo || null;
@@ -25,6 +27,7 @@ const ArchivioFirme = () => {
             const params = {};
             if (meseFiltro) params.mese = meseFiltro.value;
             if (annoFiltro) params.anno = annoFiltro.value;
+            if (oggiFiltro) params.oggi = 1;
 
             const endpoint = canEdit ? "/firme" : "/firme/paziente";
             const res = await axios.get(endpoint, { params });
@@ -54,13 +57,14 @@ const ArchivioFirme = () => {
         const params = new URLSearchParams();
         if (meseFiltro) params.append("mese", meseFiltro.value);
         if (annoFiltro) params.append("anno", annoFiltro.value);
+        if (oggiFiltro) params.append("oggi", "1");
 
         window.location.href = `/firme/export?${params.toString()}`;
     };
 
     useEffect(() => {
         fetchFirme();
-    }, [meseFiltro, annoFiltro]);
+    }, [meseFiltro, annoFiltro, oggiFiltro]);
 
     const mesiOptions = [
         { value: 1, label: "Gennaio" },
@@ -172,6 +176,15 @@ const ArchivioFirme = () => {
                             }}
                         />
                     </div>
+                    <label className="flex items-center gap-2 text-sm text-gray-700 font-marcellus">
+                        <input
+                            type="checkbox"
+                            checked={oggiFiltro}
+                            onChange={(e) => setOggiFiltro(e.target.checked)}
+                            className="accent-bluPrimary"
+                        />
+                        Oggi
+                    </label>
                 </div>
 
                 {/* Tabella firme */}
