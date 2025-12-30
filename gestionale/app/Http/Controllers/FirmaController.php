@@ -20,6 +20,13 @@ class FirmaController extends Controller
         if ($request->boolean('oggi')) {
             $query->whereDate('data', now()->toDateString());
         }
+        if ($request->filled('terapista_id')) {
+            $query->where('terapista_id', $request->input('terapista_id'));
+        }
+
+        if ($request->filled('paziente_id')) {
+            $query->where('paziente_id', $request->input('paziente_id'));
+        }
 
 
         $firme = $query->get()->map(function ($firma) {
@@ -96,6 +103,13 @@ class FirmaController extends Controller
         }
         if ($request->boolean('oggi')) {
             $query->whereDate('data', now()->toDateString());
+        }
+        if ($request->filled('terapista_id')) {
+            $query->where('terapista_id', $request->input('terapista_id'));
+        }
+
+        if ($request->filled('paziente_id')) {
+            $query->where('paziente_id', $request->input('paziente_id'));
         }
 
 
@@ -187,6 +201,10 @@ class FirmaController extends Controller
         if ($request->boolean('oggi')) {
             $query->whereDate('data', now()->toDateString());
         }
+        if ($request->filled('terapista_id')) {
+            $query->where('terapista_id', $request->input('terapista_id'));
+        }
+
 
 
         $firme = $query->get()->map(function ($firma) {

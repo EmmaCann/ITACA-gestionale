@@ -16,11 +16,35 @@ const ArchivioFirme = () => {
     const [meseFiltro, setMeseFiltro] = useState(null);
     const [annoFiltro, setAnnoFiltro] = useState(null);
     const [oggiFiltro, setOggiFiltro] = useState(false);
+    const [terapistaFiltro, setTerapistaFiltro] = useState(null);
+    const [pazienteFiltro, setPazienteFiltro] = useState(null);
+
+    const [terapistiOptions, setTerapistiOptions] = useState([]);
+    const [pazientiOptions, setPazientiOptions] = useState([]);
 
     const [firme, setFirme] = useState([]);
     const { props } = usePage();
     const ruolo = props?.ruolo || null;
     const canEdit = ruolo !== "paziente";
+
+    useEffect(() => {
+        const fetchOptions = async () => {
+            try {
+                const [tRes, pRes] = await Promise.all([
+                    axios.get("/terapisti"),
+                    axios.get("/get-pazienti"),
+                ]);
+
+                setTerapistiOptions(Object.values(tRes.data)); // [{value,label}]
+                setPazientiOptions(Object.values(pRes.data)); // [{id,nome,cognome,...}]
+            } catch (e) {
+                console.error(e);
+                toast.error("Errore nel recupero filtri (pazienti/terapisti)");
+            }
+        };
+
+        fetchOptions();
+    }, []);
 
     const fetchFirme = async () => {
         try {
@@ -28,6 +52,8 @@ const ArchivioFirme = () => {
             if (meseFiltro) params.mese = meseFiltro.value;
             if (annoFiltro) params.anno = annoFiltro.value;
             if (oggiFiltro) params.oggi = 1;
+            if (terapistaFiltro) params.terapista_id = terapistaFiltro.value; // /terapisti -> value
+            if (pazienteFiltro) params.paziente_id = pazienteFiltro.id; // /get-pazienti -> id
 
             const endpoint = canEdit ? "/firme" : "/firme/paziente";
             const res = await axios.get(endpoint, { params });
@@ -58,13 +84,16 @@ const ArchivioFirme = () => {
         if (meseFiltro) params.append("mese", meseFiltro.value);
         if (annoFiltro) params.append("anno", annoFiltro.value);
         if (oggiFiltro) params.append("oggi", "1");
+        if (terapistaFiltro)
+            params.append("terapista_id", terapistaFiltro.value);
+        if (pazienteFiltro) params.append("paziente_id", pazienteFiltro.id);
 
         window.location.href = `/firme/export?${params.toString()}`;
     };
 
     useEffect(() => {
         fetchFirme();
-    }, [meseFiltro, annoFiltro, oggiFiltro]);
+    }, [meseFiltro, annoFiltro, oggiFiltro, terapistaFiltro, pazienteFiltro]);
 
     const mesiOptions = [
         { value: 1, label: "Gennaio" },
@@ -92,7 +121,7 @@ const ArchivioFirme = () => {
 
     return (
         <Layout>
-            <div className="p-8">
+            <div className="p-4 md:p-8">
                 {/* Barra superiore */}
                 <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div>
@@ -143,48 +172,107 @@ const ArchivioFirme = () => {
                 </div>
 
                 {/* Filtri */}
-                <div className="flex gap-4 mb-4 items-center">
-                    <div className="w-48 ">
-                        <Select
-                            classNamePrefix="filtro"
-                            className="w-full"
-                            styles={{
-                                control: (provided) => ({
-                                    ...provided,
-                                    borderRadius: "12px",
-                                }),
-                            }}
-                            options={mesiOptions}
-                            value={meseFiltro}
-                            onChange={setMeseFiltro}
-                            placeholder="Filtro mese"
-                            isClearable
-                        />
+                <div className="mb-4">
+                    <div className="grid grid-cols-2 gap-3 md:flex md:flex-wrap md:items-center md:gap-4">
+                        {/* Mese */}
+                        <div className="col-span-1 md:w-48">
+                            <Select
+                                classNamePrefix="filtro"
+                                className="w-full"
+                                styles={{
+                                    control: (provided) => ({
+                                        ...provided,
+                                        borderRadius: "12px",
+                                        minHeight: "44px",
+                                    }),
+                                }}
+                                options={mesiOptions}
+                                value={meseFiltro}
+                                onChange={setMeseFiltro}
+                                placeholder="Filtro mese"
+                                isClearable
+                            />
+                        </div>
+
+                        {/* Anno */}
+                        <div className="col-span-1 md:w-48">
+                            <Select
+                                options={anniOptions}
+                                value={annoFiltro}
+                                onChange={setAnnoFiltro}
+                                placeholder="Filtro anno"
+                                isClearable
+                                className="w-full"
+                                styles={{
+                                    control: (provided) => ({
+                                        ...provided,
+                                        borderRadius: "12px",
+                                        minHeight: "44px",
+                                    }),
+                                }}
+                            />
+                        </div>
+
+                        {/* Terapista (in mobile prende tutta la riga) */}
+                        <div className="col-span-2 md:w-60">
+                            <Select
+                                options={terapistiOptions}
+                                value={terapistaFiltro}
+                                onChange={setTerapistaFiltro}
+                                placeholder="Filtro terapista"
+                                isClearable
+                                isSearchable
+                                className="w-full"
+                                styles={{
+                                    control: (provided) => ({
+                                        ...provided,
+                                        borderRadius: "12px",
+                                        minHeight: "44px",
+                                    }),
+                                }}
+                            />
+                        </div>
+
+                        {/* Paziente (solo admin/staff) */}
+                        {canEdit && (
+                            <div className="col-span-2 md:w-60">
+                                <Select
+                                    options={pazientiOptions}
+                                    value={pazienteFiltro}
+                                    onChange={setPazienteFiltro}
+                                    placeholder="Filtro paziente"
+                                    isClearable
+                                    isSearchable
+                                    className="w-full"
+                                    getOptionLabel={(p) =>
+                                        `${p.nome} ${p.cognome}`
+                                    }
+                                    getOptionValue={(p) => p.id}
+                                    styles={{
+                                        control: (provided) => ({
+                                            ...provided,
+                                            borderRadius: "12px",
+                                            minHeight: "44px",
+                                        }),
+                                    }}
+                                />
+                            </div>
+                        )}
+
+                        <div className="flex items-center h-[44px] px-3 rounded-[12px] border border-gray-200 bg-white">
+                            <label className="flex items-center gap-2 text-sm text-gray-700 font-marcellus cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={oggiFiltro}
+                                    onChange={(e) =>
+                                        setOggiFiltro(e.target.checked)
+                                    }
+                                    className="accent-bluPrimary"
+                                />
+                                Oggi
+                            </label>
+                        </div>
                     </div>
-                    <div className="w-48">
-                        <Select
-                            options={anniOptions}
-                            value={annoFiltro}
-                            onChange={setAnnoFiltro}
-                            placeholder="Filtro anno"
-                            isClearable
-                            styles={{
-                                control: (provided) => ({
-                                    ...provided,
-                                    borderRadius: "12px",
-                                }),
-                            }}
-                        />
-                    </div>
-                    <label className="flex items-center gap-2 text-sm text-gray-700 font-marcellus">
-                        <input
-                            type="checkbox"
-                            checked={oggiFiltro}
-                            onChange={(e) => setOggiFiltro(e.target.checked)}
-                            className="accent-bluPrimary"
-                        />
-                        Oggi
-                    </label>
                 </div>
 
                 {/* Tabella firme */}
