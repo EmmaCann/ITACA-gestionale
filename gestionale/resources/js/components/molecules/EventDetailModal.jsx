@@ -25,14 +25,19 @@ export default function EventDetailsModal({ id, onClose, onChanged, canEdit }) {
 
                     // PAZIENTE
                     paziente_id: a.paziente?.id ?? null,
-                    paziente_nome: a.paziente?.nome ?? a.paziente?.nome ?? "",
-                    paziente_cognome:
-                        a.paziente?.cognome ?? a.paziente?.cognome ?? "",
+                    paziente_nome: a.paziente?.nome ?? "",
+                    paziente_cognome: a.paziente?.cognome ?? "",
+                    paziente_email: a.paziente?.email ?? "",
+                    paziente_tel1: a.paziente?.telefono_1 ?? "",
+                    paziente_tel2: a.paziente?.telefono_2 ?? "",
 
                     // TERAPISTA
                     terapista_id: a.terapista?.id ?? null,
                     terapista_nome: a.terapista?.nome ?? "",
                     terapista_cognome: a.terapista?.cognome ?? "",
+                    terapista_email: a.terapista?.email ?? "",
+                    terapista_tel1: a.terapista?.telefono_1 ?? "",
+                    terapista_tel2: a.terapista?.telefono_2 ?? "",
                 });
             })
 

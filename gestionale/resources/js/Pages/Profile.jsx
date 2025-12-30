@@ -3,6 +3,8 @@ import { usePage, Link } from "@inertiajs/react";
 import Home from "./Home";
 import logo from "../../../public/images/logo-itaca.png";
 import { cambiaPassword } from "../data/api/utenti.js";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+
 const colors = {
     background: "#ECEFF2",
     bluPrimary: "#3DA4DD",
@@ -13,6 +15,12 @@ const colors = {
     navbarActive: "#ECEFF2",
     bgContainer: "#DFE0E0",
 };
+const formatDate = (v) => {
+    if (!v) return "—";
+    const d = new Date(v);
+    if (Number.isNaN(d.getTime())) return "—";
+    return d.toLocaleDateString("it-IT");
+};
 
 const Profile = () => {
     const { utente } = usePage().props;
@@ -22,15 +30,20 @@ const Profile = () => {
         new: "",
         confirm: "",
     });
+    const [showPw, setShowPw] = useState({
+        old: false,
+        new: false,
+        confirm: false,
+    });
 
     const [message, setMessage] = useState(null);
     const [error, setError] = useState(null);
 
     // MOCK – da sostituire con dati DB
-    const privacyMock = {
-        privacyAcceptedAt: "12/03/2025",
-        termsAcceptedAt: "12/03/2025",
-    };
+    // const privacyMock = {
+    //     privacyAcceptedAt: "12/03/2025",
+    //     termsAcceptedAt: "12/03/2025",
+    // };
 
     const handlePasswordChange = async () => {
         setMessage(null);
@@ -103,9 +116,19 @@ const Profile = () => {
                                 <p className="text-sm text-gray-500">
                                     Telefono
                                 </p>
-                                <p className="font-medium">
-                                    {utente.telefono ?? "—"}
-                                </p>
+
+                                {utente.telefono_1 || utente.telefono_2 ? (
+                                    <div className="font-medium space-y-1">
+                                        {utente.telefono_1 && (
+                                            <p>{utente.telefono_1}</p>
+                                        )}
+                                        {utente.telefono_2 && (
+                                            <p>{utente.telefono_2}</p>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <p className="font-medium">—</p>
+                                )}
                             </div>
 
                             <div>
@@ -145,7 +168,7 @@ const Profile = () => {
                                 </div>
                             )}
 
-                            <input
+                            {/* <input
                                 type="password"
                                 placeholder="Password attuale"
                                 className="p-2 rounded border"
@@ -182,7 +205,110 @@ const Profile = () => {
                                         confirm: e.target.value,
                                     })
                                 }
-                            />
+                            /> */}
+
+                            {/* Password attuale */}
+                            <div className="relative">
+                                <input
+                                    type={showPw.old ? "text" : "password"}
+                                    placeholder="Password attuale"
+                                    className="p-2 rounded border w-full pr-10"
+                                    value={passwords.old}
+                                    onChange={(e) =>
+                                        setPasswords((p) => ({
+                                            ...p,
+                                            old: e.target.value,
+                                        }))
+                                    }
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setShowPw((p) => ({
+                                            ...p,
+                                            old: !p.old,
+                                        }))
+                                    }
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                    aria-label={
+                                        showPw.old
+                                            ? "Nascondi password"
+                                            : "Mostra password"
+                                    }
+                                >
+                                    {showPw.old ? <FaEyeSlash /> : <FaEye />}
+                                </button>
+                            </div>
+
+                            {/* Nuova password */}
+                            <div className="relative">
+                                <input
+                                    type={showPw.new ? "text" : "password"}
+                                    placeholder="Nuova password"
+                                    className="p-2 rounded border w-full pr-10"
+                                    value={passwords.new}
+                                    onChange={(e) =>
+                                        setPasswords((p) => ({
+                                            ...p,
+                                            new: e.target.value,
+                                        }))
+                                    }
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setShowPw((p) => ({
+                                            ...p,
+                                            new: !p.new,
+                                        }))
+                                    }
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                    aria-label={
+                                        showPw.new
+                                            ? "Nascondi password"
+                                            : "Mostra password"
+                                    }
+                                >
+                                    {showPw.new ? <FaEyeSlash /> : <FaEye />}
+                                </button>
+                            </div>
+
+                            {/* Conferma nuova password */}
+                            <div className="relative">
+                                <input
+                                    type={showPw.confirm ? "text" : "password"}
+                                    placeholder="Conferma nuova password"
+                                    className="p-2 rounded border w-full pr-10"
+                                    value={passwords.confirm}
+                                    onChange={(e) =>
+                                        setPasswords((p) => ({
+                                            ...p,
+                                            confirm: e.target.value,
+                                        }))
+                                    }
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setShowPw((p) => ({
+                                            ...p,
+                                            confirm: !p.confirm,
+                                        }))
+                                    }
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                    aria-label={
+                                        showPw.confirm
+                                            ? "Nascondi password"
+                                            : "Mostra password"
+                                    }
+                                >
+                                    {showPw.confirm ? (
+                                        <FaEyeSlash />
+                                    ) : (
+                                        <FaEye />
+                                    )}
+                                </button>
+                            </div>
 
                             <button
                                 className="px-4 py-2 rounded-lg text-white font-semibold transition-all"
@@ -209,7 +335,7 @@ const Profile = () => {
                                     </p>
                                     <p className="text-sm text-gray-500">
                                         Accettata il:{" "}
-                                        {privacyMock.privacyAcceptedAt}
+                                        {formatDate(utente.privacy_accepted_at)}
                                     </p>
                                 </div>
 
@@ -231,7 +357,7 @@ const Profile = () => {
                                     </p>
                                     <p className="text-sm text-gray-500">
                                         Accettati il:{" "}
-                                        {privacyMock.termsAcceptedAt}
+                                        {formatDate(utente.terms_accepted_at)}
                                     </p>
                                 </div>
 
@@ -250,7 +376,7 @@ const Profile = () => {
                         method="post"
                         as="button"
                         className="w-full bg-pinkSecondary text-white py-3 rounded-xl font-semibold shadow hover:bg-pinkPrimary transition"
-                        onClick={() => sessionStorage.removeItem('onboarding')}
+                        onClick={() => sessionStorage.removeItem("onboarding")}
                     >
                         Logout
                     </Link>

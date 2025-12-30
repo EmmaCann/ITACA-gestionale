@@ -4,12 +4,19 @@ import { Link, router } from "@inertiajs/react";
 import CustomModal from "../customModal.jsx";
 import { acceptLegal } from "../../data/api/auth.js";
 import { cambiaPassword } from "../../data/api/utenti.js";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const ModalOnboarding = ({ isOpen, onboarding, onAccepted }) => {
     const [privacyOk, setPrivacyOk] = useState(false);
     const [termsOk, setTermsOk] = useState(false);
     const [loading, setLoading] = useState(false);
     const [err, setErr] = useState(null);
+
+    const [showPw, setShowPw] = useState({
+        old: false,
+        new: false,
+        confirm: false,
+    });
 
     const canContinue = useMemo(
         () => privacyOk && termsOk,
@@ -18,21 +25,20 @@ const ModalOnboarding = ({ isOpen, onboarding, onAccepted }) => {
     const [step, setStep] = useState("legal");
 
     useEffect(() => {
-    if (!onboarding) return;
+        if (!onboarding) return;
 
-    if (onboarding.needs_privacy === true) {
-        setStep("legal");
-        return;
-    }
+        if (onboarding.needs_privacy === true) {
+            setStep("legal");
+            return;
+        }
 
-    if (
-        onboarding.needs_privacy === false &&
-        onboarding.needs_password_change === true
-    ) {
-        setStep("password");
-    }
-}, [onboarding]);
-
+        if (
+            onboarding.needs_privacy === false &&
+            onboarding.needs_password_change === true
+        ) {
+            setStep("password");
+        }
+    }, [onboarding]);
 
     const handleReject = () => {
         sessionStorage.removeItem("onboarding");
@@ -40,25 +46,25 @@ const ModalOnboarding = ({ isOpen, onboarding, onAccepted }) => {
     };
 
     const handleAccept = async () => {
-    setErr(null);
-    setLoading(true);
+        setErr(null);
+        setLoading(true);
 
-    try {
-        await acceptLegal();
+        try {
+            await acceptLegal();
 
-        const updated = {
-            ...onboarding,
-            needs_privacy: false, 
-        };
+            const updated = {
+                ...onboarding,
+                needs_privacy: false,
+            };
 
-        sessionStorage.setItem("onboarding", JSON.stringify(updated));
-        onAccepted(updated); // farà partire lo step password
-    } catch (e) {
-        setErr("Errore durante il salvataggio dell'accettazione.");
-    } finally {
-        setLoading(false);
-    }
-};
+            sessionStorage.setItem("onboarding", JSON.stringify(updated));
+            onAccepted(updated); // farà partire lo step password
+        } catch (e) {
+            setErr("Errore durante il salvataggio dell'accettazione.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const [passwords, setPasswords] = useState({
         old: "",
@@ -207,7 +213,7 @@ const ModalOnboarding = ({ isOpen, onboarding, onAccepted }) => {
                         </div>
                     )}
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                         <input
                             type="password"
                             placeholder="Password attuale"
@@ -246,6 +252,101 @@ const ModalOnboarding = ({ isOpen, onboarding, onAccepted }) => {
                                 }))
                             }
                         />
+                    </div> */}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        {/* Password attuale */}
+                        <div className="relative">
+                            <input
+                                type={showPw.old ? "text" : "password"}
+                                placeholder="Password attuale"
+                                className="p-3 border rounded-lg w-full pr-10"
+                                value={passwords.old}
+                                onChange={(e) =>
+                                    setPasswords((p) => ({
+                                        ...p,
+                                        old: e.target.value,
+                                    }))
+                                }
+                            />
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setShowPw((p) => ({ ...p, old: !p.old }))
+                                }
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                aria-label={
+                                    showPw.old
+                                        ? "Nascondi password"
+                                        : "Mostra password"
+                                }
+                            >
+                                {showPw.old ? <FaEyeSlash /> : <FaEye />}
+                            </button>
+                        </div>
+
+                        {/* Nuova password */}
+                        <div className="relative">
+                            <input
+                                type={showPw.new ? "text" : "password"}
+                                placeholder="Nuova password"
+                                className="p-3 border rounded-lg w-full pr-10"
+                                value={passwords.new}
+                                onChange={(e) =>
+                                    setPasswords((p) => ({
+                                        ...p,
+                                        new: e.target.value,
+                                    }))
+                                }
+                            />
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setShowPw((p) => ({ ...p, new: !p.new }))
+                                }
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                aria-label={
+                                    showPw.new
+                                        ? "Nascondi password"
+                                        : "Mostra password"
+                                }
+                            >
+                                {showPw.new ? <FaEyeSlash /> : <FaEye />}
+                            </button>
+                        </div>
+
+                        {/* Conferma nuova password */}
+                        <div className="relative md:col-span-2">
+                            <input
+                                type={showPw.confirm ? "text" : "password"}
+                                placeholder="Conferma nuova password"
+                                className="p-3 border rounded-lg w-full pr-10"
+                                value={passwords.confirm}
+                                onChange={(e) =>
+                                    setPasswords((p) => ({
+                                        ...p,
+                                        confirm: e.target.value,
+                                    }))
+                                }
+                            />
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setShowPw((p) => ({
+                                        ...p,
+                                        confirm: !p.confirm,
+                                    }))
+                                }
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                aria-label={
+                                    showPw.confirm
+                                        ? "Nascondi password"
+                                        : "Mostra password"
+                                }
+                            >
+                                {showPw.confirm ? <FaEyeSlash /> : <FaEye />}
+                            </button>
+                        </div>
                     </div>
 
                     <div className="mt-auto pt-4 border-t border-gray-200 flex justify-end">

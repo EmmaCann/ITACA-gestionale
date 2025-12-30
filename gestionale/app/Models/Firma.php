@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Firma extends Model
 {
     protected $table = 'firme';
-    protected $fillable = ['nome', 'cognome', 'data', 'terapia', 'terapista_id'];
+    protected $fillable = ['paziente_id','nome', 'cognome', 'data', 'terapia', 'terapista_id'];
 
     protected $casts = [
         'data' => 'date',
@@ -17,5 +17,10 @@ class Firma extends Model
     public function terapista()
     {
         return $this->belongsTo(Utente::class, 'terapista_id');
+    }
+
+    public function paziente()
+    {
+        return $this->belongsTo(Utente::class, 'paziente_id');
     }
 }

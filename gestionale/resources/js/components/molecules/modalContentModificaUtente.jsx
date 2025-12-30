@@ -89,12 +89,13 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
                 method: "GET",
             });
 
-            setTerapistiOptions(
-                Object.values(response.data).map((t) => ({
-                    value: t.id,
-                    label: `${t.nome} ${t.cognome}`,
-                }))
-            );
+            // setTerapistiOptions(
+            //     Object.values(response.data).map((t) => ({
+            //         value: t.id,
+            //         label: `${t.nome} ${t.cognome}`,
+            //     }))
+            // );
+            setTerapistiOptions(Object.values(response.data));
         } catch {
             toast.error("Errore nel recupero dei terapisti");
         }
@@ -243,7 +244,11 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
                     <IconInputWrapperModal icon={FaPhoneAlt}>
                         <input
                             name="telefono_1"
-                            placeholder="Telefono principale"
+                            placeholder={
+                                tipoUtente === "paziente"
+                                    ? "Telefono mamma"
+                                    : "Telefono principale"
+                            }
                             className={inputStyle}
                             value={formData.telefono_1}
                             onChange={handleChange}
@@ -253,7 +258,11 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
                     <IconInputWrapperModal icon={FaPhoneAlt}>
                         <input
                             name="telefono_2"
-                            placeholder="Telefono secondario"
+                            placeholder={
+                                tipoUtente === "paziente"
+                                    ? "Telefono papà"
+                                    : "Telefono secondario"
+                            }
                             className={inputStyle}
                             value={formData.telefono_2}
                             onChange={handleChange}
@@ -273,7 +282,7 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
                 </IconInputWrapperModal>
 
                 {/* Password */}
-                <IconInputWrapperModal icon={FaLock}>
+                {/* <IconInputWrapperModal icon={FaLock}>
                     <input
                         type="password"
                         name="password"
@@ -282,7 +291,37 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
                         value={formData.password}
                         onChange={handleChange}
                     />
-                </IconInputWrapperModal>
+                </IconInputWrapperModal> */}
+                {/* Username (readonly) + Password */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex flex-col flex-1">
+                        <label className="text-sm mb-1">Username</label>
+                        <IconInputWrapperModal icon={FaUser}>
+                            <input
+                                name="username"
+                                value={utente?.username || "—"}
+                                disabled
+                                className={`${inputStyle} bg-gray-100 cursor-not-allowed`}
+                            />
+                        </IconInputWrapperModal>
+                    </div>
+
+                    <div className="flex flex-col flex-1">
+                        <label className="text-sm mb-1">
+                            Modifica password
+                        </label>
+                        <IconInputWrapperModal icon={FaLock}>
+                            <input
+                                type="password"
+                                name="password"
+                                placeholder="Nuova password (lascia vuoto)"
+                                className={inputStyle}
+                                value={formData.password}
+                                onChange={handleChange}
+                            />
+                        </IconInputWrapperModal>
+                    </div>
+                </div>
 
                 {/* STAFF → professioni */}
                 {tipoUtente === "staff" && (
