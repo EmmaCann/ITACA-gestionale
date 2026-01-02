@@ -1,14 +1,29 @@
 // resources/js/components/modals/EventDetailsModal.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
+import Select from "react-select";
+import { usePage } from "@inertiajs/react";
 
 export default function EventDetailsModal({ id, onClose, onChanged, canEdit }) {
+    const { props } = usePage();
+    const ruolo = props?.ruolo; // "admin" | "staff" | "paziente"
+
     const [data, setData] = useState(null);
     const [saving, setSaving] = useState(false);
     const [editing, setEditing] = useState(false);
 
+    // opzioni per multiselect gruppo (solo se edit)
+    const [pazientiOptions, setPazientiOptions] = useState([]);
+    const [terapistiOptions, setTerapistiOptions] = useState([]);
+
+    const isGroup = useMemo(() => data?.is_group === true, [data]);
+
+    // ✅ qui decidiamo se mostrare il titolo nel dettaglio
+    const showGroupTitle = !(ruolo === "paziente" && isGroup);
+
     useEffect(() => {
         let alive = true;
+
         axios
             .get(`/appuntamenti/${id}`)
             .then((res) => {
@@ -23,50 +38,89 @@ export default function EventDetailsModal({ id, onClose, onChanged, canEdit }) {
                     durata_minuti: a.durata_minuti,
                     note: a.note ?? "",
 
-                    // PAZIENTE
+                    // GROUP
+                    is_group: !!a.is_group,
+                    titolo: a.titolo ?? "",
+                    pazienti: Array.isArray(a.pazienti) ? a.pazienti : [],
+                    terapisti: Array.isArray(a.terapisti) ? a.terapisti : [],
+
+                    // SINGLE (retrocompat)
                     paziente_id: a.paziente?.id ?? null,
                     paziente_nome: a.paziente?.nome ?? "",
                     paziente_cognome: a.paziente?.cognome ?? "",
-                    paziente_email: a.paziente?.email ?? "",
-                    paziente_tel1: a.paziente?.telefono_1 ?? "",
-                    paziente_tel2: a.paziente?.telefono_2 ?? "",
 
-                    // TERAPISTA
                     terapista_id: a.terapista?.id ?? null,
                     terapista_nome: a.terapista?.nome ?? "",
                     terapista_cognome: a.terapista?.cognome ?? "",
-                    terapista_email: a.terapista?.email ?? "",
-                    terapista_tel1: a.terapista?.telefono_1 ?? "",
-                    terapista_tel2: a.terapista?.telefono_2 ?? "",
                 });
-            })
 
+                setEditing(false);
+            })
             .catch(() => {
                 alert("Errore nel caricamento dettagli");
                 onClose?.();
             });
+
         return () => {
             alive = false;
         };
     }, [id]);
 
+    // carica opzioni SOLO se serve (gruppo + canEdit)
+    useEffect(() => {
+        if (!isGroup || !canEdit) return;
+
+        let alive = true;
+
+        Promise.all([axios.get("/get-pazienti"), axios.get("/terapisti")])
+            .then(([pazRes, terRes]) => {
+                if (!alive) return;
+                setPazientiOptions(Object.values(pazRes.data || {}));
+                setTerapistiOptions(Object.values(terRes.data || {}));
+            })
+            .catch(() => {});
+
+        return () => {
+            alive = false;
+        };
+    }, [isGroup, canEdit]);
+
     const handleSave = async () => {
         setSaving(true);
         try {
-            await axios.patch(`/appuntamenti/${id}`, {
-                data: data.data,
-                ora: data.ora?.slice(0, 5), // HH:mm
-                durata_minuti: data.durata_minuti,
-                note: data.note,
-                terapista_id: data.terapista_id,
-                paziente_id: data.paziente_id ?? null,
-                nome: data.paziente_id ? null : data.paziente_nome,
-                cognome: data.paziente_id ? null : data.paziente_cognome,
-            });
+            if (isGroup) {
+                await axios.patch(`/appuntamenti/${id}`, {
+                    // titolo: lo mando solo se è visibile/modificabile (admin/staff)
+                    ...(showGroupTitle ? { titolo: data.titolo } : {}),
+
+                    data: data.data,
+                    ora: (data.ora || "").slice(0, 5),
+                    durata_minuti: data.durata_minuti,
+                    note: data.note,
+
+                    pazienti_ids: (data.pazienti || []).map((p) => p.id),
+                    terapisti_ids: (data.terapisti || []).map(
+                        (t) => t.id ?? t.value
+                    ),
+                });
+            } else {
+                await axios.patch(`/appuntamenti/${id}`, {
+                    data: data.data,
+                    ora: (data.ora || "").slice(0, 5),
+                    durata_minuti: data.durata_minuti,
+                    note: data.note,
+                    terapista_id: data.terapista_id,
+                    paziente_id: data.paziente_id ?? null,
+                    nome: data.paziente_id ? null : data.paziente_nome,
+                    cognome: data.paziente_id ? null : data.paziente_cognome,
+                });
+            }
+
             setEditing(false);
             onChanged?.();
-        } catch {
+        } catch (e) {
             alert("Errore nel salvataggio");
+            console.error(e);
         } finally {
             setSaving(false);
         }
@@ -90,7 +144,9 @@ export default function EventDetailsModal({ id, onClose, onChanged, canEdit }) {
             <div className="bg-white rounded-2xl p-4 w-full max-w-xl space-y-3">
                 <div className="flex justify-between items-center">
                     <h3 className="text-lg font-semibold">
-                        Dettagli appuntamento
+                        {isGroup
+                            ? "Dettagli terapia di gruppo"
+                            : "Dettagli appuntamento"}
                     </h3>
                     <button
                         onClick={onClose}
@@ -147,43 +203,123 @@ export default function EventDetailsModal({ id, onClose, onChanged, canEdit }) {
                         />
                     </label>
 
-                    <div className="col-span-2">
-                        <span className="text-gray-500">Paziente</span>
-                        <input
-                            disabled={!editing || data.paziente_id}
-                            value={`${data.paziente_nome ?? ""}`}
-                            onChange={(e) =>
-                                setData((d) => ({
-                                    ...d,
-                                    paziente_nome: e.target.value,
-                                }))
-                            }
-                            className="w-full border rounded px-2 py-1"
-                            placeholder="Nome (ospite)"
-                        />
-                        <input
-                            disabled={!editing || data.paziente_id}
-                            value={`${data.paziente_cognome ?? ""}`}
-                            onChange={(e) =>
-                                setData((d) => ({
-                                    ...d,
-                                    paziente_cognome: e.target.value,
-                                }))
-                            }
-                            className="w-full border rounded px-2 py-1 mt-2"
-                            placeholder="Cognome (ospite)"
-                        />
-                    </div>
-                    <div className="col-span-2">
-                        <span className="text-gray-500">Terapista</span>
-                        <input
-                            disabled
-                            value={`${data.terapista_nome ?? ""} ${
-                                data.terapista_cognome ?? ""
-                            }`}
-                            className="w-full border rounded px-2 py-1"
-                        />
-                    </div>
+                    {/* GROUP */}
+                    {isGroup && (
+                        <>
+                            {/* ✅ Titolo visibile solo se NON paziente */}
+                            {showGroupTitle && (
+                                <div className="col-span-2">
+                                    <span className="text-gray-500">Titolo</span>
+                                    <input
+                                        disabled={!editing}
+                                        value={data.titolo || ""}
+                                        onChange={(e) =>
+                                            setData((d) => ({
+                                                ...d,
+                                                titolo: e.target.value,
+                                            }))
+                                        }
+                                        className="w-full border rounded px-2 py-1"
+                                        placeholder="Nome terapia di gruppo"
+                                    />
+                                </div>
+                            )}
+
+                            <div className="col-span-2">
+                                <span className="text-gray-500">
+                                    Pazienti ({data.pazienti?.length || 0})
+                                </span>
+                                <Select
+                                    isDisabled={!editing}
+                                    isMulti
+                                    options={pazientiOptions}
+                                    value={data.pazienti || []}
+                                    onChange={(v) =>
+                                        setData((d) => ({
+                                            ...d,
+                                            pazienti: v || [],
+                                        }))
+                                    }
+                                    className="text-[14px]"
+                                    placeholder="Seleziona pazienti"
+                                    getOptionLabel={(p) =>
+                                        `${p.nome} ${p.cognome}`
+                                    }
+                                    getOptionValue={(p) => p.id}
+                                    isSearchable
+                                />
+                            </div>
+
+                            <div className="col-span-2">
+                                <span className="text-gray-500">
+                                    Terapisti ({data.terapisti?.length || 0})
+                                </span>
+                                <Select
+                                    isDisabled={!editing}
+                                    isMulti
+                                    options={terapistiOptions}
+                                    value={data.terapisti || []}
+                                    onChange={(v) =>
+                                        setData((d) => ({
+                                            ...d,
+                                            terapisti: v || [],
+                                        }))
+                                    }
+                                    className="text-[14px]"
+                                    placeholder="Seleziona terapisti"
+                                    getOptionLabel={(t) =>
+                                        t.label || `${t.nome} ${t.cognome}`
+                                    }
+                                    getOptionValue={(t) => t.id || t.value}
+                                    isSearchable
+                                />
+                            </div>
+                        </>
+                    )}
+
+                    {/* SINGLE */}
+                    {!isGroup && (
+                        <>
+                            <div className="col-span-2">
+                                <span className="text-gray-500">Paziente</span>
+                                <input
+                                    disabled={!editing || data.paziente_id}
+                                    value={`${data.paziente_nome ?? ""}`}
+                                    onChange={(e) =>
+                                        setData((d) => ({
+                                            ...d,
+                                            paziente_nome: e.target.value,
+                                        }))
+                                    }
+                                    className="w-full border rounded px-2 py-1"
+                                    placeholder="Nome (ospite)"
+                                />
+                                <input
+                                    disabled={!editing || data.paziente_id}
+                                    value={`${data.paziente_cognome ?? ""}`}
+                                    onChange={(e) =>
+                                        setData((d) => ({
+                                            ...d,
+                                            paziente_cognome: e.target.value,
+                                        }))
+                                    }
+                                    className="w-full border rounded px-2 py-1 mt-2"
+                                    placeholder="Cognome (ospite)"
+                                />
+                            </div>
+
+                            <div className="col-span-2">
+                                <span className="text-gray-500">Terapista</span>
+                                <input
+                                    disabled
+                                    value={`${data.terapista_nome ?? ""} ${
+                                        data.terapista_cognome ?? ""
+                                    }`}
+                                    className="w-full border rounded px-2 py-1"
+                                />
+                            </div>
+                        </>
+                    )}
 
                     <div className="col-span-2">
                         <span className="text-gray-500">Note</span>
@@ -219,6 +355,7 @@ export default function EventDetailsModal({ id, onClose, onChanged, canEdit }) {
                             </button>
                         )}
                     </div>
+
                     {canEdit && (
                         <button
                             onClick={handleDelete}

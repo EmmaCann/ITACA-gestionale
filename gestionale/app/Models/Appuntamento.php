@@ -16,14 +16,17 @@ class Appuntamento extends Model
         'note',
         'nome',
         'cognome',
-        'durata_minuti', // Nuovo campo per la durata in minuti
+        'durata_minuti',
+        'is_group',
+        'titolo',
     ];
 
 
     protected $casts = [
         'data' => 'date',
-        'ora' => 'string', 
+        'ora' => 'string',
         'created_at' => 'datetime',
+        'is_group' => 'boolean',
     ];
 
 
@@ -37,5 +40,15 @@ class Appuntamento extends Model
     public function terapista()
     {
         return $this->belongsTo(Utente::class, 'terapista_id');
+    }
+
+    public function pazienti()
+    {
+        return $this->belongsToMany(Utente::class, 'appuntamento_paziente', 'appuntamento_id', 'paziente_id');
+    }
+
+    public function terapisti()
+    {
+        return $this->belongsToMany(Utente::class, 'appuntamento_terapista', 'appuntamento_id', 'terapista_id');
     }
 }
