@@ -299,14 +299,76 @@ class AppuntamentiController extends Controller
     }
 
 
-
     public function update(Request $request, $id)
     {
+        // ✅ solo admin
         $ruolo = session('logged_user.ruolo');
         if ($ruolo !== 'admin') {
             return response()->json(['message' => 'Non autorizzato'], 403);
         }
 
+        // carico una volta sola (con relazioni per i gruppi)
+        $a = Appuntamento::with(['pazienti', 'terapisti'])->findOrFail($id);
+
+        // =====================================================
+        // ✅ CASO GRUPPO
+        // =====================================================
+        if ((bool)$a->is_group) {
+            $validated = $request->validate([
+                'data'           => ['nullable', 'date'],
+                'ora'            => ['nullable', 'date_format:H:i'],
+                'durata_minuti'  => ['nullable', 'integer', 'min:5', 'max:720'],
+                'note'           => ['nullable', 'string'],
+                'titolo'         => ['nullable', 'string', 'max:255'],
+
+                // pivot: aggiorna solo se presenti nella request
+                'pazienti_ids'    => ['sometimes', 'array', 'min:1'],
+                'pazienti_ids.*'  => ['exists:utente,id'],
+                'terapisti_ids'   => ['sometimes', 'array', 'min:1'],
+                'terapisti_ids.*' => ['exists:utente,id'],
+            ]);
+
+            // campi base
+            if (array_key_exists('data', $validated) && $validated['data'] !== null) {
+                $a->data = $validated['data'];
+            }
+            if (array_key_exists('ora', $validated) && $validated['ora'] !== null) {
+                $a->ora = $validated['ora']; // TIME ok
+            }
+            if (array_key_exists('durata_minuti', $validated) && $validated['durata_minuti'] !== null) {
+                $a->durata_minuti = (int)$validated['durata_minuti'];
+            }
+            if (array_key_exists('note', $validated)) {
+                $a->note = $validated['note'];
+            }
+            if (array_key_exists('titolo', $validated) && $validated['titolo'] !== null) {
+                $a->titolo = $validated['titolo'];
+            }
+
+            // pivot sync SOLO se inviati (così non svuoti per sbaglio)
+            if ($request->has('pazienti_ids')) {
+                $pids = array_values(array_unique($validated['pazienti_ids'] ?? []));
+                $a->pazienti()->sync($pids);
+            }
+
+            if ($request->has('terapisti_ids')) {
+                $tids = array_values(array_unique($validated['terapisti_ids'] ?? []));
+                $a->terapisti()->sync($tids);
+
+                // ✅ referente coerente con colore/filtro
+                if (count($tids) > 0) {
+                    $a->terapista_id = (int)$tids[0];
+                }
+            }
+
+            $a->save();
+
+            return response()->json(['ok' => true]);
+        }
+
+        // =====================================================
+        // ✅ CASO SINGOLO (identico alla tua logica)
+        // =====================================================
         $validated = $request->validate([
             'start'          => ['nullable', 'date'],
             'end'            => ['nullable', 'date'],
@@ -316,17 +378,16 @@ class AppuntamentiController extends Controller
             'note'           => ['nullable', 'string'],
             'terapista_id'   => ['nullable', 'exists:utente,id'],
             'paziente_id'    => ['nullable', 'exists:utente,id'],
-            'nome'           => ['nullable', 'string'],   // per ospite
-            'cognome'        => ['nullable', 'string'],   // per ospite
+            'nome'           => ['nullable', 'string'],
+            'cognome'        => ['nullable', 'string'],
         ]);
 
-        $a = Appuntamento::findOrFail($id);
-
-        // caso drag/resize
+        // drag/resize
         if (!empty($validated['start'])) {
             $start = \Illuminate\Support\Carbon::parse($validated['start']);
             $a->data = $start->toDateString();
             $a->ora  = $start->format('H:i:s');
+
             if (!empty($validated['end'])) {
                 $end  = \Illuminate\Support\Carbon::parse($validated['end']);
                 $diff = $start->diffInMinutes($end);
@@ -334,33 +395,37 @@ class AppuntamentiController extends Controller
             }
         }
 
-        // caso form (edit manuale)
+        // edit manuale
         if (!empty($validated['data'])) $a->data = $validated['data'];
         if (!empty($validated['ora']))  $a->ora  = $validated['ora'];
+
         if (array_key_exists('durata_minuti', $validated) && $validated['durata_minuti'] !== null) {
             $a->durata_minuti = $validated['durata_minuti'];
         }
-        if (array_key_exists('note', $validated))        $a->note = $validated['note'];
-        if (!empty($validated['terapista_id']))         $a->terapista_id = $validated['terapista_id'];
 
-        // ospite o cambio paziente
+        if (array_key_exists('note', $validated)) $a->note = $validated['note'];
+        if (!empty($validated['terapista_id']))  $a->terapista_id = $validated['terapista_id'];
+
+        // paziente / ospite
         if (array_key_exists('paziente_id', $validated)) $a->paziente_id = $validated['paziente_id'];
-        if (array_key_exists('nome', $validated))        $a->nome = $validated['nome'];
-        if (array_key_exists('cognome', $validated))     $a->cognome = $validated['cognome'];
+        if (array_key_exists('nome', $validated))       $a->nome = $validated['nome'];
+        if (array_key_exists('cognome', $validated))    $a->cognome = $validated['cognome'];
 
         $a->save();
 
-        // 🔹 dopo aver salvato l'appuntamento, assicuriamo il record in pazienti_terapisti
+        // relazione paziente-terapista come prima
         if (!empty($a->paziente_id) && !empty($a->terapista_id)) {
             $exists = PazienteTerapista::where('paziente_id', $a->paziente_id)
                 ->where('terapista_id', $a->terapista_id)
                 ->exists();
 
-            if (! $exists) {
+            if (!$exists) {
                 PazienteTerapista::create([
                     'paziente_id'  => $a->paziente_id,
                     'terapista_id' => $a->terapista_id,
-                    'data'         => $a->data?->toDateString() ?? now()->toDateString(),
+                    'data'         => ($a->data instanceof \Illuminate\Support\Carbon)
+                        ? $a->data->toDateString()
+                        : (string)$a->data,
                 ]);
             }
         }
@@ -379,62 +444,36 @@ class AppuntamentiController extends Controller
 
         return response()->json([
             'id'            => $a->id,
-            'data'          => $a->data,
-            'ora'           => $a->ora,
+            'data'          => $a->data ? \Illuminate\Support\Carbon::parse($a->data)->toDateString() : null, // ✅
+            'ora'           => $a->ora ? substr($a->ora, 0, 5) : null, // ✅ HH:mm
             'durata_minuti' => $a->durata_minuti,
             'note'          => $a->note,
 
-            // retrocompat: per gruppo mettiamo null (evita ospite vuoto)
-            'paziente'  => $a->is_group ? null : (
-                $a->paziente
-                ? [
-                    'id'         => $a->paziente->id,
-                    'nome'       => $a->paziente->nome,
-                    'cognome'    => $a->paziente->cognome,
-                    'email'      => $a->paziente->email,
-                    'telefono_1' => $a->paziente->telefono_1,
-                    'telefono_2' => $a->paziente->telefono_2,
-                ]
-                : [
-                    'nome'    => $a->nome,
-                    'cognome' => $a->cognome,
-                ]
-            ),
+            'paziente'  => $a->paziente ? [
+                'id' => $a->paziente->id,
+                'nome' => $a->paziente->nome,
+                'cognome' => $a->paziente->cognome,
+                'email' => $a->paziente->email,
+                'telefono_1' => $a->paziente->telefono_1,
+                'telefono_2' => $a->paziente->telefono_2,
+            ] : [
+                'nome' => $a->nome,
+                'cognome' => $a->cognome,
+            ],
 
-            'terapista' => $a->is_group ? null : (
-                $a->terapista
-                ? [
-                    'id'         => $a->terapista->id,
-                    'nome'       => $a->terapista->nome,
-                    'cognome'    => $a->terapista->cognome,
-                    'email'      => $a->terapista->email,
-                    'telefono_1' => $a->terapista->telefono_1,
-                    'telefono_2' => $a->terapista->telefono_2,
-                ]
-                : null
-            ),
+            'terapista' => $a->terapista ? [
+                'id' => $a->terapista->id,
+                'nome' => $a->terapista->nome,
+                'cognome' => $a->terapista->cognome,
+                'email' => $a->terapista->email,
+                'telefono_1' => $a->terapista->telefono_1,
+                'telefono_2' => $a->terapista->telefono_2,
+            ] : null,
 
-            // nuovi campi gruppo (la UI vecchia può ignorarli)
             'is_group' => (bool)$a->is_group,
             'titolo'   => $a->titolo,
-
-            'pazienti' => $a->is_group ? $a->pazienti->map(fn($p) => [
-                'id'         => $p->id,
-                'nome'       => $p->nome,
-                'cognome'    => $p->cognome,
-                'email'      => $p->email,
-                'telefono_1' => $p->telefono_1,
-                'telefono_2' => $p->telefono_2,
-            ])->values() : null,
-
-            'terapisti' => $a->is_group ? $a->terapisti->map(fn($t) => [
-                'id'         => $t->id,
-                'nome'       => $t->nome,
-                'cognome'    => $t->cognome,
-                'email'      => $t->email,
-                'telefono_1' => $t->telefono_1,
-                'telefono_2' => $t->telefono_2,
-            ])->values() : null,
+            'pazienti' => $a->is_group ? $a->pazienti : [],
+            'terapisti' => $a->is_group ? $a->terapisti : [],
         ]);
     }
 
