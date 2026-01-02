@@ -6,6 +6,7 @@ use App\Models\Appuntamento;
 use App\Models\PazienteTerapista;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class AppuntamentiController extends Controller
@@ -571,5 +572,38 @@ class AppuntamentiController extends Controller
         }
 
         return response()->json($result);
+    }
+
+    public function destroy($id)
+    {
+        $ruolo = session('logged_user.ruolo');
+        if ($ruolo !== 'admin') {
+            return response()->json(['message' => 'Non autorizzato'], 403);
+        }
+
+        try {
+            DB::transaction(function () use ($id) {
+                $a = Appuntamento::with(['pazienti', 'terapisti'])->findOrFail($id);
+
+              
+                if (method_exists($a, 'pazienti')) {
+                    $a->pazienti()->detach();
+                }
+                if (method_exists($a, 'terapisti')) {
+                    $a->terapisti()->detach();
+                }
+
+             
+                $a->delete();
+            });
+
+            return response()->json(['ok' => true]);
+        } catch (\Throwable $e) {
+            Log::error("DELETE APPOINTMENT ERROR", [
+                'id' => $id,
+                'error' => $e->getMessage(),
+            ]);
+            return response()->json(['message' => 'Errore eliminazione appuntamento'], 500);
+        }
     }
 }
