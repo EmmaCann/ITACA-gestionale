@@ -77,13 +77,10 @@ class AppuntamentiController extends Controller
             ]);
         }
 
-        // -----------------------------------------
-        // 1) FILTRO RUOLO (retrocompatibile)
-        // -----------------------------------------
+        // 1) filtro ruolo
         if ($ruolo === 'admin') {
-            // admin vede tutto
+            // vede tutto
         } elseif ($ruolo === 'staff') {
-            // staff: single (terapista_id) OR gruppo (pivot terapisti)
             $q->where(function ($qq) use ($userId) {
                 $qq->where('terapista_id', $userId)
                     ->orWhereHas('terapisti', function ($t) use ($userId) {
@@ -91,7 +88,6 @@ class AppuntamentiController extends Controller
                     });
             });
         } elseif ($ruolo === 'paziente') {
-            // paziente: single (paziente_id) OR gruppo (pivot pazienti)
             $q->where(function ($qq) use ($userId) {
                 $qq->where('paziente_id', $userId)
                     ->orWhereHas('pazienti', function ($p) use ($userId) {
@@ -100,10 +96,7 @@ class AppuntamentiController extends Controller
             });
         }
 
-        // -----------------------------------------
-        // 2) FILTRO TERAPISTA (solo admin + paziente)
-        //    include anche gruppi via pivot
-        // -----------------------------------------
+        // 2) filtro terapista (admin + paziente), include gruppi via pivot
         if (
             ($ruolo === 'admin' || $ruolo === 'paziente') &&
             $terapistaId !== null &&
@@ -126,7 +119,7 @@ class AppuntamentiController extends Controller
             'ids'   => $items->pluck('id'),
         ]);
 
-        $events = $items->map(function ($a) {
+        $events = $items->map(function ($a) use ($ruolo) {
             $date = $a->data instanceof Carbon ? $a->data->toDateString() : $a->data;
             $time = $a->ora instanceof Carbon ? $a->ora->format('H:i:s') : ($a->ora ?: '00:00:00');
 
@@ -134,23 +127,52 @@ class AppuntamentiController extends Controller
             $durata  = $a->durata_minuti ?? 30;
             $endAt   = (clone $startAt)->addMinutes($durata);
 
-            // titolo evento
+            // ---- Nomi base
+            $pazienteName = $a->paziente
+                ? trim("{$a->paziente->nome} {$a->paziente->cognome}")
+                : trim("{$a->nome} {$a->cognome}");
+            if ($pazienteName === '') $pazienteName = 'Paziente';
+
+            $terapistaName = $a->terapista
+                ? trim("{$a->terapista->nome} {$a->terapista->cognome}")
+                : "Terapista";
+
+            // ---- TITLE (dipende da ruolo + gruppo/singolo)
             if ($a->is_group) {
-                $title = $a->titolo ?: 'Terapia di gruppo';
+                if ($ruolo === 'paziente') {
+                    // paziente: elenco terapisti
+                    $therapists = $a->terapisti ?? collect();
+
+                    if ($therapists->count() > 0) {
+                        $title = $therapists
+                            ->map(fn($t) => 'Dr. ' . trim(($t->nome ?? '') . ' ' . ($t->cognome ?? '')))
+                            ->filter(fn($s) => trim($s) !== 'Dr.' && trim($s) !== '')
+                            ->implode(', ');
+                    } else {
+                        // fallback al referente
+                        $title = 'Dr. ' . $terapistaName;
+                    }
+
+                    if (trim($title) === '') $title = 'Terapisti';
+                } else {
+                    // admin + staff: titolo gruppo
+                    $title = $a->titolo ?: 'Terapia di gruppo';
+                }
             } else {
-                $pazienteName = $a->paziente
-                    ? trim("{$a->paziente->nome} {$a->paziente->cognome}")
-                    : trim("{$a->nome} {$a->cognome}");
-                if ($pazienteName === '') $pazienteName = 'Paziente';
-
-                $terapistaName = $a->terapista
-                    ? trim("{$a->terapista->nome} {$a->terapista->cognome}")
-                    : "Terapista";
-
-                $title = "{$pazienteName} — Dr. {$terapistaName}";
+                // singolo
+                if ($ruolo === 'paziente') {
+                    // paziente: non mostrare il suo nome
+                    $title = "Dr. {$terapistaName}";
+                } elseif ($ruolo === 'staff') {
+                    // staff: non serve "Dr.", solo paziente
+                    $title = $pazienteName;
+                } else {
+                    // admin (e fallback): come ora
+                    $title = "{$pazienteName} — Dr. {$terapistaName}";
+                }
             }
 
-            // colore: usiamo terapista_id (nei gruppi è il "referente")
+            // colore: basato su terapista_id (nei gruppi = referente)
             $bg = $this->colorForTherapist((int)$a->terapista_id);
             $fg = $this->idealTextColor($bg);
 

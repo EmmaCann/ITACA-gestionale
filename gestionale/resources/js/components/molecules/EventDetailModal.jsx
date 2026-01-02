@@ -2,17 +2,24 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import Select from "react-select";
+import { usePage } from "@inertiajs/react";
 
 export default function EventDetailsModal({ id, onClose, onChanged, canEdit }) {
+    const { props } = usePage();
+    const ruolo = props?.ruolo; // "admin" | "staff" | "paziente"
+
     const [data, setData] = useState(null);
     const [saving, setSaving] = useState(false);
     const [editing, setEditing] = useState(false);
 
-    // opzioni per multiselect gruppo
+    // opzioni per multiselect gruppo (solo se edit)
     const [pazientiOptions, setPazientiOptions] = useState([]);
     const [terapistiOptions, setTerapistiOptions] = useState([]);
 
     const isGroup = useMemo(() => data?.is_group === true, [data]);
+
+    // ✅ qui decidiamo se mostrare il titolo nel dettaglio
+    const showGroupTitle = !(ruolo === "paziente" && isGroup);
 
     useEffect(() => {
         let alive = true;
@@ -21,6 +28,7 @@ export default function EventDetailsModal({ id, onClose, onChanged, canEdit }) {
             .get(`/appuntamenti/${id}`)
             .then((res) => {
                 if (!alive) return;
+
                 const a = res.data;
 
                 setData({
@@ -64,18 +72,13 @@ export default function EventDetailsModal({ id, onClose, onChanged, canEdit }) {
 
         let alive = true;
 
-        Promise.all([
-            axios.get("/get-pazienti"),
-            axios.get("/terapisti"),
-        ])
+        Promise.all([axios.get("/get-pazienti"), axios.get("/terapisti")])
             .then(([pazRes, terRes]) => {
                 if (!alive) return;
                 setPazientiOptions(Object.values(pazRes.data || {}));
                 setTerapistiOptions(Object.values(terRes.data || {}));
             })
-            .catch(() => {
-                // non blocca la modale: semplicemente non potrai cambiare liste
-            });
+            .catch(() => {});
 
         return () => {
             alive = false;
@@ -87,14 +90,18 @@ export default function EventDetailsModal({ id, onClose, onChanged, canEdit }) {
         try {
             if (isGroup) {
                 await axios.patch(`/appuntamenti/${id}`, {
-                    titolo: data.titolo,
+                    // titolo: lo mando solo se è visibile/modificabile (admin/staff)
+                    ...(showGroupTitle ? { titolo: data.titolo } : {}),
+
                     data: data.data,
                     ora: (data.ora || "").slice(0, 5),
                     durata_minuti: data.durata_minuti,
                     note: data.note,
 
                     pazienti_ids: (data.pazienti || []).map((p) => p.id),
-                    terapisti_ids: (data.terapisti || []).map((t) => t.id ?? t.value),
+                    terapisti_ids: (data.terapisti || []).map(
+                        (t) => t.id ?? t.value
+                    ),
                 });
             } else {
                 await axios.patch(`/appuntamenti/${id}`, {
@@ -137,7 +144,9 @@ export default function EventDetailsModal({ id, onClose, onChanged, canEdit }) {
             <div className="bg-white rounded-2xl p-4 w-full max-w-xl space-y-3">
                 <div className="flex justify-between items-center">
                     <h3 className="text-lg font-semibold">
-                        {isGroup ? "Dettagli terapia di gruppo" : "Dettagli appuntamento"}
+                        {isGroup
+                            ? "Dettagli terapia di gruppo"
+                            : "Dettagli appuntamento"}
                     </h3>
                     <button
                         onClick={onClose}
@@ -185,7 +194,9 @@ export default function EventDetailsModal({ id, onClose, onChanged, canEdit }) {
                             onChange={(e) =>
                                 setData((d) => ({
                                     ...d,
-                                    durata_minuti: parseInt(e.target.value || "0"),
+                                    durata_minuti: parseInt(
+                                        e.target.value || "0"
+                                    ),
                                 }))
                             }
                             className="w-full border rounded px-2 py-1"
@@ -195,18 +206,24 @@ export default function EventDetailsModal({ id, onClose, onChanged, canEdit }) {
                     {/* GROUP */}
                     {isGroup && (
                         <>
-                            <div className="col-span-2">
-                                <span className="text-gray-500">Titolo</span>
-                                <input
-                                    disabled={!editing}
-                                    value={data.titolo || ""}
-                                    onChange={(e) =>
-                                        setData((d) => ({ ...d, titolo: e.target.value }))
-                                    }
-                                    className="w-full border rounded px-2 py-1"
-                                    placeholder="Nome terapia di gruppo"
-                                />
-                            </div>
+                            {/* ✅ Titolo visibile solo se NON paziente */}
+                            {showGroupTitle && (
+                                <div className="col-span-2">
+                                    <span className="text-gray-500">Titolo</span>
+                                    <input
+                                        disabled={!editing}
+                                        value={data.titolo || ""}
+                                        onChange={(e) =>
+                                            setData((d) => ({
+                                                ...d,
+                                                titolo: e.target.value,
+                                            }))
+                                        }
+                                        className="w-full border rounded px-2 py-1"
+                                        placeholder="Nome terapia di gruppo"
+                                    />
+                                </div>
+                            )}
 
                             <div className="col-span-2">
                                 <span className="text-gray-500">
@@ -218,11 +235,16 @@ export default function EventDetailsModal({ id, onClose, onChanged, canEdit }) {
                                     options={pazientiOptions}
                                     value={data.pazienti || []}
                                     onChange={(v) =>
-                                        setData((d) => ({ ...d, pazienti: v || [] }))
+                                        setData((d) => ({
+                                            ...d,
+                                            pazienti: v || [],
+                                        }))
                                     }
                                     className="text-[14px]"
                                     placeholder="Seleziona pazienti"
-                                    getOptionLabel={(p) => `${p.nome} ${p.cognome}`}
+                                    getOptionLabel={(p) =>
+                                        `${p.nome} ${p.cognome}`
+                                    }
                                     getOptionValue={(p) => p.id}
                                     isSearchable
                                 />
@@ -238,11 +260,16 @@ export default function EventDetailsModal({ id, onClose, onChanged, canEdit }) {
                                     options={terapistiOptions}
                                     value={data.terapisti || []}
                                     onChange={(v) =>
-                                        setData((d) => ({ ...d, terapisti: v || [] }))
+                                        setData((d) => ({
+                                            ...d,
+                                            terapisti: v || [],
+                                        }))
                                     }
                                     className="text-[14px]"
                                     placeholder="Seleziona terapisti"
-                                    getOptionLabel={(t) => t.label || `${t.nome} ${t.cognome}`}
+                                    getOptionLabel={(t) =>
+                                        t.label || `${t.nome} ${t.cognome}`
+                                    }
                                     getOptionValue={(t) => t.id || t.value}
                                     isSearchable
                                 />
@@ -285,7 +312,9 @@ export default function EventDetailsModal({ id, onClose, onChanged, canEdit }) {
                                 <span className="text-gray-500">Terapista</span>
                                 <input
                                     disabled
-                                    value={`${data.terapista_nome ?? ""} ${data.terapista_cognome ?? ""}`}
+                                    value={`${data.terapista_nome ?? ""} ${
+                                        data.terapista_cognome ?? ""
+                                    }`}
                                     className="w-full border rounded px-2 py-1"
                                 />
                             </div>
