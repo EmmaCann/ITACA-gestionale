@@ -235,6 +235,7 @@ class UtenteController extends Controller
             'professioni'   => 'nullable|array',
             'professioni.*' => 'string|max:255',
             'diagnosi' => 'nullable|string',
+            'note'=>'nullable|string',
             'sesso' => 'nullable|in:M,F',
             'terapisti'   => 'nullable|array',
             'terapisti.*' => 'integer|exists:utente,id',
@@ -283,12 +284,14 @@ class UtenteController extends Controller
         if ($validated['tipoUtente'] === 'paziente') {
 
             // cartella clinica
-            $utente->cartellaClinica()->create([
-                'anamnesi' => '',
-                'diagnosi' => $validated['diagnosi'] ?? '',
-                'terapia' => '',
-                'note' => '',
-            ]);
+            $cartella = new CartellaClinica();
+            $cartella->paziente_id = $utente->id;
+            $cartella->anamnesi = '';
+            $cartella->diagnosi = $validated['diagnosi'] ?? '';
+            $cartella->terapia = '';
+            $cartella->note = '';
+            $cartella->save();
+
 
             //  associazione terapisti (1:N)
             if (!empty($validated['terapisti'])) {
@@ -441,10 +444,12 @@ class UtenteController extends Controller
             // Se paziente → aggiorna diagnosi e terapista
             if ($utente->ruolo === 'paziente') {
                 if (!empty($validated['diagnosi'])) {
-                    CartellaClinica::updateOrCreate(
-                        ['paziente_id' => $utente->id],
-                        ['diagnosi' => $validated['diagnosi']]
+                    $cartella = CartellaClinica::firstOrCreate(
+                        ['paziente_id' => $utente->id]
                     );
+
+                    $cartella->diagnosi = $validated['diagnosi'];
+                    $cartella->save();
                 }
                 if ($utente->ruolo === 'paziente' && isset($validated['terapisti'])) {
 

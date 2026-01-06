@@ -17,13 +17,14 @@ class CartellaClinica extends Model
     ];
 
     protected $casts = [
-        'anamnesi' => 'encrypted:string',
-        'diagnosi' => 'encrypted:string',
-        'terapia'  => 'encrypted:string',
-        'note'     => 'encrypted:string',
+        'anamnesi' => 'encrypted',
+        'diagnosi' => 'encrypted',
+        'terapia'  => 'encrypted',
+        'note'     => 'encrypted',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
 
     public function paziente()
     {

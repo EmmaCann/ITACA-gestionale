@@ -195,18 +195,28 @@ class CartellaClinicaController extends Controller
             'note'     => 'nullable|string',
         ]);
 
-        $cartella = CartellaClinica::firstOrCreate(
-            ['paziente_id' => $paziente->id],
-            $data
-        );
+        // 1️⃣ recupera o crea SOLO con chiave
+        $cartella = CartellaClinica::firstOrCreate([
+            'paziente_id' => $paziente->id,
+        ]);
 
-        $cartella->update($data);
+        // 2️⃣ assegna campo per campo (NO mass assignment)
+        foreach (['anamnesi', 'diagnosi', 'terapia', 'note'] as $field) {
+            if (array_key_exists($field, $data)) {
+                // stringa vuota → null (OBBLIGATORIO con encrypted)
+                $cartella->{$field} = $data[$field] !== '' ? $data[$field] : null;
+            }
+        }
+
+        // 3️⃣ salva (qui Laravel cifra)
+        $cartella->save();
 
         return response()->json([
             'success' => true,
             'cartella' => $cartella,
         ]);
     }
+
 
 
     public function patientView()
