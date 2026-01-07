@@ -39,7 +39,11 @@ class UtenteController extends Controller
         // Include i terapisti nel risultato
         $q = Utente::query()
             ->where('ruolo', 'paziente')
-            ->with(['terapisti:id,nome,cognome']);
+            ->with([
+                'terapisti:id,nome,cognome',
+                'cartellaClinica'
+            ]);
+
 
         // STAFF → vede solo i suoi pazienti
         $session = Session::get('logged_user');
@@ -235,7 +239,7 @@ class UtenteController extends Controller
             'professioni'   => 'nullable|array',
             'professioni.*' => 'string|max:255',
             'diagnosi' => 'nullable|string',
-            'note'=>'nullable|string',
+            'note' => 'nullable|string',
             'sesso' => 'nullable|in:M,F',
             'terapisti'   => 'nullable|array',
             'terapisti.*' => 'integer|exists:utente,id',
