@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -16,9 +17,14 @@ class CartellaClinica extends Model
     ];
 
     protected $casts = [
+        'anamnesi' => 'encrypted',
+        'diagnosi' => 'encrypted',
+        'terapia'  => 'encrypted',
+        'note'     => 'encrypted',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
 
     public function paziente()
     {

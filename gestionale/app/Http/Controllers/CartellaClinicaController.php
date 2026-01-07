@@ -8,6 +8,8 @@ use App\Models\CartellaClinicaFile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Crypt;
+
 
 use App\Models\CartellaClinica;
 
@@ -40,22 +42,29 @@ class CartellaClinicaController extends Controller
         $request->validate([
             'files'   => 'required',
             'files.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png|max:51200',
-
         ]);
 
         $files = $request->file('files');
 
-        // se arriva un solo file lo trasformiamo in array
         if (!is_array($files)) {
             $files = [$files];
         }
 
-        foreach ($request->file('files') as $file) {
-            $path = $file->store(
-                "cartelle_cliniche/{$pazienteId}",
-                'private'
-            );
+        foreach ($files as $file) {
 
+            // 1️ leggiamo il contenuto reale del file
+            $content = file_get_contents($file->getRealPath());
+
+            // 2️ cifriamo il contenuto
+            $encryptedContent = Crypt::encrypt($content);
+
+            // 3️ path tecnico (NON pubblico)
+            $path = "cartelle_cliniche/{$pazienteId}/" . uniqid() . '.bin';
+
+            // 4️ salviamo il file CIFRATO
+            Storage::disk('private')->put($path, $encryptedContent);
+
+            // 5️ salviamo i metadati nel DB (UGUALE A PRIMA)
             CartellaClinicaFile::create([
                 'paziente_id'   => $pazienteId,
                 'uploaded_by'   => $user['id_utente'],
@@ -66,11 +75,11 @@ class CartellaClinicaController extends Controller
             ]);
         }
 
-
         return response()->json([
             'success' => true,
         ]);
     }
+
 
 
 
@@ -110,7 +119,6 @@ class CartellaClinicaController extends Controller
     }
 
 
-
     public function download($id)
     {
         $user = session('logged_user');
@@ -122,14 +130,21 @@ class CartellaClinicaController extends Controller
             abort(404, 'File non trovato');
         }
 
-        $fullPath = Storage::disk('private')->path($file->file_path);
+        // 1️ leggiamo il contenuto CIFRATO
+        $encryptedContent = Storage::disk('private')->get($file->file_path);
 
+        // 2️decifriamo il contenuto
+        $content = Crypt::decrypt($encryptedContent);
 
-        return response()->download(
-            $fullPath,
-            $file->original_name
-        );
+        // 3️restituiamo il file originale al browser
+        return response($content)
+            ->header('Content-Type', $file->mime_type)
+            ->header(
+                'Content-Disposition',
+                'attachment; filename="' . $file->original_name . '"'
+            );
     }
+
 
 
     // public function download($id)
@@ -155,11 +170,17 @@ class CartellaClinicaController extends Controller
 
         $file = CartellaClinicaFile::findOrFail($fileId);
 
-        Storage::disk('local')->delete($file->file_path);
+        // elimina il file CIFRATO dal disk corretto
+        if (Storage::disk('private')->exists($file->file_path)) {
+            Storage::disk('private')->delete($file->file_path);
+        }
+
+        // elimina il record dal DB
         $file->delete();
 
         return response()->json(['success' => true]);
     }
+
 
 
     public function update(Request $request, Utente $paziente)
@@ -174,18 +195,28 @@ class CartellaClinicaController extends Controller
             'note'     => 'nullable|string',
         ]);
 
-        $cartella = CartellaClinica::firstOrCreate(
-            ['paziente_id' => $paziente->id],
-            $data
-        );
+        // 1️⃣ recupera o crea SOLO con chiave
+        $cartella = CartellaClinica::firstOrCreate([
+            'paziente_id' => $paziente->id,
+        ]);
 
-        $cartella->update($data);
+        // 2️⃣ assegna campo per campo (NO mass assignment)
+        foreach (['anamnesi', 'diagnosi', 'terapia', 'note'] as $field) {
+            if (array_key_exists($field, $data)) {
+                // stringa vuota → null (OBBLIGATORIO con encrypted)
+                $cartella->{$field} = $data[$field] !== '' ? $data[$field] : null;
+            }
+        }
+
+        // 3️⃣ salva (qui Laravel cifra)
+        $cartella->save();
 
         return response()->json([
             'success' => true,
             'cartella' => $cartella,
         ]);
     }
+
 
 
     public function patientView()

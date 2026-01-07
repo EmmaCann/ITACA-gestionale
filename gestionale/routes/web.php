@@ -200,3 +200,58 @@ Route::middleware([AuthSession::class])->group(function () {
     ->name('onboarding.acceptLegal');
 
 });
+
+use App\Models\CartellaClinica;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\DecryptException;
+
+Route::get('/__fix_cartelle_cliniche', function () {
+
+    abort_unless(
+        request('key') === 'passwordamministratore',
+        403
+    );
+
+    $count = 0;
+
+    CartellaClinica::query()->chunkById(100, function ($rows) use (&$count) {
+
+        foreach ($rows as $c) {
+
+            $update = [];
+            $fields = ['anamnesi', 'diagnosi', 'terapia', 'note'];
+
+            foreach ($fields as $field) {
+
+                $raw = $c->getRawOriginal($field);
+
+                // ✅ caso 1: NULL o stringa vuota / solo spazi → NULL
+                if ($raw === null || trim($raw) === '') {
+                    if ($raw !== null) {
+                        $update[$field] = null;
+                    }
+                    continue;
+                }
+
+                // ✅ caso 2: testo presente
+                try {
+                    // se è già cifrato, decrypt non lancia eccezione
+                    Crypt::decryptString($raw);
+                } catch (DecryptException $e) {
+                    // legacy → cifriamo
+                    $update[$field] = Crypt::encryptString($raw);
+                }
+            }
+
+            if (!empty($update)) {
+                CartellaClinica::where('id', $c->id)->update($update);
+                $count++;
+            }
+        }
+    });
+
+    return response()->json([
+        'status' => 'ok',
+        'records_updated' => $count,
+    ]);
+});

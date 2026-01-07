@@ -50,7 +50,7 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
             telefono_1: utente.telefono_1 || "",
             telefono_2: utente.telefono_2 || "",
             email: utente.email || "",
-            diagnosi: utente.diagnosi || "",
+            diagnosi: utente.cartella_clinica?.diagnosi || "",
             password: "",
         });
 
