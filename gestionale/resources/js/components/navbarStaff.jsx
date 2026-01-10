@@ -64,6 +64,18 @@ export const NavbarStaff = ({ menuOpen, setMenuOpen }) => {
                                 iconSize={18}
                             />
                         </Link>
+                        <Link
+                            href="/archivio-firme"
+                            className={`${commonClass} ${isActive(
+                                "/archivio-firme"
+                            )}`}
+                        >
+                            <IconTextNavbar
+                                icon={FaPencilAlt}
+                                text="ARCHIVIO FIRME"
+                                iconSize={16}
+                            />
+                        </Link>
 
                         <Link
                             href="/utenti"
@@ -71,19 +83,6 @@ export const NavbarStaff = ({ menuOpen, setMenuOpen }) => {
                         >
                             <IconTextNavbar image={BrainIcon} text="PAZIENTI" />
                         </Link>
-
-                        {/* <Link
-                            href="/appuntamenti"
-                            className={`${commonClass} ${isActive(
-                                "/appuntamenti"
-                            )}`}
-                        >
-                            <IconTextNavbar
-                                icon={FaNotesMedical}
-                                text="APPUNTAMENTI?"
-                                iconSize={16}
-                            />
-                        </Link> */}
                     </div>
 
                     {/* Staff */}
