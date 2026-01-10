@@ -287,7 +287,7 @@ const ArchivioFirme = () => {
                     />
                 </div>
 
-                {/* Bottone export discreto (solo per utenti con permessi di editing) */}
+                {/* Bottone export  (solo per utenti con permessi di editing) */}
                 {canEdit && (
                     <div className="mt-12">
                         <button

@@ -21,6 +21,7 @@ const ModalContentAggiuntaFirma = ({ onClose, onSubmit }) => {
         nome: "",
         cognome: "",
         data: "",
+        note: "",
     });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -82,7 +83,9 @@ const ModalContentAggiuntaFirma = ({ onClose, onSubmit }) => {
         }
 
         if (!utenteNonRegistrato && !pazienteSelezionato) {
-            toast.error("Seleziona un paziente o spunta 'utente non registrato'");
+            toast.error(
+                "Seleziona un paziente o spunta 'utente non registrato'"
+            );
             return;
         }
 
@@ -94,6 +97,7 @@ const ModalContentAggiuntaFirma = ({ onClose, onSubmit }) => {
         const payload = {
             data: formData.data,
             terapia: terapiaSelezionata.value,
+            note: formData.note,
             terapista_id: terapistaSelezionato.value ?? terapistaSelezionato.id,
             ...(utenteNonRegistrato
                 ? { nome: formData.nome, cognome: formData.cognome }
@@ -209,6 +213,19 @@ const ModalContentAggiuntaFirma = ({ onClose, onSubmit }) => {
                         onChange={setTerapiaSelezionata}
                         placeholder="Seleziona terapia"
                         className="text-[14px]"
+                    />
+                </div>
+                <div>
+                    <label className="text-sm text-gray-600 mb-1 font-marcellus">
+                        Note
+                    </label>
+                    <textarea
+                        name="note"
+                        rows={3}
+                        placeholder="Note "
+                        className="w-full border border-gray-300 rounded-[12px] px-3 py-2 text-[14px] font-marcellus resize-none"
+                        value={formData.note}
+                        onChange={handleChange}
                     />
                 </div>
             </div>

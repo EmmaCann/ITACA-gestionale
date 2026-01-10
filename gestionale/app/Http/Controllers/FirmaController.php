@@ -40,6 +40,7 @@ class FirmaController extends Controller
                 'cognome'   => $cognome,
                 'data'      => $firma->data?->format('Y-m-d'),
                 'terapia'   => $firma->terapia,
+                'note'        => $firma->note,
                 'terapista' => $firma->terapista
                     ? $firma->terapista->nome . ' ' . $firma->terapista->cognome
                     : null,
@@ -58,6 +59,7 @@ class FirmaController extends Controller
             'cognome'      => 'nullable|required_without:paziente_id|string|max:255',
             'data'         => 'required|date',
             'terapia'      => 'required|string|max:255',
+            'note' => 'nullable|string',
             'terapista_id' => 'required|exists:utente,id',
         ]);
 
@@ -146,6 +148,7 @@ class FirmaController extends Controller
                 'Data'      => $firma->data ? $firma->data->format('Y-m-d') : null,
                 'Terapia'   => $firma->terapia,
                 'Terapista' => optional($firma->terapista)->nome . ' ' . optional($firma->terapista)->cognome,
+                'Note'      => $firma->note,
             ];
         })->toArray();
 

@@ -4,11 +4,16 @@ import { FaTrashAlt } from "react-icons/fa";
 const ArchivioFirmeRow = ({ dati, onDelete, canEdit = true }) => {
     return (
         <tr className="hover:bg-gray-50">
-            <td className="px-6 py-4 font-semibold text-gray-900">{dati.nome}</td>
+            <td className="px-6 py-4 font-semibold text-gray-900">
+                {dati.nome}
+            </td>
             <td className="px-6 py-4">{dati.cognome}</td>
             <td className="px-6 py-4">{dati.data}</td>
             <td className="px-6 py-4">{dati.terapia}</td>
             <td className="px-6 py-4">{dati.terapista}</td>
+            <td className="px-6 py-4 text-gray-600 text-sm">
+                {dati.note || "-"}
+            </td>
             {canEdit ? (
                 <td className="px-6 py-4">
                     <div className="flex justify-center">

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Firma extends Model
 {
     protected $table = 'firme';
-    protected $fillable = ['paziente_id','nome', 'cognome', 'data', 'terapia', 'terapista_id'];
+    protected $fillable = ['paziente_id','nome', 'cognome', 'data', 'terapia','note','terapista_id'];
 
     protected $casts = [
         'data' => 'date',
