@@ -8,7 +8,6 @@ import { creaPagamento } from "@/data/api/pagamenti";
 import { IconInputWrapperModal } from "./atoms/iconInputWrapperModal.jsx";
 
 const ModalContentAggiungiPagamento = ({ onClose, onSubmit }) => {
-    const [formData, setFormData] = useState({});
     const [terapistiOptions, setTerapistiOptions] = useState([]);
     const [pazientiOptions, setPazientiOptions] = useState([]);
     const [terapistaSelezionato, setTerapistaSelezionato] = useState(null);
@@ -16,6 +15,14 @@ const ModalContentAggiungiPagamento = ({ onClose, onSubmit }) => {
     const [utenteNonRegistrato, setUtenteNonRegistrato] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [fattura, setFattura] = useState(false);
+
+    const [formData, setFormData] = useState({
+        nome: "",
+        cognome: "",
+        data: "",
+        importo: "",
+        note: "",
+    });
 
     useEffect(() => {
         fetchTerapisti();
@@ -71,6 +78,7 @@ const ModalContentAggiungiPagamento = ({ onClose, onSubmit }) => {
                 terapistaSelezionato?.value || terapistaSelezionato?.id,
             data: formData.data,
             importo: formData.importo,
+            note: formData.note,
             fattura: fattura ? 1 : 0,
             ...(utenteNonRegistrato
                 ? {
@@ -196,6 +204,19 @@ const ModalContentAggiungiPagamento = ({ onClose, onSubmit }) => {
                         />
                         Fattura
                     </label>
+                </div>
+                <div>
+                    <label className="text-sm text-gray-600 mb-1 font-marcellus">
+                        Note
+                    </label>
+                    <textarea
+                        name="note"
+                        rows={3}
+                        placeholder="Note"
+                        className="w-full border border-gray-300 rounded-[12px] px-3 py-2 text-[14px] font-marcellus resize-none"
+                        value={formData.note}
+                        onChange={handleChange}
+                    />
                 </div>
 
                 {/* Terapista */}

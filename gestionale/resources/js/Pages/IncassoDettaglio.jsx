@@ -256,6 +256,11 @@ const DettaglioIncasso = () => {
                                                   )
                                                 : "Data non valida"}
                                         </p>
+                                        {p.note && (
+                                            <p className="text-sm text-gray-600 italic mt-1">
+                                                Note: {p.note}
+                                            </p>
+                                        )}
                                     </div>
 
                                     {/* CENTRO: TERAPISTA + STATO */}

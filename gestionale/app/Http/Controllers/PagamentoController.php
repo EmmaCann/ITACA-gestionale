@@ -20,6 +20,7 @@ class PagamentoController extends Controller
             'nome'          => 'required_without:paziente_id|string|max:255',
             'cognome'       => 'required_without:paziente_id|string|max:255',
             'fattura'       => 'required|boolean',
+            'note' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -33,6 +34,7 @@ class PagamentoController extends Controller
             'terapista_id' => $request->input('terapista_id'),
             'data'         => $request->input('data'),
             'importo'      => $request->input('importo'),
+            'note'         => $request->input('note'),
             'paziente_id'  => $request->input('paziente_id'),
             'nome'         => $request->input('nome'),
             'cognome'      => $request->input('cognome'),
