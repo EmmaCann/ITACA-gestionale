@@ -65,7 +65,7 @@ export function CalendarBoard() {
     const isResizingRef = useRef(false);
 
     const ruolo = props?.ruolo;
-    const showTherapistFilter = ruolo === "admin" || ruolo === "paziente";
+    const showTherapistFilter = ruolo === "admin" || ruolo === "paziente" || ruolo === "staff";
 
     // refresh da altri componenti
     useEffect(() => {
