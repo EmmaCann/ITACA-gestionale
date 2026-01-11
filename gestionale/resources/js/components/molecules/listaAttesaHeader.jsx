@@ -3,34 +3,25 @@ import { CheckboxRotondo } from "./atoms/checkboxRotondo";
 import { ColonnaTabella } from "./atoms/ColonnaTabella";
 
 export const ListaAttesaHeader = () => {
-    const pTagStyle = "font-inter text-white text-[14px] text-center";
-
     return (
-        <div className="bg-bluPrimary flex flex-row w-[95%] h-[48px] mx-4 items-center gap-4 opacity-80 rounded-[12px] mb-6 pl-2">
-            <CheckboxRotondo checked={false} isStatic={true} base="white" />
-            <div className="flex-1 flex flex-row justify-between">
-                <ColonnaTabella width="w-[60px]">
-                    <p className={pTagStyle}>#</p>
-                </ColonnaTabella>
-                <ColonnaTabella>
-                    <p className={pTagStyle}>Nome</p>
-                </ColonnaTabella>
-                <ColonnaTabella>
-                    <p className={pTagStyle}>Cognome</p>
-                </ColonnaTabella>
-                <ColonnaTabella>
-                    <p className={pTagStyle}>In lista dal:</p>
-                </ColonnaTabella>
-                <ColonnaTabella width="w-[160px]">
-                    <p className={pTagStyle}>Terapia</p>
-                </ColonnaTabella>
-                <ColonnaTabella width="w-[180px]">
-                    <p className={pTagStyle}>Richiesta Terapista</p>
-                </ColonnaTabella>
-                <ColonnaTabella>
-                    <p className={pTagStyle}>Contatti</p>
-                </ColonnaTabella>
-            </div>
+        <div
+            className="
+            hidden md:grid
+            bg-bluPrimary text-white
+            mx-4 mb-3 rounded-[12px] px-3 h-[46px]
+            grid-cols-[40px_50px_1.1fr_1.1fr_0.4fr_0.9fr_1.2fr_1.6fr_0.8fr_0.6fr]
+            items-center text-[13px]"
+        >
+            <CheckboxRotondo checked={false} isStatic base="white" />
+            <div>#</div>
+            <div>Nome</div>
+            <div>Cognome</div>
+            <div className="text-center">📝</div>
+            <div>Data</div>
+            <div>Terapia</div>
+            <div>Richiesta terapista</div>
+            <div className="text-center">Contatti</div>
+            <div className="text-center">Azioni</div>
         </div>
     );
 };

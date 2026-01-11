@@ -14,6 +14,7 @@ class ListaAttesa extends Model
         'email',
         'data',
         'terapia',
+        'note',
         'terapista_id',
         'chiamato',
         'utente_id',

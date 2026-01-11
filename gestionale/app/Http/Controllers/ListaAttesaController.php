@@ -58,6 +58,7 @@ class ListaAttesaController extends Controller
             'email' => 'nullable|email',
             'data' => 'required|date',
             'terapia' => 'required|string',
+             'note' => 'nullable|string',
             'terapista_id' => 'nullable|exists:utente,id',
             'utente_id' => 'nullable|exists:utente,id',
         ]);

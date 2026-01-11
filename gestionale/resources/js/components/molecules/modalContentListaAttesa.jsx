@@ -14,6 +14,7 @@ import { creaVoceListaAttesa } from "@/data/api/listaAttesa";
 
 const ModalContentListaAttesa = ({ onClose, onSubmit }) => {
     const [formData, setFormData] = useState({});
+
     const [dataInserimento, setDataInserimento] = useState(
         new Date().toISOString().split("T")[0]
     );
@@ -92,6 +93,7 @@ const ModalContentListaAttesa = ({ onClose, onSubmit }) => {
             cognome: formData.cognome,
             telefono: formData.telefono,
             email: formData.email,
+            note: formData.note,
             data: dataInserimento,
             terapia: terapiaSelezionata.value,
             terapista_id: richiestaTerapista
@@ -128,7 +130,13 @@ const ModalContentListaAttesa = ({ onClose, onSubmit }) => {
                         checked={utenteRegistrato}
                         onChange={(e) => {
                             setUtenteRegistrato(e.target.checked);
-                            setFormData({});
+                            setFormData({
+                                nome: "",
+                                cognome: "",
+                                telefono: "",
+                                email: "",
+                                note: "",
+                            });
                         }}
                     />
                     Utente registrato
@@ -212,6 +220,19 @@ const ModalContentListaAttesa = ({ onClose, onSubmit }) => {
                         onChange={setTerapiaSelezionata}
                         placeholder="Seleziona terapia"
                         className="text-[14px]"
+                    />
+                </div>
+                <div>
+                    <label className="text-sm text-gray-600 mb-1 font-marcellus">
+                        Note
+                    </label>
+                    <textarea
+                        name="note"
+                        rows={3}
+                        placeholder="Note opzionali (es. preferenze, orari, richieste particolari)"
+                        className="w-full border border-gray-300 rounded-[12px] px-3 py-2 text-[14px] font-marcellus resize-none"
+                        value={formData.note}
+                        onChange={handleChange}
                     />
                 </div>
 
