@@ -256,4 +256,54 @@ class PagamentoController extends Controller
             ]
         ]);
     }
+
+    public function update(Request $request, $id)
+    {
+        $pagamento = Pagamento::findOrFail($id);
+
+        $validator = Validator::make($request->all(), [
+            'terapista_id'  => 'required|exists:utente,id',
+            'data'          => 'required|date',
+            'importo'       => 'required|numeric|min:0',
+            'paziente_id'   => 'nullable|exists:utente,id',
+            'nome'          => 'required_without:paziente_id|string|max:255',
+            'cognome'       => 'required_without:paziente_id|string|max:255',
+            'fattura'       => 'required|boolean',
+            'note'          => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Errore di validazione',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $pagamento->update([
+            'terapista_id' => $request->input('terapista_id'),
+            'data'         => $request->input('data'),
+            'importo'      => $request->input('importo'),
+            'note'         => $request->input('note'),
+            'paziente_id'  => $request->input('paziente_id'),
+            'nome'         => $request->input('nome'),
+            'cognome'      => $request->input('cognome'),
+            'fattura'      => $request->boolean('fattura'),
+        ]);
+
+        return response()->json([
+            'message' => 'Pagamento aggiornato con successo',
+            'pagamento' => $pagamento,
+        ]);
+    }
+
+
+    public function destroy($id)
+    {
+        $pagamento = Pagamento::findOrFail($id);
+        $pagamento->delete();
+
+        return response()->json([
+            'message' => 'Pagamento eliminato con successo',
+        ]);
+    }
 }

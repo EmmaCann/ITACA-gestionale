@@ -7,6 +7,12 @@ import { DoughnutChartWidget } from "../components/DoughnutChartWidget";
 import { getPagamentiFiltrati } from "../data/api/pagamenti";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
+import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import ModalContentModificaPagamento from "../components/molecules/atoms/modalContentModificaPagamento";
+import CustomModal from "../components/customModal";
+import { toast } from "react-toastify";
+import axios from "axios";
+
 
 const DettaglioIncasso = () => {
     const { props } = usePage();
@@ -25,8 +31,11 @@ const DettaglioIncasso = () => {
         senzaFattura: 0,
     });
 
+    const [modalEditOpen, setModalEditOpen] = useState(false);
+    const [pagamentoInEdit, setPagamentoInEdit] = useState(null);
+
     useEffect(() => {
-        console.log("terapista loggato ", terapistaIdLoggato);
+        // console.log("terapista loggato ", terapistaIdLoggato);
         const fetchData = async () => {
             try {
                 const res = await getPagamentiFiltrati({
@@ -38,7 +47,7 @@ const DettaglioIncasso = () => {
                             : filters.terapista ?? null,
                 });
 
-                console.log("[API FETCH] Risposta pagamenti:", res);
+                // console.log("[API FETCH] Risposta pagamenti:", res);
 
                 const pagamentiArray = res.pagamenti ?? [];
                 setPagamenti(pagamentiArray);
@@ -95,6 +104,35 @@ const DettaglioIncasso = () => {
 
         fetchData();
     }, [tipo, filters]);
+
+    const handleEditPagamento = (pagamento) => {
+        setPagamentoInEdit(pagamento);
+        setModalEditOpen(true);
+    };
+
+    const handleDeletePagamento = async (pagamentoId) => {
+        if (!confirm("Sei sicuro di voler eliminare questo incasso?")) return;
+
+        try {
+            await axios.delete(`/pagamenti/${pagamentoId}`);
+            toast.success("Incasso eliminato con successo");
+
+            // refresh lista
+            const res = await getPagamentiFiltrati({
+                tipo,
+                ...filters,
+                terapista:
+                    ruolo === "staff"
+                        ? terapistaIdLoggato
+                        : filters.terapista ?? null,
+            });
+            setPagamenti(res.pagamenti ?? []);
+            setStatistiche(res.totali);
+        } catch (e) {
+            toast.error("Errore durante l'eliminazione");
+            console.error(e);
+        }
+    };
 
     return (
         <Home hideFAB={true}>
@@ -289,8 +327,8 @@ const DettaglioIncasso = () => {
                                         </span>
                                     </div>
 
-                                    {/* DESTRA: IMPORTO */}
-                                    <div className="text-right">
+                                    {/* DESTRA: IMPORTO + AZIONI */}
+                                    <div className="text-right flex flex-col items-end gap-2">
                                         <span
                                             className={`text-lg font-bold ${
                                                 p.fattura == 1
@@ -300,12 +338,66 @@ const DettaglioIncasso = () => {
                                         >
                                             €{parseFloat(p.importo).toFixed(2)}
                                         </span>
+
+                                        {ruolo == "admin" && (
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() =>
+                                                        handleEditPagamento(p)
+                                                    }
+                                                    className="p-2 rounded-md bg-blue-100 hover:bg-blue-200 text-blue-700"
+                                                    title="Modifica"
+                                                >
+                                                    <FaEdit size={14} />
+                                                </button>
+
+                                                <button
+                                                    onClick={() =>
+                                                        handleDeletePagamento(
+                                                            p.id
+                                                        )
+                                                    }
+                                                    className="p-2 rounded-md bg-red-100 hover:bg-red-200 text-red-700"
+                                                    title="Elimina"
+                                                >
+                                                    <FaTrashAlt size={14} />
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 </li>
                             ))}
                     </ul>
                 </div>
             </div>
+            {modalEditOpen && pagamentoInEdit && (
+                <CustomModal
+                    isOpen={modalEditOpen}
+                    onRequestClose={() => setModalEditOpen(false)}
+                    title="Modifica Pagamento"
+                    className="max-w-xl"
+                >
+                    <ModalContentModificaPagamento
+                        pagamento={pagamentoInEdit}
+                        onClose={() => setModalEditOpen(false)}
+                        onSubmit={async () => {
+                            setModalEditOpen(false);
+
+                            // refresh lista dopo modifica
+                            const res = await getPagamentiFiltrati({
+                                tipo,
+                                ...filters,
+                                terapista:
+                                    ruolo === "staff"
+                                        ? terapistaIdLoggato
+                                        : filters.terapista ?? null,
+                            });
+                            setPagamenti(res.pagamenti ?? []);
+                            setStatistiche(res.totali);
+                        }}
+                    />
+                </CustomModal>
+            )}
         </Home>
     );
 };
