@@ -9,7 +9,6 @@ import {
     getUtentiPerNotifica,
 } from "../../data/api/notifiche.js";
 
-
 const destinatariOptions = [
     { value: "tutti", label: "Tutti gli utenti" },
     { value: "staff", label: "Tutto lo staff" },
@@ -69,8 +68,10 @@ const ModalContentInviaNotifica = ({ isOpen, onRequestClose }) => {
             messaggio,
             urgenza: urgenza?.value || null,
             tipologia: tipologia?.value || null,
-            destinatario_id:
-                destinatario.value === "singolo" ? utenteSelezionato.id : null,
+            utente_id:
+                destinatario.value === "singolo"
+                    ? utenteSelezionato?.id
+                    : null,
         };
 
         try {
