@@ -12,14 +12,21 @@ import { baseCall } from "@/data/api/baseCall";
 import { IconInputWrapperModal } from "./atoms/iconInputWrapperModal.jsx";
 import { creaVoceListaAttesa } from "@/data/api/listaAttesa";
 
-const ModalContentListaAttesa = ({ onClose, onSubmit }) => {
+const ModalContentListaAttesa = ({
+    onClose,
+    onSubmit,
+    isEdit = false,
+    initialData,
+}) => {
     const [formData, setFormData] = useState({});
 
     const [dataInserimento, setDataInserimento] = useState(
         new Date().toISOString().split("T")[0]
     );
     const [richiestaTerapista, setRichiestaTerapista] = useState(false);
-    const [utenteRegistrato, setUtenteRegistrato] = useState(false);
+    const [utenteRegistrato, setUtenteRegistrato] = useState(
+        isEdit ? !!initialData?.utente_id : false
+    );
 
     const [terapistiOptions, setTerapistiOptions] = useState([]);
     const [terapiaOptions, setTerapiaOptions] = useState([]);
@@ -30,6 +37,28 @@ const ModalContentListaAttesa = ({ onClose, onSubmit }) => {
     const [utenteSelezionato, setUtenteSelezionato] = useState(null);
 
     const isSubmitting = false;
+    useEffect(() => {
+        if (isEdit && initialData) {
+            setFormData({
+                nome: initialData.nome,
+                cognome: initialData.cognome,
+                telefono: initialData.telefono,
+                email: initialData.email,
+                note: initialData.note,
+            });
+
+            setDataInserimento(initialData.data);
+
+            if (initialData.utente_id) {
+                setUtenteRegistrato(true);
+                setUtenteSelezionato({
+                    id: initialData.utente_id,
+                    nome: initialData.nome,
+                    cognome: initialData.cognome,
+                });
+            }
+        }
+    }, [isEdit, initialData]);
 
     useEffect(() => {
         fetchTerapisti();
@@ -77,6 +106,24 @@ const ModalContentListaAttesa = ({ onClose, onSubmit }) => {
         }
     };
 
+    useEffect(() => {
+        if (isEdit && initialData?.terapista_id && terapistiOptions.length) {
+            const found = terapistiOptions.find(
+                (t) => t.id === initialData.terapista_id
+            );
+            setTerapistaSelezionato(found || null);
+        }
+    }, [isEdit, initialData, terapistiOptions]);
+
+    useEffect(() => {
+        if (isEdit && initialData?.terapia && terapiaOptions.length) {
+            const found = terapiaOptions.find(
+                (t) => t.value === initialData.terapia
+            );
+            setTerapiaSelezionata(found || null);
+        }
+    }, [isEdit, initialData, terapiaOptions]);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
@@ -96,20 +143,22 @@ const ModalContentListaAttesa = ({ onClose, onSubmit }) => {
             note: formData.note,
             data: dataInserimento,
             terapia: terapiaSelezionata.value,
-            terapista_id: richiestaTerapista
-                ? terapistaSelezionato?.id ?? terapistaSelezionato?.value
-                : null,
-            chiamato: false,
+            terapista_id: richiestaTerapista ? terapistaSelezionato?.id : null,
             utente_id: utenteRegistrato ? utenteSelezionato?.id : null,
         };
-        console.log("Payload:", payload);
+
         try {
-            await creaVoceListaAttesa(payload);
-            toast.success("Utente inserito in lista d'attesa");
-            onSubmit?.(payload);
+            if (isEdit) {
+                await onSubmit(payload); 
+            } else {
+                await creaVoceListaAttesa(payload); 
+                onSubmit?.(payload);
+            }
+
+            toast.success(isEdit ? "Voce aggiornata" : "Utente inserito");
             onClose();
-        } catch (error) {
-            toast.error("Errore nell'inserimento in lista");
+        } catch {
+            toast.error("Errore salvataggio");
         }
     };
 
@@ -128,6 +177,7 @@ const ModalContentListaAttesa = ({ onClose, onSubmit }) => {
                     <input
                         type="checkbox"
                         checked={utenteRegistrato}
+                        disabled={isEdit}
                         onChange={(e) => {
                             setUtenteRegistrato(e.target.checked);
                             setFormData({
@@ -285,7 +335,7 @@ const ModalContentListaAttesa = ({ onClose, onSubmit }) => {
                     onClick={handleSubmit}
                     className="flex items-center gap-3 border border-gray-300 rounded-[12px] px-4 py-2 font-marcellus bg-white hover:bg-gray-100 text-gray-700"
                 >
-                    Inserisci
+                    {isEdit ? "Salva modifiche" : "Inserisci"}
                     <FaRegThumbsUp
                         className="text-sm text-green-600"
                         size={16}

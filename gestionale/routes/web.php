@@ -112,6 +112,9 @@ Route::middleware([AuthSession::class])->group(function () {
     Route::patch('/lista-attesa/{id}/chiamato', [ListaAttesaController::class, 'segnaChiamato']);
     Route::patch('/lista-attesa/{id}/aggiorna-terapia', [ListaAttesaController::class, 'aggiornaTerapia']);
     Route::patch('/lista-attesa/{id}/aggiorna-terapista', [ListaAttesaController::class, 'aggiornaTerapista']);
+    Route::put('/lista-attesa/{id}', [ListaAttesaController::class, 'update']);
+    Route::delete('/lista-attesa/{id}', [ListaAttesaController::class, 'destroy']);
+
 
 
     Route::get('/tariffe', [TariffaController::class, 'index'])->name('tariffe.index');

@@ -11,6 +11,13 @@ import {
     aggiornaTerapista,
 } from "@/data/api/listaAttesa";
 import dayjs from "dayjs";
+import CustomModal from "../customModal.jsx";
+import ModalContentListaAttesa from "./modalContentListaAttesa.jsx";
+import {
+    aggiornaVoceListaAttesa,
+    eliminaVoceListaAttesa,
+} from "@/data/api/listaAttesa";
+
 
 export const ListaAttesaRow = ({ index, data, aggiornaLista }) => {
     const [chiamato, setChiamato] = useState(!!data.chiamato);
@@ -22,6 +29,7 @@ export const ListaAttesaRow = ({ index, data, aggiornaLista }) => {
     const [professioniOptions, setProfessioniOptions] = useState([]);
     const [terapistiOptions, setTerapistiOptions] = useState([]);
     const [showPopup, setShowPopup] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
 
     /* ====== FETCH ====== */
     useEffect(() => {
@@ -151,8 +159,34 @@ export const ListaAttesaRow = ({ index, data, aggiornaLista }) => {
                 </div>
 
                 <div className="flex justify-center gap-2">
-                    <button title="Modifica">✏️</button>
-                    <button title="Elimina">🗑</button>
+                    <button
+                            title="Modifica"
+                            disabled={chiamato}
+                            onClick={() => setIsEditOpen(true)}
+                        >
+                            ✏️
+                        </button>
+
+                        <button
+                            title="Elimina"
+                            disabled={chiamato}
+                            onClick={async () => {
+                                const ok = window.confirm(
+                                    "Vuoi eliminare questa voce?"
+                                );
+                                if (!ok) return;
+
+                                try {
+                                    await eliminaVoceListaAttesa(data.id);
+                                    toast.success("Voce eliminata");
+                                    aggiornaLista();
+                                } catch {
+                                    toast.error("Errore eliminazione");
+                                }
+                            }}
+                        >
+                            🗑
+                        </button>
                 </div>
             </div>
 
@@ -196,8 +230,34 @@ export const ListaAttesaRow = ({ index, data, aggiornaLista }) => {
                 <div className="flex justify-between items-center pt-2">
                     <IconInfoButtons />
                     <div className="flex gap-3">
-                        <button title="Modifica">✏️</button>
-                        <button title="Elimina">🗑</button>
+                        <button
+                            title="Modifica"
+                            disabled={chiamato}
+                            onClick={() => setIsEditOpen(true)}
+                        >
+                            ✏️
+                        </button>
+
+                        <button
+                            title="Elimina"
+                            disabled={chiamato}
+                            onClick={async () => {
+                                const ok = window.confirm(
+                                    "Vuoi eliminare questa voce?"
+                                );
+                                if (!ok) return;
+
+                                try {
+                                    await eliminaVoceListaAttesa(data.id);
+                                    toast.success("Voce eliminata");
+                                    aggiornaLista();
+                                } catch {
+                                    toast.error("Errore eliminazione");
+                                }
+                            }}
+                        >
+                            🗑
+                        </button>
                     </div>
                 </div>
             </div>
@@ -222,6 +282,31 @@ export const ListaAttesaRow = ({ index, data, aggiornaLista }) => {
                         </button>
                     </div>
                 </>
+            )}
+
+            {isEditOpen && (
+                <CustomModal
+                    isOpen={true}
+                    onRequestClose={() => setIsEditOpen(false)}
+                    title="Modifica voce lista d'attesa"
+                    className="w-[95vw] md:w-[60%] max-h-[90vh]"
+                >
+                    <ModalContentListaAttesa
+                        isEdit
+                        initialData={data}
+                        onClose={() => setIsEditOpen(false)}
+                        onSubmit={async (payload) => {
+                            try {
+                                await aggiornaVoceListaAttesa(data.id, payload);
+                                toast.success("Voce aggiornata");
+                                setIsEditOpen(false);
+                                aggiornaLista();
+                            } catch {
+                                toast.error("Errore aggiornamento");
+                            }
+                        }}
+                    />
+                </CustomModal>
             )}
         </>
     );

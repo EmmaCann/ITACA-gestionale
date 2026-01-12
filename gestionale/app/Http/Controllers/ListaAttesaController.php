@@ -58,7 +58,7 @@ class ListaAttesaController extends Controller
             'email' => 'nullable|email',
             'data' => 'required|date',
             'terapia' => 'required|string',
-             'note' => 'nullable|string',
+            'note' => 'nullable|string',
             'terapista_id' => 'nullable|exists:utente,id',
             'utente_id' => 'nullable|exists:utente,id',
         ]);
@@ -127,6 +127,33 @@ class ListaAttesaController extends Controller
         $voce = ListaAttesa::findOrFail($id);
         $voce->terapista_id = $request->terapista_id;
         $voce->save();
+
+        return response()->json(['success' => true]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'nome' => 'nullable|string',
+            'cognome' => 'nullable|string',
+            'telefono' => 'nullable|string',
+            'email' => 'nullable|email',
+            'note' => 'nullable|string',
+            'data' => 'required|date',
+            'terapia' => 'required|string',
+            'terapista_id' => 'nullable|exists:utente,id',
+        ]);
+
+        $voce = ListaAttesa::findOrFail($id);
+        $voce->update($validated);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function destroy($id)
+    {
+        $voce = ListaAttesa::findOrFail($id);
+        $voce->delete();
 
         return response()->json(['success' => true]);
     }
