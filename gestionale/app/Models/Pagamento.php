@@ -13,6 +13,7 @@ class Pagamento extends Model
         'terapista_id',
         'data',
         'importo',
+        'note',
         'nome',
         'cognome',
         'fattura',

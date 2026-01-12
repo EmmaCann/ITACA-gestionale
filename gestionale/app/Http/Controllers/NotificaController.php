@@ -7,6 +7,7 @@ use App\Models\Utente;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class NotificaController extends Controller
 {
@@ -71,7 +72,7 @@ class NotificaController extends Controller
             'messaggio'    => 'required|string',
             'tipologia'    => 'nullable|string',
             'urgenza'      => 'nullable|string',
-            'utente_id'    => 'nullable|exists:utenti,id'
+            'utente_id'    => 'nullable|exists:utente,id'
         ]);
 
 
@@ -108,6 +109,9 @@ class NotificaController extends Controller
                 'letta_il' => null
             ]);
         }
+
+        Log::info('Invio notifica', $request->all());
+
 
         return response()->json([
             'success' => true,

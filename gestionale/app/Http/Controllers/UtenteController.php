@@ -419,8 +419,10 @@ class UtenteController extends Controller
 
             // Se password presente → aggiorna
             if (!empty($validated['password'])) {
-                $utente->password = Hash::make($validated['password']);
+                $utente->password = $validated['password']; 
+                $utente->password_changed_at = now();
             }
+
 
             $utente->save();
 

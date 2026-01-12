@@ -12,6 +12,7 @@ const ArchivioFirmeTable = ({ dati, onDelete, canEdit = true }) => {
                         <th className="px-6 py-3">Data</th>
                         <th className="px-6 py-3">Terapia</th>
                         <th className="px-6 py-3">Terapista</th>
+                        <th className="px-6 py-3">Note</th>
                         {canEdit && <th className="px-6 py-3 text-center">Azioni</th>}
                     </tr>
                 </thead>
@@ -22,7 +23,7 @@ const ArchivioFirmeTable = ({ dati, onDelete, canEdit = true }) => {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan={canEdit ? 6 : 5} className="text-center py-4 text-gray-400">
+                            <td colSpan={canEdit ? 7 : 6} className="text-center py-4 text-gray-400">
                                 Nessuna firma registrata
                             </td>
                         </tr>

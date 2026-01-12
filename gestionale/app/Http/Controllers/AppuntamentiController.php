@@ -79,15 +79,15 @@ class AppuntamentiController extends Controller
         }
 
         // 1) filtro ruolo
-        if ($ruolo === 'admin') {
+        if ($ruolo === 'admin' || $ruolo === 'staff') {
             // vede tutto
-        } elseif ($ruolo === 'staff') {
-            $q->where(function ($qq) use ($userId) {
-                $qq->where('terapista_id', $userId)
-                    ->orWhereHas('terapisti', function ($t) use ($userId) {
-                        $t->where('utente.id', $userId);
-                    });
-            });
+        // } elseif ($ruolo === 'staff') {
+        //     $q->where(function ($qq) use ($userId) {
+        //         $qq->where('terapista_id', $userId)
+        //             ->orWhereHas('terapisti', function ($t) use ($userId) {
+        //                 $t->where('utente.id', $userId);
+        //             });
+        //     });
         } elseif ($ruolo === 'paziente') {
             $q->where(function ($qq) use ($userId) {
                 $qq->where('paziente_id', $userId)

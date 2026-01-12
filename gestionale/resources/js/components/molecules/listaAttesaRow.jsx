@@ -11,13 +11,16 @@ import {
     aggiornaTerapista,
 } from "@/data/api/listaAttesa";
 import dayjs from "dayjs";
+import CustomModal from "../customModal.jsx";
+import ModalContentListaAttesa from "./modalContentListaAttesa.jsx";
+import {
+    aggiornaVoceListaAttesa,
+    eliminaVoceListaAttesa,
+} from "@/data/api/listaAttesa";
 
-export const ListaAttesaRow = ({
-    index = 0,
-    data = {},
-    aggiornaLista = () => {},
-}) => {
-    const [chiamato, setChiamato] = useState(data.chiamato || false);
+
+export const ListaAttesaRow = ({ index, data, aggiornaLista }) => {
+    const [chiamato, setChiamato] = useState(!!data.chiamato);
     const [richiestaTerapista, setRichiestaTerapista] = useState(
         !!data.terapista_id
     );
@@ -25,266 +28,179 @@ export const ListaAttesaRow = ({
     const [terapistaSelezionato, setTerapistaSelezionato] = useState(null);
     const [professioniOptions, setProfessioniOptions] = useState([]);
     const [terapistiOptions, setTerapistiOptions] = useState([]);
-    const [popupContent, setPopupContent] = useState(null);
     const [showPopup, setShowPopup] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
 
+    /* ====== FETCH ====== */
     useEffect(() => {
-        fetchProfessioni();
-        fetchTerapisti();
+        baseCall({ endpoint: "/professioni/terapisti", method: "GET" }).then(
+            (res) =>
+                setProfessioniOptions(
+                    Object.values(res.data).map((p) => ({
+                        value: p,
+                        label: p,
+                    }))
+                )
+        );
+
+        baseCall({ endpoint: "/terapisti", method: "GET" }).then((res) =>
+            setTerapistiOptions(Object.values(res.data))
+        );
     }, []);
 
     useEffect(() => {
-        if (professioniOptions.length > 0 && data.terapia) {
-            const terapiaCorrente = professioniOptions.find(
-                (opt) => opt.value === data.terapia
+        if (professioniOptions.length && data.terapia) {
+            setTerapiaSelezionata(
+                professioniOptions.find((p) => p.value === data.terapia)
             );
-            setTerapiaSelezionata(terapiaCorrente || null);
         }
     }, [professioniOptions, data.terapia]);
 
     useEffect(() => {
-        if (terapistiOptions.length > 0 && data.terapista_id) {
-            const t = terapistiOptions.find(
-                (t) =>
-                    t.value === data.terapista_id || t.id === data.terapista_id
+        if (terapistiOptions.length && data.terapista_id) {
+            setTerapistaSelezionato(
+                terapistiOptions.find(
+                    (t) =>
+                        t.value === data.terapista_id ||
+                        t.id === data.terapista_id
+                )
             );
-            if (t) {
-                setTerapistaSelezionato(t);
-            }
         }
     }, [terapistiOptions, data.terapista_id]);
 
-    const fetchProfessioni = async () => {
+    /* ====== HANDLERS ====== */
+    const handleChiamato = async () => {
+        const nuovo = !chiamato;
+        const ok = window.confirm(
+            nuovo ? "Segnare come chiamato?" : "Annullare chiamata?"
+        );
+        if (!ok) return;
+
         try {
-            const response = await baseCall({
-                endpoint: "/professioni/terapisti",
-                method: "GET",
-            });
-            const options = Object.values(response.data).map((professione) => ({
-                value: professione,
-                label: professione,
-            }));
-            setProfessioniOptions(options);
-        } catch (error) {
-            toast.error("Errore nel recupero delle professioni");
+            await segnaChiamato(data.id, nuovo);
+            setChiamato(nuovo);
+            aggiornaLista();
+        } catch {
+            toast.error("Errore aggiornamento chiamato");
         }
     };
 
-    const fetchTerapisti = async () => {
+    const aggiornaTerapiaDB = async (val) => {
         try {
-            const response = await baseCall({
-                endpoint: "/terapisti",
-                method: "GET",
-            });
-            setTerapistiOptions(Object.values(response.data));
-        } catch (error) {
-            toast.error("Errore nel recupero dei terapisti");
-        }
-    };
-
-    const aggiornaTerapiaDB = async (nuovaTerapia) => {
-        try {
-            await aggiornaTerapia(data.id, nuovaTerapia);
-            toast.success("Terapia aggiornata con successo");
-        } catch (error) {
+            await aggiornaTerapia(data.id, val);
+            aggiornaLista();
+        } catch {
             toast.error("Errore aggiornamento terapia");
-            console.error("Errore:", error);
         }
     };
 
-    const handlePhoneClick = () => {
-        if (data.telefono) {
-            setPopupContent(`Telefono: ${data.telefono}`);
-            setShowPopup(true);
-        } else {
-            toast.warning("Numero di telefono non disponibile");
-        }
-    };
-
-    const handleMailClick = () => {
-        if (data.email) {
-            setPopupContent(`Email: ${data.email}`);
-            setShowPopup(true);
-        } else {
-            toast.warning("Email non disponibile");
-        }
-    };
-
-    const pTagStyle = "font-inter text-black text-[14px]";
-    const dateStyle = "font-inter text-[#3DA4DD] text-[14px]";
-
+    /* ====== RENDER ====== */
     return (
         <>
-            <div className="hidden md:flex bg-white flex-row w-[95%] h-auto py-2 mx-4 items-center gap-4 rounded-[8px] pl-2 my-1">
-                <CheckboxRotondo
-                    checked={chiamato}
-                    onChange={async () => {
-                        const nuovoStato = !chiamato;
-                        const conferma = window.confirm(
-                            nuovoStato
-                                ? "Segnare questo utente come chiamato?"
-                                : "Annullare la chiamata?"
-                        );
-                        if (!conferma) return;
+            <div
+                className="
+    hidden md:grid
+    bg-white mx-4 my-1 px-3 py-2 rounded-[8px]
+    grid-cols-[40px_50px_1.1fr_1.1fr_0.4fr_0.9fr_1.2fr_1.6fr_0.8fr_0.6fr]
+    items-center text-[14px]"
+            >
+                <CheckboxRotondo checked={chiamato} onChange={handleChiamato} />
 
-                        try {
-                            await segnaChiamato(data.id, nuovoStato);
-                            setChiamato(nuovoStato);
-                            toast.success("Utente aggiornato");
-                            aggiornaLista();
-                        } catch (err) {
-                            toast.error("Errore nel segnare come chiamato");
-                        }
-                    }}
-                />
+                <div>{index + 1}°</div>
 
-                <div className="flex-1 flex flex-row items-center justify-between text-black text-[14px] z-20">
-                    <ColonnaTabella width="w-[60px]">
-                        <p className={pTagStyle}>{index + 1}°</p>
-                    </ColonnaTabella>
-                    <ColonnaTabella>
-                        <p className={pTagStyle}>{data.nome}</p>
-                    </ColonnaTabella>
-                    <ColonnaTabella>
-                        <p className={pTagStyle}>{data.cognome}</p>
-                    </ColonnaTabella>
-                    <ColonnaTabella>
-                        <p className={dateStyle}>
-                            {data.data
-                                ? dayjs(data.data).format("DD/MM/YYYY")
-                                : "-"}
-                        </p>
-                    </ColonnaTabella>
+                <div className="truncate">{data.nome}</div>
 
-                    <ColonnaTabella width="w-[160px]">
+                <div className="truncate">{data.cognome}</div>
+
+                <div className="text-center">
+                    {data.note && (
+                        <button onClick={() => setShowPopup(true)}>📝</button>
+                    )}
+                </div>
+
+                <div>{dayjs(data.data).format("DD/MM/YYYY")}</div>
+
+                <div>
+                    <Select
+                        options={professioniOptions}
+                        value={terapiaSelezionata}
+                        onChange={(s) => aggiornaTerapiaDB(s.value)}
+                        className="text-[12px]"
+                        isSearchable={false}
+                    />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                    <label className="flex items-center gap-2 text-sm">
+                        <input
+                            type="checkbox"
+                            checked={richiestaTerapista}
+                            onChange={(e) =>
+                                setRichiestaTerapista(e.target.checked)
+                            }
+                        />
+                        Richiesta terapista
+                    </label>
+
+                    {richiestaTerapista && (
                         <Select
-                            options={professioniOptions}
-                            value={terapiaSelezionata}
-                            onChange={(selected) => {
-                                setTerapiaSelezionata(selected);
-                                aggiornaTerapiaDB(selected.value);
-                            }}
-                            placeholder="Tipo terapia"
+                            options={terapistiOptions}
+                            value={terapistaSelezionato}
+                            onChange={(s) =>
+                                aggiornaTerapista(data.id, s.value)
+                            }
                             className="text-[12px]"
-                            isSearchable={false}
-                            menuPortalTarget={document.body}
-                            styles={{
-                                menuPortal: (base) => ({
-                                    ...base,
-                                    zIndex: 100000,
-                                }),
+                        />
+                    )}
+                </div>
 
-                                control: (provided) => ({
-                                    ...provided,
-                                    borderRadius: "12px",
-                                }),
+                <div className="flex justify-center gap-2">
+                    <IconInfoButtons />
+                </div>
+
+                <div className="flex justify-center gap-2">
+                    <button
+                            title="Modifica"
+                            disabled={chiamato}
+                            onClick={() => setIsEditOpen(true)}
+                        >
+                            ✏️
+                        </button>
+
+                        <button
+                            title="Elimina"
+                            disabled={chiamato}
+                            onClick={async () => {
+                                const ok = window.confirm(
+                                    "Vuoi eliminare questa voce?"
+                                );
+                                if (!ok) return;
+
+                                try {
+                                    await eliminaVoceListaAttesa(data.id);
+                                    toast.success("Voce eliminata");
+                                    aggiornaLista();
+                                } catch {
+                                    toast.error("Errore eliminazione");
+                                }
                             }}
-                        />
-                    </ColonnaTabella>
-
-                    <ColonnaTabella width="w-[180px]">
-                        <div className="flex flex-col gap-1">
-                            <label className="flex items-center gap-2 text-sm">
-                                <input
-                                    type="checkbox"
-                                    checked={richiestaTerapista}
-                                    onChange={(e) =>
-                                        setRichiestaTerapista(e.target.checked)
-                                    }
-                                />
-                                Richiesta terapista
-                            </label>
-                            {richiestaTerapista && (
-                                <Select
-                                    options={terapistiOptions}
-                                    value={terapistaSelezionato}
-                                    onChange={async (selected) => {
-                                        setTerapistaSelezionato(selected);
-                                        try {
-                                            await aggiornaTerapista(
-                                                data.id,
-                                                selected.value
-                                            );
-                                            toast.success(
-                                                "Terapista aggiornato con successo"
-                                            );
-                                            aggiornaLista();
-                                        } catch (error) {
-                                            console.error(
-                                                "Errore aggiornamento terapista:",
-                                                error
-                                            );
-                                            toast.error(
-                                                "Errore aggiornamento terapista"
-                                            );
-                                        }
-                                    }}
-                                    placeholder="Seleziona terapista"
-                                    className="text-[12px]"
-                                    isSearchable
-                                    menuPortalTarget={document.body}
-                                    styles={{
-                                        menuPortal: (base) => ({
-                                            ...base,
-                                            zIndex: 100000,
-                                        }),
-
-                                        control: (provided) => ({
-                                            ...provided,
-                                            borderRadius: "12px",
-                                        }),
-                                    }}
-                                />
-                            )}
-                        </div>
-                    </ColonnaTabella>
-
-                    <ColonnaTabella>
-                        <IconInfoButtons
-                            onPhoneClick={handlePhoneClick}
-                            onMailClick={handleMailClick}
-                        />
-                    </ColonnaTabella>
+                        >
+                            🗑
+                        </button>
                 </div>
             </div>
 
             <div className="md:hidden bg-white rounded-2xl p-4 shadow-sm flex flex-col gap-3 mx-4">
-                {/* header card */}
                 <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <CheckboxRotondo
-                            checked={chiamato}
-                            onChange={async () => {
-                                const nuovoStato = !chiamato;
-                                const conferma = window.confirm(
-                                    nuovoStato
-                                        ? "Segnare questo utente come chiamato?"
-                                        : "Annullare la chiamata?"
-                                );
-                                if (!conferma) return;
-
-                                try {
-                                    await segnaChiamato(data.id, nuovoStato);
-                                    setChiamato(nuovoStato);
-                                    toast.success("Utente aggiornato");
-                                    aggiornaLista();
-                                } catch (err) {
-                                    toast.error(
-                                        "Errore nel segnare come chiamato"
-                                    );
-                                }
-                            }}
-                        />
-                        <span className="text-sm text-gray-500">
-                            #{index + 1}
-                        </span>
-                    </div>
-                    <span className="text-sm text-gray-400">
-                        {dayjs(data.data).format("DD/MM/YYYY")}
+                    <CheckboxRotondo
+                        checked={chiamato}
+                        onChange={handleChiamato}
+                    />
+                    <span className="text-xs text-gray-400">
+                        #{index + 1} · {dayjs(data.data).format("DD/MM/YYYY")}
                     </span>
                 </div>
 
-                {/* nome */}
                 <div>
                     <p className="text-xs text-gray-400">Nome</p>
                     <p className="text-base font-medium">
@@ -292,62 +208,105 @@ export const ListaAttesaRow = ({
                     </p>
                 </div>
 
-                {/* terapia */}
+                {data.note && (
+                    <div>
+                        <p className="text-xs text-gray-400">Note</p>
+                        <p className="text-sm italic text-gray-600">
+                            {data.note}
+                        </p>
+                    </div>
+                )}
+
                 <div>
                     <p className="text-xs text-gray-400">Terapia</p>
                     <Select
                         options={professioniOptions}
                         value={terapiaSelezionata}
-                        onChange={(selected) => {
-                            setTerapiaSelezionata(selected);
-                            aggiornaTerapiaDB(selected.value);
-                        }}
+                        onChange={(s) => aggiornaTerapiaDB(s.value)}
                         className="text-sm"
                     />
                 </div>
 
-                {/* richiesta terapista */}
-                <label className="flex items-center gap-2 text-sm">
-                    <input
-                        type="checkbox"
-                        checked={richiestaTerapista}
-                        onChange={(e) =>
-                            setRichiestaTerapista(e.target.checked)
-                        }
-                    />
-                    Richiesta terapista specifico
-                </label>
+                <div className="flex justify-between items-center pt-2">
+                    <IconInfoButtons />
+                    <div className="flex gap-3">
+                        <button
+                            title="Modifica"
+                            disabled={chiamato}
+                            onClick={() => setIsEditOpen(true)}
+                        >
+                            ✏️
+                        </button>
 
-                {/* contatti */}
-                <div className="flex justify-end gap-3 pt-2">
-                    <IconInfoButtons
-                        onPhoneClick={handlePhoneClick}
-                        onMailClick={handleMailClick}
-                    />
+                        <button
+                            title="Elimina"
+                            disabled={chiamato}
+                            onClick={async () => {
+                                const ok = window.confirm(
+                                    "Vuoi eliminare questa voce?"
+                                );
+                                if (!ok) return;
+
+                                try {
+                                    await eliminaVoceListaAttesa(data.id);
+                                    toast.success("Voce eliminata");
+                                    aggiornaLista();
+                                } catch {
+                                    toast.error("Errore eliminazione");
+                                }
+                            }}
+                        >
+                            🗑
+                        </button>
+                    </div>
                 </div>
             </div>
 
+            {/* POPUP NOTE */}
             {showPopup && (
                 <>
                     <div
-                        className="fixed inset-0 bg-black bg-opacity-40 z-[9998]"
+                        className="fixed inset-0 bg-black/40 z-[9998]"
                         onClick={() => setShowPopup(false)}
                     />
-                    <div
-                        className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-300 shadow-lg p-4 rounded-md z-[9999] p-8 flex flex-col"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <p className="text-lg text-gray-800 mb-2">
-                            {popupContent}
+                    <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg z-[9999] max-w-[500px] w-[90%]">
+                        <h3 className="mb-3">Note</h3>
+                        <p className="text-sm whitespace-pre-wrap">
+                            {data.note}
                         </p>
                         <button
+                            className="mt-4 underline text-sm"
                             onClick={() => setShowPopup(false)}
-                            className="text-black-600 text-sm underline pt-4"
                         >
                             Chiudi
                         </button>
                     </div>
                 </>
+            )}
+
+            {isEditOpen && (
+                <CustomModal
+                    isOpen={true}
+                    onRequestClose={() => setIsEditOpen(false)}
+                    title="Modifica voce lista d'attesa"
+                    className="w-[95vw] md:w-[60%] max-h-[90vh]"
+                >
+                    <ModalContentListaAttesa
+                        isEdit
+                        initialData={data}
+                        onClose={() => setIsEditOpen(false)}
+                        onSubmit={async (payload) => {
+                            try {
+                                await aggiornaVoceListaAttesa(data.id, payload);
+                                toast.success("Voce aggiornata");
+                                setIsEditOpen(false);
+                                aggiornaLista();
+                            } catch {
+                                toast.error("Errore aggiornamento");
+                            }
+                        }}
+                    />
+                </CustomModal>
             )}
         </>
     );

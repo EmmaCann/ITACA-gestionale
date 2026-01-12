@@ -12,13 +12,11 @@ export const ListaAttesaTable = ({
     const [lista, setLista] = useState([]);
 
     useEffect(() => {
-        console.log("Filters usati:", filters);
         const caricaLista = async () => {
             try {
                 const response = await getListaAttesa(filters);
-                const listaRicevuta = Object.values(response?.data || []);
-                setLista(listaRicevuta);
-            } catch (error) {
+                setLista(Object.values(response?.data || []));
+            } catch {
                 toast.error("Errore nel caricamento della lista d'attesa");
             }
         };
@@ -26,55 +24,49 @@ export const ListaAttesaTable = ({
         caricaLista();
     }, [refreshTrigger, filters]);
 
-    const filtraLista = (dati) => {
-        return dati.filter((item) => {
-            // tipo utente
+    const filtraLista = (dati) =>
+        dati.filter((item) => {
             if (filters.tipoUtente === "registrato" && !item.utente_id)
                 return false;
             if (filters.tipoUtente === "nuovo" && item.utente_id) return false;
-
-            // terapia
             if (filters.terapia && item.terapia !== filters.terapia)
                 return false;
-
-            // richiesta terapista
-            if (filters.richiestaTerapista && !item.terapista_id) return false;
-
+            if (filters.richiestaTerapista && !item.terapista_id)
+                return false;
             return true;
         });
-    };
 
-    const contaFiltriAttivi = (filters) => {
-        let count = 0;
-        if (filters.tipoUtente) count++;
-        if (filters.terapia) count++;
-        if (filters.richiestaTerapista) count++;
-        return count;
-    };
+    const contaFiltriAttivi = () =>
+        ["tipoUtente", "terapia", "richiestaTerapista"].filter(
+            (k) => filters[k]
+        ).length;
+
+    const listaFiltrata = filtraLista(lista);
 
     return (
-        <div className="flex flex-col gap-2 w-full  h-full overflow-hidden">
-            <div className="flex justify-between items-center px-8 min-h-[24px] ">
+        <div className="flex flex-col gap-2 w-full h-full">
+            {/* INFO BAR */}
+            <div className="flex justify-between items-center px-6 min-h-[24px]">
                 <span
                     className={`text-sm font-marcellus text-gray-600 ${
-                        contaFiltriAttivi(filters) === 0 ? "invisible" : ""
+                        contaFiltriAttivi() === 0 ? "invisible" : ""
                     }`}
                 >
-                    Filtri attivi: {contaFiltriAttivi(filters)}
+                    Filtri attivi: {contaFiltriAttivi()}
                 </span>
 
                 <span className="text-sm font-marcellus text-gray-600">
-                    Totale in lista: {filtraLista(lista).length}
+                    Totale in lista: {listaFiltrata.length}
                 </span>
             </div>
 
-            <div className="hidden md:block">
-                <ListaAttesaHeader />
-            </div>
+            {/* HEADER (desktop / tablet) */}
+            <ListaAttesaHeader />
 
+            {/* RIGHE */}
             <div className="flex flex-col gap-3 mb-8 md:overflow-y-auto md:max-h-[60%]">
-                {lista.length > 0 ? (
-                    filtraLista(lista).map((item, index) => (
+                {listaFiltrata.length > 0 ? (
+                    listaFiltrata.map((item, index) => (
                         <ListaAttesaRow
                             key={item.id}
                             data={item}
@@ -83,10 +75,8 @@ export const ListaAttesaTable = ({
                         />
                     ))
                 ) : (
-                    <div className="flex flex-col items-center justify-center text-gray-500 mt-8 gap-2">
-                        <div className="font-marcellus text-[18px] text-center">
-                            Nessun utente in lista d'attesa al momento.
-                        </div>
+                    <div className="flex justify-center text-gray-500 mt-8">
+                        Nessun utente in lista d'attesa.
                     </div>
                 )}
             </div>

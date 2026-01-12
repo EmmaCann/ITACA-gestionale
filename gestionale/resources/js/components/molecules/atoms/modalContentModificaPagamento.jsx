@@ -3,25 +3,40 @@ import Select from "react-select";
 import { FaUser, FaCalendarAlt, FaRegThumbsUp } from "react-icons/fa";
 import { MdEuro } from "react-icons/md";
 import { toast } from "react-toastify";
-import { baseCall } from "../../data/api/baseCall";
-import { creaPagamento } from "@/data/api/pagamenti";
-import { IconInputWrapperModal } from "./atoms/iconInputWrapperModal.jsx";
+import { baseCall } from "../../../data/api/baseCall.js";
+import { IconInputWrapperModal } from "../atoms/iconInputWrapperModal.jsx";
 
-const ModalContentAggiungiPagamento = ({ onClose, onSubmit }) => {
+
+const ModalContentModificaPagamento = ({ pagamento, onClose, onSubmit }) => {
     const [terapistiOptions, setTerapistiOptions] = useState([]);
     const [pazientiOptions, setPazientiOptions] = useState([]);
-    const [terapistaSelezionato, setTerapistaSelezionato] = useState(null);
-    const [pazienteSelezionato, setPazienteSelezionato] = useState(null);
-    const [utenteNonRegistrato, setUtenteNonRegistrato] = useState(false);
+    const [terapistaSelezionato, setTerapistaSelezionato] = useState(
+        pagamento?.terapista
+            ? {
+                  id: pagamento.terapista.id,
+                  value: pagamento.terapista.id,
+                  label: `${pagamento.terapista.nome} ${pagamento.terapista.cognome}`,
+              }
+            : null
+    );
+
+    const [pazienteSelezionato, setPazienteSelezionato] = useState(
+        pagamento?.paziente ? pagamento.paziente : null
+    );
+
+    const [utenteNonRegistrato, setUtenteNonRegistrato] = useState(
+        !pagamento?.paziente_id
+    );
+
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [fattura, setFattura] = useState(false);
+    const [fattura, setFattura] = useState(!!pagamento?.fattura);
 
     const [formData, setFormData] = useState({
-        nome: "",
-        cognome: "",
-        data: "",
-        importo: "",
-        note: "",
+        nome: pagamento?.nome || "",
+        cognome: pagamento?.cognome || "",
+        data: pagamento?.data || "",
+        importo: pagamento?.importo || "",
+        note: pagamento?.note || "",
     });
 
     useEffect(() => {
@@ -92,9 +107,14 @@ const ModalContentAggiungiPagamento = ({ onClose, onSubmit }) => {
 
         setIsSubmitting(true);
         try {
-            console.log("🧾 Data inviata:", data);
+            // console.log("🧾 Data inviata:", data);
 
-            await creaPagamento(data);
+            await baseCall({
+                endpoint: `/pagamenti/${pagamento.id}`,
+                method: "PUT",
+                data,
+            });
+
             toast.success("Pagamento aggiunto con successo!");
             onSubmit?.(data);
             onClose();
@@ -112,7 +132,7 @@ const ModalContentAggiungiPagamento = ({ onClose, onSubmit }) => {
         <div className="flex flex-col h-full overflow-hidden">
             <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-4">
                 <h2 className="font-marcellusSC font-bold text-center text-[22px]">
-                    AGGIUNGI PAGAMENTO
+                    MODIFICA PAGAMENTO
                 </h2>
 
                 {/* Checkbox */}
@@ -193,6 +213,7 @@ const ModalContentAggiungiPagamento = ({ onClose, onSubmit }) => {
                             placeholder="Importo (€)"
                             className={inputStyle}
                             onChange={handleChange}
+                            value={formData.importo}
                         />
                     </IconInputWrapperModal>
 
@@ -259,7 +280,7 @@ const ModalContentAggiungiPagamento = ({ onClose, onSubmit }) => {
                     }`}
                     disabled={isSubmitting}
                 >
-                    {isSubmitting ? "Aggiungendo..." : "Aggiungi importo"}
+                    {isSubmitting ? "Salvando..." : "Salva Modifiche"}
                     <FaRegThumbsUp
                         className="text-gray-700 text-sm"
                         size={16}
@@ -271,4 +292,4 @@ const ModalContentAggiungiPagamento = ({ onClose, onSubmit }) => {
     );
 };
 
-export default ModalContentAggiungiPagamento;
+export default ModalContentModificaPagamento;

@@ -63,3 +63,17 @@ export const aggiornaTerapista = async (id, terapista_id) => {
     });
 };
 
+export const aggiornaVoceListaAttesa = (id, payload) =>
+    baseCall({
+        endpoint: `/lista-attesa/${id}`,
+        method: "PUT",
+        data: payload,
+    });
+
+export const eliminaVoceListaAttesa = (id) =>
+    baseCall({
+        endpoint: `/lista-attesa/${id}`,
+        method: "DELETE",
+    });
+
+
