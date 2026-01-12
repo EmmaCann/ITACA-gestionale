@@ -166,7 +166,7 @@ class AppuntamentiController extends Controller
                     $title = "Dr. {$terapistaName}";
                 } elseif ($ruolo === 'staff') {
                     // staff: non serve "Dr.", solo paziente
-                    $title = $pazienteName;
+                   $title = "{$pazienteName} — Dr. {$terapistaName}";
                 } else {
                     // admin (e fallback): come ora
                     $title = "{$pazienteName} — Dr. {$terapistaName}";
