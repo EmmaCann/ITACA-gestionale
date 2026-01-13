@@ -29,9 +29,7 @@ export const TopNavBar = ({ mode = "full" }) => {
     const [nonLette, setNonLette] = useState(0);
 
     useEffect(() => {
-        if (!isAdmin) {
-            fetchNotifiche();
-        }
+        fetchNotifiche();
     }, []);
 
     const fetchNotifiche = async () => {
@@ -61,21 +59,19 @@ export const TopNavBar = ({ mode = "full" }) => {
                 <WelcomeMessage />
 
                 <div className="flex items-center gap-3 relative">
-                    {/* PAZIENTE + STAFF → ICONE NOTIFICHE */}
-                    {!isAdmin && (
-                        <div className="relative">
-                            <IoMdNotificationsOutline
-                                className={iconCls}
-                                onClick={() => setOpenDropdown(true)}
-                            />
+                    {/* TUTTI */}
+                    <div ref={notifRef} className="relative">
+                        <IoMdNotificationsOutline
+                            className={iconCls}
+                            onClick={() => setOpenDropdown((prev) => !prev)}
+                        />
 
-                            {nonLette > 0 && (
-                                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-                                    {nonLette}
-                                </span>
-                            )}
-                        </div>
-                    )}
+                        {nonLette > 0 && (
+                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                                {nonLette}
+                            </span>
+                        )}
+                    </div>
 
                     {/* ADMIN → ICONA INVIA */}
                     {isAdmin && (
@@ -92,7 +88,7 @@ export const TopNavBar = ({ mode = "full" }) => {
                         notifiche={notifiche}
                         onRead={handleRead}
                         onClose={() => setOpenDropdown(false)}
-                         onSend={isStaff ? handleSendNotification : undefined}
+                        onSend={isStaff ? handleSendNotification : undefined}
                         mobile
                     />
                 )}
@@ -117,22 +113,19 @@ export const TopNavBar = ({ mode = "full" }) => {
                 <div className="flex-1" />
 
                 <div className="flex items-center gap-4">
-                    {/* PAZIENTE + STAFF */}
-                    {!isAdmin && (
-                        <div className="relative">
-                            <IoMdNotificationsOutline
-                                ref={notifRef}
-                                className={iconCls}
-                                onClick={() => setOpenDropdown((prev) => !prev)}
-                            />
+                    {/* TUTTI */}
+                    <div ref={notifRef} className="relative">
+                        <IoMdNotificationsOutline
+                            className={iconCls}
+                            onClick={() => setOpenDropdown((prev) => !prev)}
+                        />
 
-                            {nonLette > 0 && (
-                                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-                                    {nonLette}
-                                </span>
-                            )}
-                        </div>
-                    )}
+                        {nonLette > 0 && (
+                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                                {nonLette}
+                            </span>
+                        )}
+                    </div>
 
                     {/* ADMIN */}
                     {isAdmin && (
@@ -145,7 +138,7 @@ export const TopNavBar = ({ mode = "full" }) => {
             </div>
 
             {/* DROPDOWN DESKTOP */}
-            {openDropdown && !isAdmin && (
+            {openDropdown && (
                 <NotificationDropdown
                     anchorRef={notifRef}
                     notifiche={notifiche}

@@ -39,7 +39,7 @@ const NotificationDropdown = ({
                     ${
                         mobile
                             ? "fixed inset-0"
-                            : "absolute right-0 mt-2 w-[320px] translate-x-[-30%]"
+                            : " mt-2 w-[320px] "
                     }
                     z-[9999]
                     bg-white
