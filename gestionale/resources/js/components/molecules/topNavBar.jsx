@@ -1,29 +1,30 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { usePage } from "@inertiajs/react";
 import { DatePicker } from "./datePicker.jsx";
 import { IoMdNotificationsOutline } from "react-icons/io";
-import { FiMessageSquare } from "react-icons/fi";
-import { WelcomeMessage } from "../molecules/atoms/welcomeMessage.jsx";
 import { MdNotificationAdd } from "react-icons/md";
+import { WelcomeMessage } from "../molecules/atoms/welcomeMessage.jsx";
 import ModalContentInviaNotifica from "../molecules/ModalContentInviaNotifica";
 import NotificationDropdown from "../NotificationDropdown.jsx";
 import {
     getNotifiche,
     segnaNotificaComeLetta,
 } from "../../data/api/notifiche.js";
-import { useRef } from "react";
 
 export const TopNavBar = ({ mode = "full" }) => {
     const { props } = usePage();
     const ruolo = props?.ruolo || null;
+
     const isAdmin = ruolo === "admin";
+    const isStaff = ruolo === "staff";
+    const isPatient = ruolo === "paziente";
+
     const notifRef = useRef(null);
 
     const iconCls = "w-[20px] h-[20px] mr-4 cursor-pointer";
 
     const [showNotificationModal, setShowNotificationModal] = useState(false);
     const [openDropdown, setOpenDropdown] = useState(false);
-
     const [notifiche, setNotifiche] = useState([]);
     const [nonLette, setNonLette] = useState(0);
 
@@ -43,6 +44,10 @@ export const TopNavBar = ({ mode = "full" }) => {
         await segnaNotificaComeLetta(id);
         fetchNotifiche();
     };
+    const handleSendNotification = () => {
+        setOpenDropdown(false); // chiude dropdown
+        setShowNotificationModal(true); // apre modal
+    };
 
     /* MOBILE: SOLO DATE PICKER */
     if (mode === "date") {
@@ -56,6 +61,7 @@ export const TopNavBar = ({ mode = "full" }) => {
                 <WelcomeMessage />
 
                 <div className="flex items-center gap-3 relative">
+                    {/* PAZIENTE + STAFF → ICONE NOTIFICHE */}
                     {!isAdmin && (
                         <div className="relative">
                             <IoMdNotificationsOutline
@@ -71,25 +77,27 @@ export const TopNavBar = ({ mode = "full" }) => {
                         </div>
                     )}
 
+                    {/* ADMIN → ICONA INVIA */}
                     {isAdmin && (
                         <MdNotificationAdd
-                           className={`${iconCls} text-gray-500`}
-
+                            className={`${iconCls} text-gray-500`}
                             onClick={() => setShowNotificationModal(true)}
                         />
                     )}
                 </div>
 
-                {/* MOBILE DROPDOWN (FUORI) */}
+                {/* DROPDOWN MOBILE (SOLO STAFF + PAZIENTE) */}
                 {openDropdown && !isAdmin && (
                     <NotificationDropdown
                         notifiche={notifiche}
                         onRead={handleRead}
                         onClose={() => setOpenDropdown(false)}
+                         onSend={isStaff ? handleSendNotification : undefined}
                         mobile
                     />
                 )}
-                {/* MODAL ADMIN */}
+
+                {/* MODAL (ADMIN + STAFF) */}
                 <ModalContentInviaNotifica
                     isOpen={showNotificationModal}
                     onRequestClose={() => setShowNotificationModal(false)}
@@ -101,29 +109,21 @@ export const TopNavBar = ({ mode = "full" }) => {
     /* DESKTOP FULL */
     return (
         <>
-            {/* NAVBAR (opaca, MA SENZA DROPDOWN DENTRO) */}
-            <div
-                className="
-                    bg-navbar opacity-[60%]
-                    w-full h-[55px] rounded-[20px]
-                    flex items-center shadow-xs px-4 gap-6
-                "
-            >
+            <div className="bg-navbar opacity-[60%] w-full h-[55px] rounded-[20px] flex items-center shadow-xs px-4 gap-6">
                 <WelcomeMessage />
 
-                <div className="flex items-center">
-                    <DatePicker isAdmin={isAdmin} />
-                </div>
+                <DatePicker isAdmin={isAdmin} />
 
                 <div className="flex-1" />
 
                 <div className="flex items-center gap-4">
+                    {/* PAZIENTE + STAFF */}
                     {!isAdmin && (
                         <div className="relative">
                             <IoMdNotificationsOutline
-                                // ref={notifRef}
+                                ref={notifRef}
                                 className={iconCls}
-                                onClick={() => setOpenDropdown(!openDropdown)}
+                                onClick={() => setOpenDropdown((prev) => !prev)}
                             />
 
                             {nonLette > 0 && (
@@ -134,6 +134,7 @@ export const TopNavBar = ({ mode = "full" }) => {
                         </div>
                     )}
 
+                    {/* ADMIN */}
                     {isAdmin && (
                         <MdNotificationAdd
                             className={iconCls}
@@ -143,17 +144,18 @@ export const TopNavBar = ({ mode = "full" }) => {
                 </div>
             </div>
 
-            {/* DESKTOP DROPDOWN (FUORI DALLA NAVBAR) */}
+            {/* DROPDOWN DESKTOP */}
             {openDropdown && !isAdmin && (
                 <NotificationDropdown
                     anchorRef={notifRef}
                     notifiche={notifiche}
                     onRead={handleRead}
                     onClose={() => setOpenDropdown(false)}
+                    onSend={isStaff ? handleSendNotification : undefined}
                 />
             )}
 
-            {/* MODAL ADMIN */}
+            {/* MODAL */}
             <ModalContentInviaNotifica
                 isOpen={showNotificationModal}
                 onRequestClose={() => setShowNotificationModal(false)}

@@ -61,11 +61,15 @@ class NotificaController extends Controller
     public function store(Request $request)
     {
 
-        $admin = Session::get('logged_user');
+        $utente = Session::get('logged_user');
 
-        if (!$admin || $admin['ruolo'] !== 'admin') {
+        if (
+            !$utente ||
+            !in_array($utente['ruolo'], ['admin', 'staff'])
+        ) {
             return response()->json(['errore' => 'Non autorizzato'], 403);
         }
+
 
         $request->validate([
             'destinatario' => 'required|in:tutti,staff,pazienti,singolo',
@@ -77,7 +81,7 @@ class NotificaController extends Controller
 
 
         $notifica = Notifica::create([
-            'admin_id' => $admin['id_utente'],
+            'admin_id' => $utente['id_utente'],
             'messaggio' => $request->messaggio,
             'tipologia' => $request->tipologia,
             'urgenza'   => $request->urgenza,

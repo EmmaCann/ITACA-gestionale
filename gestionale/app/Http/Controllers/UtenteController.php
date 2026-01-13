@@ -494,7 +494,7 @@ class UtenteController extends Controller
         }
 
         $utenti = Utente::select('id', 'nome', 'cognome')
-            ->whereIn('ruolo', ['staff', 'paziente'])
+            ->whereIn('ruolo', ['staff', 'paziente','admin'])
             ->orderBy('cognome')
             ->get();
 
