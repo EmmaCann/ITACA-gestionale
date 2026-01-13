@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { FiCheck } from "react-icons/fi";
+import { MdNotificationAdd } from "react-icons/md";
 
 const NotificationDropdown = ({
     notifiche = [],
     onRead,
     onClose,
+    onSend,
     anchorRef,
     mobile = false,
 }) => {
@@ -37,7 +39,7 @@ const NotificationDropdown = ({
                     ${
                         mobile
                             ? "fixed inset-0"
-                            : "absolute right-0 mt-2 w-[320px] translate-x-[-30%]"
+                            : " mt-2 w-[320px] "
                     }
                     z-[9999]
                     bg-white
@@ -48,6 +50,7 @@ const NotificationDropdown = ({
                     box-border
                 `}
             >
+              
                 {/* HEADER */}
                 <div className="flex items-center justify-between px-4 py-3 border-b">
                     <div className="flex items-center gap-2">
@@ -57,14 +60,27 @@ const NotificationDropdown = ({
                         </span>
                     </div>
 
-                    {mobile && (
-                        <button
-                            onClick={onClose}
-                            className="text-sm text-gray-500"
-                        >
-                            Chiudi
-                        </button>
-                    )}
+                    <div className="flex items-center gap-3">
+                        {/* SOLO STAFF */}
+                        {onSend && (
+                            <button
+                                onClick={onSend}
+                                className="text-gray-500 hover:text-gray-700 transition"
+                                title="Invia notifica"
+                            >
+                                <MdNotificationAdd className="w-5 h-5" />
+                            </button>
+                        )}
+
+                        {mobile && (
+                            <button
+                                onClick={onClose}
+                                className="text-sm text-gray-500"
+                            >
+                                Chiudi
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 {/* LISTA */}
@@ -92,8 +108,7 @@ const NotificationDropdown = ({
                                     <p className="text-sm font-medium">
                                         {n.tipologia ?? "Notifica"}
                                     </p>
-                                   <p className="text-sm text-gray-600 [overflow-wrap:anywhere]">
-
+                                    <p className="text-sm text-gray-600 [overflow-wrap:anywhere]">
                                         {n.messaggio}
                                     </p>
                                     <p className="text-xs text-gray-400 mt-1">
