@@ -12,10 +12,12 @@ const ModalContentAggiuntaFirma = ({ onClose, onSubmit }) => {
     const [pazienteSelezionato, setPazienteSelezionato] = useState(null);
 
     const [terapistiOptions, setTerapistiOptions] = useState([]);
-    const [terapistaSelezionato, setTerapistaSelezionato] = useState(null);
+    // const [terapistaSelezionato, setTerapistaSelezionato] = useState(null);
+    const [terapistiSelezionati, setTerapistiSelezionati] = useState([]);
+    const [terapieSelezionate, setTerapieSelezionate] = useState([]);
 
     const [terapiaOptions, setTerapiaOptions] = useState([]);
-    const [terapiaSelezionata, setTerapiaSelezionata] = useState(null);
+    // const [terapiaSelezionata, setTerapiaSelezionata] = useState(null);
 
     const [formData, setFormData] = useState({
         nome: "",
@@ -69,14 +71,16 @@ const ModalContentAggiuntaFirma = ({ onClose, onSubmit }) => {
     };
 
     const handleSubmit = async () => {
-        if (!terapistaSelezionato) {
-            toast.error("Seleziona un terapista");
+        if (terapistiSelezionati.length === 0) {
+            toast.error("Seleziona almeno un terapista");
             return;
         }
-        if (!terapiaSelezionata) {
-            toast.error("Seleziona una terapia");
+
+        if (terapieSelezionate.length === 0) {
+            toast.error("Seleziona almeno una terapia");
             return;
         }
+
         if (!formData.data) {
             toast.error("Seleziona la data");
             return;
@@ -96,9 +100,17 @@ const ModalContentAggiuntaFirma = ({ onClose, onSubmit }) => {
 
         const payload = {
             data: formData.data,
-            terapia: terapiaSelezionata.value,
             note: formData.note,
-            terapista_id: terapistaSelezionato.value ?? terapistaSelezionato.id,
+
+            // MULTI
+            terapisti: terapistiSelezionati.map((t) => t.value ?? t.id),
+            terapie: terapieSelezionate.map((t) => t.value),
+
+            // fallback legacy (prima voce)
+            terapista_id:
+                terapistiSelezionati[0]?.value ?? terapistiSelezionati[0]?.id,
+            terapia: terapieSelezionate[0]?.value,
+
             ...(utenteNonRegistrato
                 ? { nome: formData.nome, cognome: formData.cognome }
                 : { paziente_id: pazienteSelezionato.id }),
@@ -195,10 +207,11 @@ const ModalContentAggiuntaFirma = ({ onClose, onSubmit }) => {
                         Terapista
                     </label>
                     <Select
+                        isMulti
                         options={terapistiOptions}
-                        value={terapistaSelezionato}
-                        onChange={setTerapistaSelezionato}
-                        placeholder="Seleziona terapista"
+                        value={terapistiSelezionati}
+                        onChange={setTerapistiSelezionati}
+                        placeholder="Seleziona uno o più terapisti"
                         className="text-[14px]"
                     />
                 </div>
@@ -208,10 +221,11 @@ const ModalContentAggiuntaFirma = ({ onClose, onSubmit }) => {
                         Terapia
                     </label>
                     <Select
+                        isMulti
                         options={terapiaOptions}
-                        value={terapiaSelezionata}
-                        onChange={setTerapiaSelezionata}
-                        placeholder="Seleziona terapia"
+                        value={terapieSelezionate}
+                        onChange={setTerapieSelezionate}
+                        placeholder="Seleziona una o più terapie"
                         className="text-[14px]"
                     />
                 </div>

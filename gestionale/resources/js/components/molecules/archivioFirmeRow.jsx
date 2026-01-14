@@ -9,8 +9,20 @@ const ArchivioFirmeRow = ({ dati, onDelete, canEdit = true }) => {
             </td>
             <td className="px-6 py-4">{dati.cognome}</td>
             <td className="px-6 py-4">{dati.data}</td>
-            <td className="px-6 py-4">{dati.terapia}</td>
-            <td className="px-6 py-4">{dati.terapista}</td>
+            {/* <td className="px-6 py-4">{dati.terapia}</td>
+            <td className="px-6 py-4">{dati.terapista}</td> */}
+            <td className="px-6 py-4">
+                {Array.isArray(dati.terapie)
+                    ? dati.terapie.join(", ")
+                    : dati.terapia}
+            </td>
+
+            <td className="px-6 py-4">
+                {Array.isArray(dati.terapisti)
+                    ? dati.terapisti.join(", ")
+                    : dati.terapista}
+            </td>
+
             <td className="px-6 py-4 text-gray-600 text-sm">
                 {dati.note || "-"}
             </td>
