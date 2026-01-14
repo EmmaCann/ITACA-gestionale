@@ -56,6 +56,8 @@ Route::middleware([AuthSession::class])->group(function () {
     Route::get('/pagamenti/dettagli-stats', [PagamentoController::class, 'dettagliStats']);
     Route::put('/pagamenti/{id}', [PagamentoController::class, 'update']);
     Route::delete('/pagamenti/{id}', [PagamentoController::class, 'destroy']);
+    Route::get('/incassi/export-mensili', [PagamentoController::class, 'exportIncassiMensiliTerapista']);
+
 
 
 
