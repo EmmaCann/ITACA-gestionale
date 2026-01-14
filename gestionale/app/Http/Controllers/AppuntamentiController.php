@@ -13,24 +13,29 @@ class AppuntamentiController extends Controller
 {
     private function colorForTherapist(int $id = 0): string
     {
-        // 12 colori molto diversi tra loro
         $palette = [
-            '#2563EB', // blue
-            '#DC2626', // red
-            '#7C3AED', // purple
-            '#F59E0B', // amber
-            '#059669', // emerald
-            '#D946EF', // fuchsia
-            '#0EA5E9', // sky
-            '#EA580C', // orange
-            '#10B981', // green
-            '#9333EA', // violet
-            '#14B8A6', // teal
-            '#EF4444', // rose-red
+            '#2563EB',
+            '#DC2626',
+            '#7C3AED',
+            '#059669',
+            '#F59E0B',
+            '#D946EF',
+            '#0EA5E9',
+            '#EA580C',
+            '#10B981',
+            '#9333EA',
+            '#14B8A6',
+            '#EF4444',
         ];
-        if ($id <= 0) return '#64748B'; // fallback slate
-        return $palette[($id - 1) % count($palette)];
+
+        if ($id <= 0) return '#64748B';
+
+        // hash stabile → distribuzione migliore
+        $hash = crc32((string) $id);
+
+        return $palette[$hash % count($palette)];
     }
+
 
     private function idealTextColor(string $hexBg): string
     {
@@ -81,13 +86,13 @@ class AppuntamentiController extends Controller
         // 1) filtro ruolo
         if ($ruolo === 'admin' || $ruolo === 'staff') {
             // vede tutto
-        // } elseif ($ruolo === 'staff') {
-        //     $q->where(function ($qq) use ($userId) {
-        //         $qq->where('terapista_id', $userId)
-        //             ->orWhereHas('terapisti', function ($t) use ($userId) {
-        //                 $t->where('utente.id', $userId);
-        //             });
-        //     });
+            // } elseif ($ruolo === 'staff') {
+            //     $q->where(function ($qq) use ($userId) {
+            //         $qq->where('terapista_id', $userId)
+            //             ->orWhereHas('terapisti', function ($t) use ($userId) {
+            //                 $t->where('utente.id', $userId);
+            //             });
+            //     });
         } elseif ($ruolo === 'paziente') {
             $q->where(function ($qq) use ($userId) {
                 $qq->where('paziente_id', $userId)
@@ -166,7 +171,7 @@ class AppuntamentiController extends Controller
                     $title = "Dr. {$terapistaName}";
                 } elseif ($ruolo === 'staff') {
                     // staff: non serve "Dr.", solo paziente
-                   $title = "{$pazienteName} — Dr. {$terapistaName}";
+                    $title = "{$pazienteName} — Dr. {$terapistaName}";
                 } else {
                     // admin (e fallback): come ora
                     $title = "{$pazienteName} — Dr. {$terapistaName}";
@@ -585,7 +590,7 @@ class AppuntamentiController extends Controller
             DB::transaction(function () use ($id) {
                 $a = Appuntamento::with(['pazienti', 'terapisti'])->findOrFail($id);
 
-              
+
                 if (method_exists($a, 'pazienti')) {
                     $a->pazienti()->detach();
                 }
@@ -593,7 +598,7 @@ class AppuntamentiController extends Controller
                     $a->terapisti()->detach();
                 }
 
-             
+
                 $a->delete();
             });
 
