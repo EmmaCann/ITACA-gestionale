@@ -243,6 +243,8 @@ class UtenteController extends Controller
             'sesso' => 'nullable|in:M,F',
             'terapisti'   => 'nullable|array',
             'terapisti.*' => 'integer|exists:utente,id',
+            'is_blocked' => 'nullable|boolean',
+
 
         ]);
 
@@ -271,6 +273,7 @@ class UtenteController extends Controller
             'nascita' => $validated['dataNascita'] ?? null,
             'ruolo' => $validated['tipoUtente'],
             'sesso' => $validated['sesso'] ?? null,
+            'is_blocked' => $validated['is_blocked'] ?? false,
         ]);
 
 
@@ -401,6 +404,7 @@ class UtenteController extends Controller
                 'professioni.*' => 'string|max:255',
                 'terapisti'   => 'nullable|array',
                 'terapisti.*' => 'integer|exists:utente,id',
+                'is_blocked' => 'nullable|boolean',
 
                 'diagnosi' => 'nullable|string',
                 'terapista_id' => 'nullable|integer|exists:utente,id',
@@ -417,9 +421,14 @@ class UtenteController extends Controller
                 'email' => $validated['email'] ?? $utente->email,
             ]);
 
+            if (array_key_exists('is_blocked', $validated)) {
+                $utente->is_blocked = (bool) $validated['is_blocked'];
+            }
+
+
             // Se password presente → aggiorna
             if (!empty($validated['password'])) {
-                $utente->password = $validated['password']; 
+                $utente->password = $validated['password'];
                 $utente->password_changed_at = now();
             }
 
@@ -494,7 +503,7 @@ class UtenteController extends Controller
         }
 
         $utenti = Utente::select('id', 'nome', 'cognome')
-            ->whereIn('ruolo', ['staff', 'paziente','admin'])
+            ->whereIn('ruolo', ['staff', 'paziente', 'admin'])
             ->orderBy('cognome')
             ->get();
 

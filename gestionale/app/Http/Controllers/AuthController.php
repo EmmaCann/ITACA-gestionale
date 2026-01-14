@@ -39,6 +39,13 @@ class AuthController extends Controller
             return response()->json(['errore' => 'Utente inesistente'], 401);
         }
 
+        if ($user->is_blocked) {
+            return response()->json([
+                'errore' => 'Account bloccato. Contatta l’amministrazione.'
+            ], 403);
+        }
+
+
         if (!Hash::check($request->password, $user->password)) {
             return response()->json(['errore' => 'Password errata'], 401);
         }
