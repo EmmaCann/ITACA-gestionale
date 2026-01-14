@@ -13,9 +13,10 @@ use App\Http\Controllers\ListaAttesaController;
 use App\Http\Controllers\TariffaController;
 use App\Http\Controllers\FirmaController;
 use App\Http\Controllers\SystemMaintenanceController;
-use App\Http\Controllers\PagamentiPazientiController;
+
 use App\Http\Controllers\NotificaController;
 use App\Http\Controllers\CartellaClinicaController;
+use App\Http\Controllers\PagamentiPazientiController;
 
 Route::get('/', function () {
     return redirect()->route('login_form');
