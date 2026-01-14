@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Spatie\SimpleExcel\SimpleExcelWriter;
+
+
 
 class PagamentoController extends Controller
 {
@@ -305,5 +308,45 @@ class PagamentoController extends Controller
         return response()->json([
             'message' => 'Pagamento eliminato con successo',
         ]);
+    }
+
+
+    public function exportIncassiMensiliTerapista(Request $request)
+    {
+        $logged = session('logged_user');
+
+        if (!$logged || $logged['ruolo'] !== 'staff') {
+            abort(403, 'Non autorizzato');
+        }
+
+        $terapistaId = $logged['id_utente'];
+
+        $rows = Pagamento::where('terapista_id', $terapistaId)
+            ->selectRaw('
+            YEAR(data) as anno,
+            MONTH(data) as mese,
+            SUM(importo) as totale
+        ')
+            ->groupByRaw('YEAR(data), MONTH(data)')
+            ->orderByRaw('YEAR(data) DESC, MONTH(data)')
+            ->get()
+            ->map(function ($r) {
+                return [
+                    'Anno'   => $r->anno,
+                    'Mese'   => Carbon::create()->month($r->mese)->translatedFormat('F'),
+                    'Totale' => number_format($r->totale, 2, ',', '.') . ' €',
+                ];
+            })
+            ->toArray();
+
+        $path = storage_path('app/incassi_mensili.xlsx');
+
+        SimpleExcelWriter::create($path)
+            ->addRows($rows)
+            ->close();
+
+        return response()
+            ->download($path, 'incassi_mensili.xlsx')
+            ->deleteFileAfterSend(true);
     }
 }

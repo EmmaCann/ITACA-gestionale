@@ -5,6 +5,7 @@ import { BoxIncassiContainer } from "../components/molecules/boxIncassiContainer
 import { AggiungiPagamentoButton } from "../components/molecules/atoms/aggiungiPagementoButton";
 import { BarChartWidget } from "../components/BarChartWidget";
 import { getIncassiAnnui } from "../data/api/pagamenti";
+import { FaFileExcel } from "react-icons/fa";
 
 const Incassi = () => {
     const { props } = usePage();
@@ -98,6 +99,28 @@ const Incassi = () => {
                                 height={300}
                             />
                         </div>
+
+                        {ruolo === "staff" && (
+                            <div className="mt-6 flex justify-center">
+                                <button
+                                    onClick={() => {
+                                        window.location.href =
+                                            "/incassi/export-mensili";
+                                    }}
+                                    className="
+                flex items-center gap-2
+                bg-gray-200 hover:bg-gray-300
+                text-gray-700
+                text-sm
+                px-4 py-2
+                rounded-md
+            "
+                                >
+                                    <FaFileExcel className="text-green-600" />
+                                    Esporta incassi 
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

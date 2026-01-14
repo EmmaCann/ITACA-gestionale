@@ -8,6 +8,7 @@ import {
     FaRegThumbsUp,
     FaLock,
 } from "react-icons/fa";
+
 import { MdOutlineEmail } from "react-icons/md";
 import { toast } from "react-toastify";
 import { baseCall } from "../../data/api/baseCall";
@@ -36,6 +37,7 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
         email: "",
         diagnosi: "",
         password: "",
+        is_blocked: false,
     });
 
     /* ================= INIT ================= */
@@ -52,6 +54,7 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
             email: utente.email || "",
             diagnosi: utente.cartella_clinica?.diagnosi || "",
             password: "",
+            is_blocked: Boolean(utente.is_blocked),
         });
 
         if (tipoUtente === "paziente") {
@@ -321,6 +324,31 @@ const ModalContentModificaUtente = ({ utente, onSubmit, onClose }) => {
                             />
                         </IconInputWrapperModal>
                     </div>
+                </div>
+                {/* 🔒 Blocco account */}
+                <div className="flex items-center gap-3 mt-3 ml-1">
+                    <input
+                        type="checkbox"
+                        id="is_blocked"
+                        checked={formData.is_blocked}
+                        onChange={(e) =>
+                            setFormData((prev) => ({
+                                ...prev,
+                                is_blocked: e.target.checked,
+                            }))
+                        }
+                        className="w-4 h-4 accent-red-600 cursor-pointer"
+                    />
+
+                    <label
+                        htmlFor="is_blocked"
+                        className="flex items-center gap-2 text-sm cursor-pointer"
+                    >
+                        <FaLock className="text-red-600" />
+                        <span className="text-red-700 font-medium">
+                            Blocca accesso all’account
+                        </span>
+                    </label>
                 </div>
 
                 {/* STAFF → professioni */}

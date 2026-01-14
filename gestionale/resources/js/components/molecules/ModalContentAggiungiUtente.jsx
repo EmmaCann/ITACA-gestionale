@@ -5,6 +5,7 @@ import {
     FaCalendarAlt,
     FaPhoneAlt,
     FaRegThumbsUp,
+    FaLock,
 } from "react-icons/fa";
 import { MdOutlineEmail } from "react-icons/md";
 import { toast } from "react-toastify";
@@ -19,7 +20,11 @@ const ModalContentAggiungiUtente = ({
     onClose,
 }) => {
     const [tipoUtente, setTipoUtente] = useState(tipoIniziale);
-    const [formData, setFormData] = useState({});
+    // const [formData, setFormData] = useState({});
+    const [formData, setFormData] = useState({
+        is_blocked: false,
+    });
+
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [terapistiOptions, setTerapistiOptions] = useState([]);
@@ -32,7 +37,7 @@ const ModalContentAggiungiUtente = ({
     /* ------------------ INIT ------------------ */
     useEffect(() => {
         setTipoUtente(tipoIniziale);
-        setFormData({});
+        setFormData({ is_blocked: false });
         setTerapistiSelezionati([]);
         setProfessioniSelezionate([]);
     }, [tipoIniziale]);
@@ -221,7 +226,6 @@ const ModalContentAggiungiUtente = ({
                     </div>
                 </div>
 
-              
                 {/* Telefoni */}
                 <div className="flex flex-col gap-3">
                     <IconInputWrapperModal icon={FaPhoneAlt}>
@@ -260,6 +264,30 @@ const ModalContentAggiungiUtente = ({
                         onChange={handleChange}
                     />
                 </IconInputWrapperModal>
+                {/* 🔒 Blocco account */}
+                <div className="flex items-center gap-3 mt-2">
+                    <input
+                        type="checkbox"
+                        id="is_blocked"
+                        checked={formData.is_blocked}
+                        onChange={(e) =>
+                            setFormData((prev) => ({
+                                ...prev,
+                                is_blocked: e.target.checked,
+                            }))
+                        }
+                        className="w-4 h-4 accent-red-600 cursor-pointer"
+                    />
+
+                    <label
+                        htmlFor="is_blocked"
+                        className="flex items-center gap-2 text-sm cursor-pointer"
+                    >
+                        <span className="text-red-700 font-medium">
+                            Blocca accesso all’account
+                        </span>
+                    </label>
+                </div>
 
                 {/* STAFF → professioni multiple */}
                 {tipoUtente === "staff" && (
