@@ -18,25 +18,6 @@ const formatLocalYMD = (d) => {
     return `${y}-${m}-${day}`;
 };
 
-const therapistColor = (id = 0) => {
-    const palette = [
-        "#2563EB",
-        "#DC2626",
-        "#7C3AED",
-        "#F59E0B",
-        "#059669",
-        "#D946EF",
-        "#0EA5E9",
-        "#EA580C",
-        "#10B981",
-        "#9333EA",
-        "#14B8A6",
-        "#EF4444",
-    ];
-    if (!id) return "#64748B";
-    return palette[(id - 1) % palette.length];
-};
-
 const Dot = ({ color }) => (
     <span
         style={{
@@ -65,7 +46,8 @@ export function CalendarBoard() {
     const isResizingRef = useRef(false);
 
     const ruolo = props?.ruolo;
-    const showTherapistFilter = ruolo === "admin" || ruolo === "paziente" || ruolo === "staff";
+    const showTherapistFilter =
+        ruolo === "admin" || ruolo === "paziente" || ruolo === "staff";
 
     // refresh da altri componenti
     useEffect(() => {
@@ -87,24 +69,33 @@ export function CalendarBoard() {
         return () => window.removeEventListener("calendar:goto", goto);
     }, []);
 
+    // const normalizeTerapisti = (arr) =>
+    //     (arr || []).map((p) => {
+    //         const id = p.id ?? p.value; // supporta {id,...} o {value,...}
+    //         const fullName =
+    //             p.nome || p.cognome
+    //                 ? `${p.nome ?? ""} ${p.cognome ?? ""}`.trim()
+    //                 : p.label
+    //                 ? p.label.replace(/^Dr\.?\s*/i, "").trim()
+    //                 : `ID ${id}`;
+    //         return {
+    //             ...p,
+    //             id,
+    //             value: id,
+    //             fullName, // per ricerca/format
+    //             label: p.label ?? `Dr. ${fullName}`, // fallback consistente
+    //             color: p.color, // colore coerente con backend
+    //         };
+    //     });
+
     const normalizeTerapisti = (arr) =>
-        (arr || []).map((p) => {
-            const id = p.id ?? p.value; // supporta {id,...} o {value,...}
-            const fullName =
-                p.nome || p.cognome
-                    ? `${p.nome ?? ""} ${p.cognome ?? ""}`.trim()
-                    : p.label
-                    ? p.label.replace(/^Dr\.?\s*/i, "").trim()
-                    : `ID ${id}`;
-            return {
-                ...p,
-                id,
-                value: id,
-                fullName, // per ricerca/format
-                label: p.label ?? `Dr. ${fullName}`, // fallback consistente
-                color: therapistColor(Number(id) || 0), // colore coerente con backend
-            };
-        });
+        (arr || []).map((p) => ({
+            ...p,
+            value: p.value, // unico identificatore
+            label: p.label,
+            fullName: p.label.replace(/^Dr\.?\s*/i, ""),
+            color: p.color,
+        }));
 
     useEffect(() => {
         (async () => {
@@ -210,25 +201,12 @@ export function CalendarBoard() {
                     value={
                         selectedTherapist !== null
                             ? therapists.find(
-                                  (o) => o.id === selectedTherapist
-                              ) || {
-                                  id: null,
-                                  value: null,
-                                  label: "Tutti i terapisti",
-                                  fullName: "Tutti i terapisti",
-                                  color: "#999",
-                              }
-                            : {
-                                  id: null,
-                                  value: null,
-                                  label: "Tutti i terapisti",
-                                  fullName: "Tutti i terapisti",
-                                  color: "#999",
-                              }
+                                  (o) => o.value === selectedTherapist
+                              )
+                            : null
                     }
                     onChange={(opt) => {
-                        const val = opt?.id ?? opt?.value ?? null;
-                        setSelectedTherapist(val);
+                        setSelectedTherapist(opt?.value ?? null);
                         calRef.current?.getApi()?.refetchEvents();
                     }}
                     placeholder="Seleziona terapista"
@@ -238,7 +216,7 @@ export function CalendarBoard() {
                     getOptionLabel={(p) =>
                         p.label || `${p.nome} ${p.cognome}`.trim()
                     }
-                    getOptionValue={(p) => p.id || p.value}
+                    getOptionValue={(p) => String(p.value)}
                     // pallino + testo
                     formatOptionLabel={(opt) => (
                         <div
@@ -254,11 +232,7 @@ export function CalendarBoard() {
                                     height: 10,
                                     borderRadius: "50%",
                                     marginRight: 8,
-                                    backgroundColor:
-                                        opt.color ||
-                                        therapistColor(
-                                            Number(opt.id || opt.value) || 0
-                                        ),
+                                    backgroundColor: opt.color,
                                 }}
                             />
                             <span>{opt.label || `Dr. ${opt.fullName}`}</span>
@@ -429,6 +403,24 @@ export function CalendarBoard() {
                         },
                     },
                 ]}
+                eventDidMount={(info) => {
+                    const bg =
+                        info.event.backgroundColor ||
+                        info.event.extendedProps?.backgroundColor;
+                    const border = info.event.borderColor || bg;
+                    const text =
+                        info.event.textColor ||
+                        info.event.extendedProps?.textColor;
+
+                    if (bg) info.el.style.backgroundColor = bg;
+                    if (border) info.el.style.borderColor = border;
+                    if (text) info.el.style.color = text;
+
+                    // FullCalendar a volte usa un inner node per il background
+                    const main = info.el.querySelector(".fc-event-main");
+                    if (main && bg) main.style.backgroundColor = bg;
+                    if (main && text) main.style.color = text;
+                }}
             />
 
             {selectedId && (
