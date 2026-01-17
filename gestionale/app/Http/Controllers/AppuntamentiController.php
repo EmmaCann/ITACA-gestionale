@@ -8,34 +8,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Support\TherapistColor;
 
 class AppuntamentiController extends Controller
 {
-    private function colorForTherapist(int $id = 0): string
-    {
-        $palette = [
-            '#2563EB',
-            '#DC2626',
-            '#7C3AED',
-            '#059669',
-            '#F59E0B',
-            '#D946EF',
-            '#0EA5E9',
-            '#EA580C',
-            '#10B981',
-            '#9333EA',
-            '#14B8A6',
-            '#EF4444',
-        ];
-
-        if ($id <= 0) return '#64748B';
-
-        // hash stabile → distribuzione migliore
-        $hash = crc32((string) $id);
-
-        return $palette[$hash % count($palette)];
-    }
-
+   
 
     private function idealTextColor(string $hexBg): string
     {
@@ -120,10 +97,10 @@ class AppuntamentiController extends Controller
 
         $items = $q->get();
 
-        Log::info("CALENDAR RESULTS", [
-            'count' => $items->count(),
-            'ids'   => $items->pluck('id'),
-        ]);
+        // Log::info("CALENDAR RESULTS", [
+        //     'count' => $items->count(),
+        //     'ids'   => $items->pluck('id'),
+        // ]);
 
         $events = $items->map(function ($a) use ($ruolo) {
             $date = $a->data instanceof Carbon ? $a->data->toDateString() : $a->data;
@@ -179,7 +156,7 @@ class AppuntamentiController extends Controller
             }
 
             // colore: basato su terapista_id (nei gruppi = referente)
-            $bg = $this->colorForTherapist((int)$a->terapista_id);
+           $bg = TherapistColor::color((int)$a->terapista_id);
             $fg = $this->idealTextColor($bg);
 
             return [

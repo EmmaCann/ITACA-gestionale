@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-
+use App\Support\TherapistColor;
 use Symfony\Component\HttpFoundation\Response;
 
 use Illuminate\Support\Facades\Hash;
@@ -328,6 +328,7 @@ class UtenteController extends Controller
                 return [
                     'value' => $utente->id,
                     'label' => 'Dr. ' . $utente->nome . ' ' . $utente->cognome,
+                    'color' => TherapistColor::color($utente->id)
                 ];
             })
             ->values();
