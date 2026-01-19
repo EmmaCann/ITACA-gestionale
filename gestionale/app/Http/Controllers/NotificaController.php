@@ -22,6 +22,7 @@ class NotificaController extends Controller
 
         $notifiche = DB::table('notifica_utente')
             ->join('notifiche', 'notifiche.id', '=', 'notifica_utente.notifica_id')
+            ->leftJoin('utente as mittente', 'mittente.id', '=', 'notifiche.admin_id')
             ->where('notifica_utente.utente_id', $utenteId)
             ->orderBy('notifiche.created_at', 'desc')
             ->select(
@@ -30,7 +31,11 @@ class NotificaController extends Controller
                 'notifiche.tipologia',
                 'notifiche.urgenza',
                 'notifica_utente.letta',
-                'notifiche.created_at'
+                'notifiche.created_at',
+
+                // MITTENTE
+                'mittente.nome as mittente_nome',
+                'mittente.cognome as mittente_cognome'
             )
             ->get();
 

@@ -25,7 +25,7 @@ class Utente extends Authenticatable
         'ruolo',
         'sesso',
 
-        // 🔒 BLOCCO ACCOUNT
+        //  BLOCCO ACCOUNT
         'is_blocked',
 
 
