@@ -201,7 +201,7 @@ export function CalendarBoard() {
                     value={
                         selectedTherapist !== null
                             ? therapists.find(
-                                  (o) => o.value === selectedTherapist
+                                  (o) => o.value === selectedTherapist,
                               )
                             : null
                     }
@@ -266,7 +266,7 @@ export function CalendarBoard() {
                         menu: (b) => ({ ...b, zIndex: 9999, fontSize: 13 }),
                     }}
                 />
-            </div>
+            </div>,
         );
     }, [therapists, selectedTherapist]);
 
@@ -328,7 +328,7 @@ export function CalendarBoard() {
                         window.dispatchEvent(
                             new CustomEvent("calendar:datesSet", {
                                 detail: { date: dateStr },
-                            })
+                            }),
                         );
                     }
                 }}
@@ -377,22 +377,27 @@ export function CalendarBoard() {
                         url: "/appuntamenti-get",
                         method: "GET",
                         credentials: "include",
-                        extraParams: () => {
-                            // console.log("📡 EXTRA PARAMS:", {
-                            //     ruolo: props?.ruolo,
-                            //     selectedTherapist,
-                            // });
-                            return {
-                                terapista_id:
-                                    props?.ruolo === "staff"
-                                        ? null
-                                        : selectedTherapist ?? null,
-                            };
-                        },
+                        // extraParams: () => {
+                        // console.log("📡 EXTRA PARAMS:", {
+                        //     ruolo: props?.ruolo,
+                        //     selectedTherapist,
+                        // });
+                        // return {
+                        //     terapista_id:
+                        //         props?.ruolo === "staff"
+                        //             ? null
+                        //             : selectedTherapist ?? null,
+                        // };
+
+                        // },
+                        extraParams: () => ({
+                            terapista_id: selectedTherapist ?? null,
+                        }),
+
                         failure: (error) => {
                             console.error(
                                 "❌ ERRORE FULLCALENDAR FETCH:",
-                                error
+                                error,
                             );
                         },
                         success: (events) => {

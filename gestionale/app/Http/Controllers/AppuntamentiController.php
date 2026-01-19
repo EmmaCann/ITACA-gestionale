@@ -12,7 +12,7 @@ use App\Support\TherapistColor;
 
 class AppuntamentiController extends Controller
 {
-   
+
 
     private function idealTextColor(string $hexBg): string
     {
@@ -81,9 +81,8 @@ class AppuntamentiController extends Controller
 
         // 2) filtro terapista (admin + paziente), include gruppi via pivot
         if (
-            ($ruolo === 'admin' || $ruolo === 'paziente') &&
+            in_array($ruolo, ['admin', 'paziente', 'staff']) &&
             $terapistaId !== null &&
-            $terapistaId !== '' &&
             is_numeric($terapistaId)
         ) {
             $tid = (int)$terapistaId;
@@ -156,7 +155,7 @@ class AppuntamentiController extends Controller
             }
 
             // colore: basato su terapista_id (nei gruppi = referente)
-           $bg = TherapistColor::color((int)$a->terapista_id);
+            $bg = TherapistColor::color((int)$a->terapista_id);
             $fg = $this->idealTextColor($bg);
 
             return [
@@ -205,7 +204,7 @@ class AppuntamentiController extends Controller
 
             $durata = !empty($validated['durata_minuti']) ? (int)$validated['durata_minuti'] : 30;
 
-            // ✅ terapista referente (NOT NULL in DB)
+
             $referenteId = (int)$validated['terapisti_ids'][0];
 
             $appuntamento = Appuntamento::create([
