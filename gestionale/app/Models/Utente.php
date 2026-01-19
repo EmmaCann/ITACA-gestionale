@@ -24,7 +24,7 @@ class Utente extends Authenticatable
         'nascita',
         'ruolo',
         'sesso',
-
+        'color_hex',
         //  BLOCCO ACCOUNT
         'is_blocked',
 

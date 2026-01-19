@@ -15,9 +15,6 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-use App\Support\TherapistColor;
-use Symfony\Component\HttpFoundation\Response;
-
 use Illuminate\Support\Facades\Hash;
 
 class UtenteController extends Controller
@@ -259,7 +256,32 @@ class UtenteController extends Controller
             $counter++;
         }
 
-        Log::info('Sesso ricevuto dal frontend:', ['raw' => $request->input('sesso')]);
+        // Log::info('Sesso ricevuto dal frontend:', ['raw' => $request->input('sesso')]);
+
+        $palette = [
+            '#2563EB',
+            '#DC2626',
+            '#F59E0B',
+            '#059669',
+            '#7C3AED',
+            '#0EA5E9',
+            '#16A34A',
+            '#EA580C',
+            '#9333EA',
+            '#14B8A6',
+            '#B91C1C',
+            '#CA8A04',
+        ];
+
+        $usedColors = Utente::where('ruolo', 'staff')
+            ->whereNotNull('color_hex')
+            ->pluck('color_hex')
+            ->toArray();
+
+        $color = collect($palette)
+            ->diff($usedColors)
+            ->first() ?? '#999999';
+
 
         // Creazione utente
         $utente = Utente::create([
@@ -274,6 +296,7 @@ class UtenteController extends Controller
             'ruolo' => $validated['tipoUtente'],
             'sesso' => $validated['sesso'] ?? null,
             'is_blocked' => $validated['is_blocked'] ?? false,
+            'color_hex' => $validated['tipoUtente'] === 'staff' ? $color : null,
         ]);
 
 
@@ -322,13 +345,13 @@ class UtenteController extends Controller
     public function terapisti()
     {
         $terapisti = Utente::where('ruolo', 'staff')
-            ->select('id', 'nome', 'cognome')
+            ->select('id', 'nome', 'cognome','color_hex')
             ->get()
             ->map(function ($utente) {
                 return [
                     'value' => $utente->id,
                     'label' => 'Dr. ' . $utente->nome . ' ' . $utente->cognome,
-                    'color' => TherapistColor::color($utente->id)
+                    'color' => $utente->color_hex ?? '#999999',
                 ];
             })
             ->values();

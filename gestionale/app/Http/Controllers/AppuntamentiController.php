@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Support\TherapistColor;
+
 
 class AppuntamentiController extends Controller
 {
@@ -24,7 +24,7 @@ class AppuntamentiController extends Controller
         $b = hexdec(substr($hex, 4, 2));
         // YIQ
         $yiq = (($r * 299) + ($g * 587) + ($b * 114)) / 1000;
-        return $yiq >= 140 ? '#111827' : '#FFFFFF'; // dark gray vs white
+        return $yiq >= 180 ? '#111827' : '#FFFFFF'; // dark gray vs white
     }
 
 
@@ -37,19 +37,19 @@ class AppuntamentiController extends Controller
         $end         = $request->query('end');
         $terapistaId = $request->query('terapista_id');
 
-        Log::info("CALENDAR INDEX", [
-            'ruolo'            => $ruolo,
-            'userId'           => $userId,
-            'start'            => $start,
-            'end'              => $end,
-            'terapista_filter' => $terapistaId,
-        ]);
+        // Log::info("CALENDAR INDEX", [
+        //     'ruolo'            => $ruolo,
+        //     'userId'           => $userId,
+        //     'start'            => $start,
+        //     'end'              => $end,
+        //     'terapista_filter' => $terapistaId,
+        // ]);
 
         $q = Appuntamento::query()->with([
             'paziente:id,nome,cognome',
-            'terapista:id,nome,cognome',
+            'terapista:id,nome,cognome,color_hex',
             'pazienti:id,nome,cognome',
-            'terapisti:id,nome,cognome',
+            'terapisti:id,nome,cognome,color_hex',
         ]);
 
         // Range FullCalendar
@@ -100,6 +100,14 @@ class AppuntamentiController extends Controller
         //     'count' => $items->count(),
         //     'ids'   => $items->pluck('id'),
         // ]);
+
+        // ✅ AGGIUNGI QUESTO LOG TEMPORANEO PER DEBUG
+        Log::info('Eventi caricati', [
+            'count' => $items->count(),
+            'terapista_filter' => $terapistaId,
+            'first_event_color' => $items->first()?->terapista?->color_hex
+        ]);
+
 
         $events = $items->map(function ($a) use ($ruolo) {
             $date = $a->data instanceof Carbon ? $a->data->toDateString() : $a->data;
@@ -154,8 +162,13 @@ class AppuntamentiController extends Controller
                 }
             }
 
+            if (!$a->relationLoaded('terapista') || !$a->terapista) {
+                $a->load('terapista:id,nome,cognome,color_hex');
+            }
+
             // colore: basato su terapista_id (nei gruppi = referente)
-            $bg = TherapistColor::color((int)$a->terapista_id);
+            $bg = $a->terapista->color_hex ?? '#999999';
+
             $fg = $this->idealTextColor($bg);
 
             return [
@@ -283,7 +296,7 @@ class AppuntamentiController extends Controller
 
     public function update(Request $request, $id)
     {
-        // ✅ solo admin
+        //  solo admin
         $ruolo = session('logged_user.ruolo');
         if ($ruolo !== 'admin') {
             return response()->json(['message' => 'Non autorizzato'], 403);
@@ -293,7 +306,7 @@ class AppuntamentiController extends Controller
         $a = Appuntamento::with(['pazienti', 'terapisti'])->findOrFail($id);
 
         // =====================================================
-        // ✅ CASO GRUPPO
+        //  CASO GRUPPO
         // =====================================================
         if ((bool)$a->is_group) {
             $validated = $request->validate([
