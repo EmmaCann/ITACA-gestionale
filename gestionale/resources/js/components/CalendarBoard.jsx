@@ -34,13 +34,19 @@ const Dot = ({ color }) => (
 
 export function CalendarBoard() {
     const calRef = useRef(null);
-    const selectRootRef = useRef(null); // <-- riuso della root del Select
+    const selectRootRef = useRef(null);
     const { props } = usePage();
     const canEdit = props.canEdit === true;
 
     const [selectedId, setSelectedId] = useState(null);
     const [therapists, setTherapists] = useState([]);
-    const [selectedTherapist, setSelectedTherapist] = useState(null);
+    const [selectedTherapist, setSelectedTherapist] = useState(0);
+
+    useEffect(() => {
+        if (calRef.current) {
+            calRef.current.getApi().refetchEvents();
+        }
+    }, [selectedTherapist]);
 
     const isDraggingRef = useRef(false);
     const isResizingRef = useRef(false);
@@ -69,40 +75,26 @@ export function CalendarBoard() {
         return () => window.removeEventListener("calendar:goto", goto);
     }, []);
 
-    // const normalizeTerapisti = (arr) =>
-    //     (arr || []).map((p) => {
-    //         const id = p.id ?? p.value; // supporta {id,...} o {value,...}
-    //         const fullName =
-    //             p.nome || p.cognome
-    //                 ? `${p.nome ?? ""} ${p.cognome ?? ""}`.trim()
-    //                 : p.label
-    //                 ? p.label.replace(/^Dr\.?\s*/i, "").trim()
-    //                 : `ID ${id}`;
-    //         return {
-    //             ...p,
-    //             id,
-    //             value: id,
-    //             fullName, // per ricerca/format
-    //             label: p.label ?? `Dr. ${fullName}`, // fallback consistente
-    //             color: p.color, // colore coerente con backend
-    //         };
-    //     });
-
     const normalizeTerapisti = (arr) =>
-        (arr || []).map((p) => ({
-            ...p,
-            value: p.value, // unico identificatore
-            label: p.label,
-            fullName: p.label.replace(/^Dr\.?\s*/i, ""),
-            color: p.color,
-        }));
+        (arr || []).map((p) => {
+            console.log("🎨 Terapista raw:", p); // ✅ DEBUG
+            return {
+                value: Number(p.value),
+                label: p.label,
+                fullName: p.label.replace(/^Dr\.?\s*/i, ""),
+                color: p.color || "#999999", // ✅ fallback esplicito
+            };
+        });
 
     useEffect(() => {
         (async () => {
             try {
                 const { data } = await axios.get("/terapisti");
+                console.log("📡 Risposta /terapisti:", data); // ✅ DEBUG
 
-                setTherapists(normalizeTerapisti(Object.values(data)));
+                const normalized = normalizeTerapisti(Object.values(data));
+                console.log("✅ Terapisti normalizzati:", normalized); // ✅ DEBUG
+                setTherapists(normalized);
             } catch (e) {
                 console.error(e);
                 alert("Errore nel recupero dei terapisti");
@@ -111,15 +103,13 @@ export function CalendarBoard() {
     }, []);
 
     useEffect(() => {
-        //   console.log("🟦 CalendarBoard montato, ruolo:", props?.ruolo);
         const api = calRef.current?.getApi();
         if (!api) return;
 
-        // è sempre un <button>, lo "neutralizziamo"
         const btn = document.querySelector(".fc-therapistFilter-button");
         if (!btn) return;
 
-        // reset totale del bottone FC (niente bg, niente opacity/grayscale)
+        // reset totale del bottone FC
         btn.classList.remove("fc-button", "fc-button-primary");
         btn.style.background = "transparent";
         btn.style.border = "none";
@@ -128,7 +118,7 @@ export function CalendarBoard() {
         btn.style.lineHeight = "normal";
         btn.style.opacity = "1";
         btn.style.filter = "none";
-        btn.style.color = "inherit"; // non forzare bianco
+        btn.style.color = "inherit";
 
         // crea la root UNA volta sola
         if (!selectRootRef.current) {
@@ -137,107 +127,86 @@ export function CalendarBoard() {
             if (showTherapistFilter) {
                 selectRootRef.current = ReactDOM.createRoot(btn);
             } else {
-                return; // staff → non mostrare selettore
+                return;
             }
         }
 
         const root = selectRootRef.current;
 
-        const components = {
-            Option: (props) => (
-                <div
-                    {...props.innerProps}
-                    ref={props.innerRef}
-                    style={{
-                        padding: 8,
-                        display: "flex",
-                        alignItems: "center",
-                    }}
-                >
-                    <span
-                        style={{
-                            display: "inline-block",
-                            width: 10,
-                            height: 10,
-                            borderRadius: "50%",
-                            marginRight: 8,
-                            backgroundColor: props.data.color,
-                        }}
-                    />
-                    <span>{props.data.label}</span>
-                </div>
-            ),
-            SingleValue: ({ data }) => (
-                <div style={{ display: "flex", alignItems: "center" }}>
-                    <span
-                        style={{
-                            display: "inline-block",
-                            width: 10,
-                            height: 10,
-                            borderRadius: "50%",
-                            marginRight: 8,
-                            backgroundColor: data?.color || "#999",
-                        }}
-                    />
-                    <span>{data?.label || "Tutti i terapisti"}</span>
-                </div>
-            ),
-        };
+        const allOptions = [
+            {
+                value: 0,
+                label: "Tutti i terapisti",
+                fullName: "Tutti i terapisti",
+                color: "#999",
+            },
+            ...therapists,
+        ];
+
+        console.log("🔄 Re-render Select con options:", allOptions); // ✅ DEBUG
 
         root.render(
             <div style={{ all: "unset", display: "inline-block" }}>
                 <Select
                     instanceId="therapist-select"
-                    options={[
-                        {
-                            id: null,
-                            value: null,
-                            label: "Tutti i terapisti",
-                            fullName: "Tutti i terapisti",
-                            color: "#999",
-                        },
-                        ...therapists,
-                    ]}
+                    options={allOptions}
                     value={
-                        selectedTherapist !== null
+                        selectedTherapist && selectedTherapist !== 0
                             ? therapists.find(
-                                  (o) => o.value === selectedTherapist
-                              )
+                                  (t) => t.value === selectedTherapist,
+                              ) || null
                             : null
                     }
                     onChange={(opt) => {
-                        setSelectedTherapist(opt?.value ?? null);
-                        calRef.current?.getApi()?.refetchEvents();
+                        console.log("✅ Selezionato:", opt); // ✅ DEBUG
+                        setSelectedTherapist(opt ? opt.value : 0);
                     }}
                     placeholder="Seleziona terapista"
                     isClearable
                     isSearchable
-                    // — come nel tuo snippet —
-                    getOptionLabel={(p) =>
-                        p.label || `${p.nome} ${p.cognome}`.trim()
-                    }
+                    getOptionLabel={(p) => p.label || p.fullName}
                     getOptionValue={(p) => String(p.value)}
-                    // pallino + testo
-                    formatOptionLabel={(opt) => (
-                        <div
-                            style={{
-                                display: "flex",
-                                alignItems: "center",
-                            }}
-                        >
-                            <span
+                    components={{
+                        Option: (optionProps) => {
+                            console.log(
+                                "🎨 Option color:",
+                                optionProps.data.color,
+                            ); // ✅ DEBUG
+                            return (
+                                <div
+                                    {...optionProps.innerProps}
+                                    ref={optionProps.innerRef}
+                                    style={{
+                                        padding: 8,
+                                        display: "flex",
+                                        alignItems: "center",
+                                        backgroundColor: optionProps.isFocused
+                                            ? "#f3f4f6"
+                                            : "#fff",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    <Dot
+                                        color={optionProps.data.color || "#999"}
+                                    />
+                                    <span>{optionProps.data.label}</span>
+                                </div>
+                            );
+                        },
+                        SingleValue: ({ data }) => (
+                            <div
                                 style={{
-                                    display: "inline-block",
-                                    width: 10,
-                                    height: 10,
-                                    borderRadius: "50%",
-                                    marginRight: 8,
-                                    backgroundColor: opt.color,
+                                    display: "flex",
+                                    alignItems: "center",
                                 }}
-                            />
-                            <span>{opt.label || `Dr. ${opt.fullName}`}</span>
-                        </div>
-                    )}
+                            >
+                                <Dot color={data?.color || "#999"} />
+                                <span>
+                                    {data?.label || "Tutti i terapisti"}
+                                </span>
+                            </div>
+                        ),
+                    }}
                     styles={{
                         container: (b) => ({
                             ...b,
@@ -257,16 +226,10 @@ export function CalendarBoard() {
                         singleValue: (b) => ({ ...b, color: "#111" }),
                         input: (b) => ({ ...b, color: "#111" }),
                         placeholder: (b) => ({ ...b, color: "#6b7280" }),
-                        option: (b, s) => ({
-                            ...b,
-                            fontSize: 13,
-                            color: "#111",
-                            backgroundColor: s.isFocused ? "#f3f4f6" : "#fff",
-                        }),
                         menu: (b) => ({ ...b, zIndex: 9999, fontSize: 13 }),
                     }}
                 />
-            </div>
+            </div>,
         );
     }, [therapists, selectedTherapist]);
 
@@ -328,7 +291,7 @@ export function CalendarBoard() {
                         window.dispatchEvent(
                             new CustomEvent("calendar:datesSet", {
                                 detail: { date: dateStr },
-                            })
+                            }),
                         );
                     }
                 }}
@@ -372,37 +335,50 @@ export function CalendarBoard() {
                     if (isDraggingRef.current || isResizingRef.current) return;
                     setSelectedId(info.event.id);
                 }}
-                eventSources={[
-                    {
-                        url: "/appuntamenti-get",
-                        method: "GET",
-                        credentials: "include",
-                        extraParams: () => {
-                            // console.log("📡 EXTRA PARAMS:", {
-                            //     ruolo: props?.ruolo,
-                            //     selectedTherapist,
-                            // });
-                            return {
-                                terapista_id:
-                                    props?.ruolo === "staff"
-                                        ? null
-                                        : selectedTherapist ?? null,
-                            };
-                        },
-                        failure: (error) => {
-                            console.error(
-                                "❌ ERRORE FULLCALENDAR FETCH:",
-                                error
-                            );
-                        },
-                        success: (events) => {
-                            // console.log(
-                            //     "✅ FULLCALENDAR HA RICEVUTO EVENTI:",
-                            //     events
-                            // );
-                        },
-                    },
-                ]}
+                // eventSources={[
+                //     {
+                //         url: "/appuntamenti-get",
+                //         method: "GET",
+                //         credentials: "include",
+                //         extraParams: () => {
+                //             return selectedTherapist
+                //                 ? { terapista_id: selectedTherapist }
+                //                 : {};
+                //         },
+
+                //         failure: (error) => {
+                //             console.error(
+                //                 "❌ ERRORE FULLCALENDAR FETCH:",
+                //                 error,
+                //             );
+                //         },
+                //         success: (events) => {
+                //             // console.log(
+                //             //     "✅ FULLCALENDAR HA RICEVUTO EVENTI:",
+                //             //     events
+                //             // );
+                //         },
+                //     },
+                // ]}
+                events={async (info, successCallback, failureCallback) => {
+                    try {
+                        const params = {};
+
+                        if (selectedTherapist) {
+                            params.terapista_id = selectedTherapist;
+                        }
+
+                        const res = await axios.get("/appuntamenti-get", {
+                            params,
+                            withCredentials: true,
+                        });
+
+                        successCallback(res.data);
+                    } catch (e) {
+                        console.error("Errore fetch eventi", e);
+                        failureCallback(e);
+                    }
+                }}
                 eventDidMount={(info) => {
                     const bg =
                         info.event.backgroundColor ||

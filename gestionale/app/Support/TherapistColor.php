@@ -11,7 +11,7 @@ class TherapistColor
             '#DC2626', // rosso
             '#F59E0B', // giallo/arancio
             '#059669', // verde
-            
+
 
             '#7C3AED', // viola
             '#0EA5E9', // azzurro
@@ -24,8 +24,6 @@ class TherapistColor
             '#CA8A04', // giallo senape
         ];
 
-
-        $hash = crc32((string) $id);
-        return $palette[$hash % count($palette)];
+        return $palette[$id % count($palette)];
     }
 }

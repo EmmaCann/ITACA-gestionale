@@ -36,11 +36,7 @@ const NotificationDropdown = ({
             <div
                 style={style}
                 className={`
-                    ${
-                        mobile
-                            ? "fixed inset-0"
-                            : " mt-2 w-[320px] "
-                    }
+                    ${mobile ? "fixed inset-0" : " mt-2 w-[320px] "}
                     z-[9999]
                     bg-white
                     rounded-xl
@@ -50,7 +46,6 @@ const NotificationDropdown = ({
                     box-border
                 `}
             >
-              
                 {/* HEADER */}
                 <div className="flex items-center justify-between px-4 py-3 border-b">
                     <div className="flex items-center gap-2">
@@ -108,6 +103,13 @@ const NotificationDropdown = ({
                                     <p className="text-sm font-medium">
                                         {n.tipologia ?? "Notifica"}
                                     </p>
+                                    {(n.mittente_nome ||
+                                        n.mittente_cognome) && (
+                                        <p className="text-xs text-gray-500">
+                                            da {n.mittente_nome}{" "}
+                                            {n.mittente_cognome}
+                                        </p>
+                                    )}
                                     <p className="text-sm text-gray-600 [overflow-wrap:anywhere]">
                                         {n.messaggio}
                                     </p>
