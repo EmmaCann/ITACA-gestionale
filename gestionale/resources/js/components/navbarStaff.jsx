@@ -41,7 +41,7 @@ export const NavbarStaff = ({ menuOpen, setMenuOpen }) => {
                         <Link
                             href="/home"
                             className={`${commonClass} mt-6 ${isActive(
-                                "/home"
+                                "/home",
                             )}`}
                         >
                             <IconTextNavbar
@@ -67,7 +67,7 @@ export const NavbarStaff = ({ menuOpen, setMenuOpen }) => {
                         <Link
                             href="/archivio-firme"
                             className={`${commonClass} ${isActive(
-                                "/archivio-firme"
+                                "/archivio-firme",
                             )}`}
                         >
                             <IconTextNavbar
@@ -192,7 +192,7 @@ export const NavbarStaff = ({ menuOpen, setMenuOpen }) => {
                         <Link
                             href="/incassi"
                             className={`w-full flex justify-center ${isActive(
-                                "/incassi"
+                                "/incassi",
                             )}`}
                             onClick={() => setMenuOpen(false)}
                         >
@@ -202,11 +202,24 @@ export const NavbarStaff = ({ menuOpen, setMenuOpen }) => {
                                 iconSize={18}
                             />
                         </Link>
+                        <Link
+                            href="/archivio-firme"
+                            className={`w-full flex justify-center ${isActive(
+                                "/archivio-firme",
+                            )}`}
+                            onClick={() => setMenuOpen(false)}
+                        >
+                            <IconTextNavbar
+                                icon={FaPencilAlt}
+                                text="ARCHIVIO FIRME"
+                                iconSize={16}
+                            />
+                        </Link>
 
                         <Link
                             href="/utenti"
                             className={`w-full flex justify-center ${isActive(
-                                "/utenti"
+                                "/utenti",
                             )}`}
                             onClick={() => setMenuOpen(false)}
                         >
@@ -219,7 +232,7 @@ export const NavbarStaff = ({ menuOpen, setMenuOpen }) => {
                         <Link
                             href="/staff"
                             className={`w-full flex justify-center ${isActive(
-                                "/staff"
+                                "/staff",
                             )}`}
                             onClick={() => setMenuOpen(false)}
                         >
@@ -237,7 +250,7 @@ export const NavbarStaff = ({ menuOpen, setMenuOpen }) => {
                     <Link
                         href="/chi-siamo"
                         className={`w-full flex justify-center ${isActive(
-                            "/chi-siamo"
+                            "/chi-siamo",
                         )}`}
                         onClick={() => setMenuOpen(false)}
                     >
